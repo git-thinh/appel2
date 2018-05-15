@@ -58,76 +58,19 @@ namespace appel
 
         public static void RUN()
         {
-            XDocument xdoc = XDocument.Load("CaptionTrack.xml");
-            List<oCaptionWord> listWord = new List<oCaptionWord>();
-            foreach (var p in xdoc.Descendants("p"))
-            {
-                var its = p.Descendants("s").Select(x => new oCaptionWord(x)).ToArray();
-                if (its.Length > 0)
-                {
-                    int tt = 0, dd = 0;
-                    string t = p.Attribute("t").Value, d = p.Attribute("d").Value;
-                    if (!string.IsNullOrEmpty(t)) int.TryParse(t, out tt);
-                    if (!string.IsNullOrEmpty(d)) int.TryParse(d, out dd);
-                    foreach (var it in its) it.TimeStart += tt;
-                    listWord.AddRange(its);
-                }
-            }
+            //var lw1 = api_youtube.f_analytic_wordFileXml("demo1.xml");
+            //var ls1 = api_youtube.f_render_Sentence(lw1);
 
-            List<oCaptionSentence> listSen = new List<oCaptionSentence>();
-            oCaptionWord ci = null;
-            oCaptionSentence si = new oCaptionSentence();
-            string wi = string.Empty, wii = string.Empty;
-            for (var i = 0; i < listWord.Count; i++)
-            {
-                ci = listWord[i];
-                wi = ci.Word.Trim().ToLower();
+            //var lw2 = api_youtube.f_analytic_wordFileXml("demo2.xml");
+            //var ls2 = api_youtube.f_render_Sentence(lw2);
 
-                if (i == 0)
-                {
-                    si = new oCaptionSentence();
-                    si.TimeStart = ci.TimeStart;
-                    si.ListIndex.Add(i);
-                    continue;
-                }
-
-                if (wi == "i" || wi == "we" || wi == "you" || wi == "they" || wi == "he" || wi == "she" || wi == "it"
-                    || wi == "i'm" || wi == "we're" || wi == "you're" || wi == "they're" || wi == "he's" || wi == "she's" || wi == "it's")
-                {
-                    bool sub = false;
-                    wii = listWord[i - 1].Word.ToLower();
-                    if (i > 0 &&
-                        (wii == "so" || wii == "and" || wii == "if" || wii == "when" || wii == "because"))
-                    {
-                        sub = true;
-                        si.ListIndex.RemoveAt(si.ListIndex.Count - 1);
-                    }
-
-                    var ws = listWord.Where((x, id) => si.ListIndex.Any(y => y == id)).Select(x => x.Word).ToArray();
-                    si.Words = string.Join(" ", ws);
-                    listSen.Add(si);
-
-                    si = new oCaptionSentence();
-                    si.TimeStart = ci.TimeStart;
-                    if (sub) si.ListIndex.Add(i - 1);
-                    si.ListIndex.Add(i);
-                }
-                else
-                {
-                    si.ListIndex.Add(i);
-                }
-            }
-
-            string text = string.Empty;
-            foreach (var se in listSen) text += se.TimeStart + ": " + se.Words + Environment.NewLine;
-
-            //string videoId = "9fEurt2OZ0I";
-            //var _client = new YoutubeClient();
-            //// Get data
-            //var Video = _client.GetVideoAsync(videoId);
-            //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
-            //var MediaStreamInfos = _client.GetVideoMediaStreamInfosAsync(videoId);
-            //var ClosedCaptionTrackInfos = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+            string videoId = "9fEurt2OZ0I";
+            var _client = new YoutubeClient();
+            // Get data
+            var Video = _client.GetVideoAsync(videoId);
+            var Channel = _client.GetVideoAuthorChannelAsync(videoId);
+            var MediaStreamInfos = _client.GetVideoMediaStreamInfosAsync(videoId);
+            var ClosedCaptionTrackInfos = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
 
             player = new fPlayer();
             player.Shown += (se, ev) =>

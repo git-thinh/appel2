@@ -1284,551 +1284,76 @@ namespace appel
             return msg;
         }
 
-
-        #region [ function common ]
-
-
-        private static MediaStreamInfoSet GetVideoMediaStreamInfosAsync(Dictionary<string, string> videoInfo)
+        public static List<oCaptionWord> f_analytic_wordFileXml(string file_xml)
         {
-            // Prepare stream info collections
-            var muxedStreamInfoMap = new Dictionary<int, MuxedStreamInfo>();
-            var audioStreamInfoMap = new Dictionary<int, AudioStreamInfo>();
-            var videoStreamInfoMap = new Dictionary<int, VideoStreamInfo>();
-
-            // Resolve muxed streams
-            var muxedStreamInfosEncoded = videoInfo.GetOrDefault("url_encoded_fmt_stream_map");
-            if (muxedStreamInfosEncoded.IsNotBlank())
+            XDocument xdoc = XDocument.Load(file_xml);
+            List<oCaptionWord> listWord = new List<oCaptionWord>();
+            foreach (var p in xdoc.Descendants("p"))
             {
-                foreach (var streamEncoded in muxedStreamInfosEncoded.Split(","))
+                var its = p.Descendants("s").Select(x => new oCaptionWord(x)).ToArray();
+                if (its.Length > 0)
                 {
-                    var streamInfoDic = SplitQuery(streamEncoded);
-
-                    // Extract values
-                    var itag = streamInfoDic["itag"].ParseInt();
-                    var url = streamInfoDic["url"];
-                    var sig = streamInfoDic.GetOrDefault("s");
-
-#if RELEASE
-                    if (!MediaStreamInfo.IsKnown(itag))
-                        continue;
-#endif
-
-                    //// Decipher signature if needed
-                    //if (sig.IsNotBlank())
-                    //{
-                    //    new Exception("Decipher signature if needed");
-                    //    //////var playerSource = GetVideoPlayerSourceAsync(playerContext.SourceUrl);
-                    //    //////sig = playerSource.Decipher(sig);
-                    //    //////url = SetQueryParameter(url, "signature", sig);
-                    //}
-
-                    // Probe stream and get content length
-                    long contentLength = 0;
-
-                    HttpWebRequest w = (HttpWebRequest)WebRequest.Create(url);
-                    w.Method = "HEAD";
-                    WebResponse rs = w.GetResponse();
-                    contentLength = rs.ContentLength;
-                    rs.Close();
-
-                    ////HttpWebRequest w = (HttpWebRequest)WebRequest.Create(new Uri(url));
-                    ////w.BeginGetResponse(asyncResult =>
-                    ////{
-                    ////    HttpWebResponse response = (HttpWebResponse)w.EndGetResponse(asyncResult);
-                    ////    //add a break point here 
-                    ////    // Some muxed streams can be gone
-                    ////    if (response.StatusCode == HttpStatusCode.OK)
-                    ////    {
-                    ////        // Extract content length
-                    ////        contentLength = response.ContentLength;
-                    ////        response.Close();
-                    ////    }
-                    ////}, w);
-
-                    //// Probe stream and get content length
-                    //long contentLength;
-                    //using (var response = await _httpClient.HeadAsync(url).ConfigureAwait(false))
-                    //{
-                    //    // Some muxed streams can be gone
-                    //    if (response.StatusCode == HttpStatusCode.NotFound ||
-                    //        response.StatusCode == HttpStatusCode.Gone)
-                    //        continue;
-
-                    //    // Ensure success
-                    //    response.EnsureSuccessStatusCode();
-
-                    //    // Extract content length
-                    //    contentLength = response.Content.Headers.ContentLength ??
-                    //                    throw new Exception("Could not extract content length of muxed stream.");
-                    //}
-
-                    var streamInfo = new MuxedStreamInfo(itag, url, contentLength);
-                    muxedStreamInfoMap[itag] = streamInfo;
+                    int tt = 0, dd = 0;
+                    string t = p.Attribute("t").Value, d = p.Attribute("d").Value;
+                    if (!string.IsNullOrEmpty(t)) int.TryParse(t, out tt);
+                    if (!string.IsNullOrEmpty(d)) int.TryParse(d, out dd);
+                    foreach (var it in its) it.TimeStart += tt;
+                    listWord.AddRange(its);
                 }
             }
 
-            // Resolve adaptive streams
-            var adaptiveStreamInfosEncoded = videoInfo.GetOrDefault("adaptive_fmts");
-            if (adaptiveStreamInfosEncoded.IsNotBlank())
+            return listWord;
+        }
+
+        public static List<oCaptionSentence> f_render_Sentence(List<oCaptionWord> listWord) {  
+            List<oCaptionSentence> listSen = new List<oCaptionSentence>();
+            oCaptionWord ci = null;
+            oCaptionSentence si = new oCaptionSentence();
+            string wi = string.Empty, wii = string.Empty;
+            for (var i = 0; i < listWord.Count; i++)
             {
-                foreach (var streamEncoded in adaptiveStreamInfosEncoded.Split(","))
+                ci = listWord[i];
+                wi = ci.Word.Trim().ToLower();
+
+                if (i == 0)
                 {
-                    var streamInfoDic = SplitQuery(streamEncoded);
-
-                    // Extract values
-                    var itag = streamInfoDic["itag"].ParseInt();
-                    var url = streamInfoDic["url"];
-                    var sig = streamInfoDic.GetOrDefault("s");
-                    var contentLength = streamInfoDic["clen"].ParseLong();
-                    var bitrate = streamInfoDic["bitrate"].ParseLong();
-
-#if RELEASE
-                    if (!MediaStreamInfo.IsKnown(itag))
-                        continue;
-#endif
-
-                    // Decipher signature if needed
-                    if (sig.IsNotBlank())
-                    {
-                        new Exception("Decipher signature if needed");
-                        //var playerSource = await GetVideoPlayerSourceAsync(playerContext.SourceUrl).ConfigureAwait(false);
-                        //sig = playerSource.Decipher(sig);
-                        //url = SetQueryParameter(url, "signature", sig);
-                    }
-
-                    // Check if audio
-                    var isAudio = streamInfoDic["type"].Contains("audio/");
-
-                    // If audio stream
-                    if (isAudio)
-                    {
-                        var streamInfo = new AudioStreamInfo(itag, url, contentLength, bitrate);
-                        audioStreamInfoMap[itag] = streamInfo;
-                    }
-                    // If video stream
-                    else
-                    {
-                        // Parse additional data
-                        var size = streamInfoDic["size"];
-                        var width = size.SubstringUntil("x").ParseInt();
-                        var height = size.SubstringAfter("x").ParseInt();
-                        var resolution = new VideoResolution(width, height);
-                        var framerate = streamInfoDic["fps"].ParseInt();
-                        var qualityLabel = streamInfoDic["quality_label"];
-
-                        var streamInfo = new VideoStreamInfo(itag, url, contentLength, bitrate, resolution, framerate,
-                            qualityLabel);
-                        videoStreamInfoMap[itag] = streamInfo;
-                    }
-                }
-            }
-
-            // Resolve dash streams
-            var dashManifestUrl = videoInfo.GetOrDefault("dashmpd");
-            if (dashManifestUrl.IsNotBlank())
-            {
-                // Parse signature
-                var sig = Regex.Match(dashManifestUrl, @"/s/(.*?)(?:/|$)").Groups[1].Value;
-
-                // Decipher signature if needed
-                if (sig.IsNotBlank())
-                {
-                    new Exception("Decipher signature if needed");
-                    //var playerSource = await GetVideoPlayerSourceAsync(playerContext.SourceUrl).ConfigureAwait(false);
-                    //sig = playerSource.Decipher(sig);
-                    //dashManifestUrl = SetRouteParameter(dashManifestUrl, "signature", sig);
-                }
-
-                // Get the manifest
-                //var response = await _httpClient.GetStringAsync(dashManifestUrl).ConfigureAwait(false);
-                string response = string.Empty;
-                using (WebClient webWatchPage = new WebClient())
-                {
-                    webWatchPage.Encoding = Encoding.UTF8;
-                    response = webWatchPage.DownloadString(dashManifestUrl);
-                }
-
-                var dashManifestXml = XElement.Parse(response).StripNamespaces();
-                var streamsXml = dashManifestXml.Descendants("Representation");
-
-                // Parse streams
-                foreach (var streamXml in streamsXml)
-                {
-                    // Skip partial streams
-                    if (streamXml.Descendants("Initialization").FirstOrDefault()?.Attribute("sourceURL")?.Value
-                            .Contains("sq/") == true)
-                        continue;
-
-                    // Extract values
-                    var itag = (int)streamXml.Attribute("id");
-                    var url = (string)streamXml.Element("BaseURL");
-                    var bitrate = (long)streamXml.Attribute("bandwidth");
-
-#if RELEASE
-                    if (!MediaStreamInfo.IsKnown(itag))
-                        continue;
-#endif
-
-                    // Parse content length
-                    var contentLength = Regex.Match(url, @"clen[/=](\d+)").Groups[1].Value.ParseLong();
-
-                    // Check if audio stream
-                    var isAudio = streamXml.Element("AudioChannelConfiguration") != null;
-
-                    // If audio stream
-                    if (isAudio)
-                    {
-                        var streamInfo = new AudioStreamInfo(itag, url, contentLength, bitrate);
-                        audioStreamInfoMap[itag] = streamInfo;
-                    }
-                    // If video stream
-                    else
-                    {
-                        // Parse additional data
-                        var width = (int)streamXml.Attribute("width");
-                        var height = (int)streamXml.Attribute("height");
-                        var resolution = new VideoResolution(width, height);
-                        var framerate = (int)streamXml.Attribute("frameRate");
-
-                        var streamInfo = new VideoStreamInfo(itag, url, contentLength, bitrate, resolution, framerate);
-                        videoStreamInfoMap[itag] = streamInfo;
-                    }
-                }
-            }
-
-            // Get the raw HLS stream playlist (*.m3u8)
-            var hlsLiveStreamUrl = videoInfo.GetOrDefault("hlsvp");
-
-            // Finalize stream info collections
-            var muxedStreamInfos = muxedStreamInfoMap.Values.OrderByDescending(s => s.VideoQuality).ToList();
-            var audioStreamInfos = audioStreamInfoMap.Values.OrderByDescending(s => s.Bitrate).ToList();
-            var videoStreamInfos = videoStreamInfoMap.Values.OrderByDescending(s => s.VideoQuality).ToList();
-
-            return new MediaStreamInfoSet(muxedStreamInfos, audioStreamInfos, videoStreamInfos, hlsLiveStreamUrl);
-        }
-
-        private static string SetQueryParameter(string url, string key, string value)
-        {
-            value = value ?? string.Empty;
-
-            // Find existing parameter
-            var existingMatch = Regex.Match(url, $@"[?&]({Regex.Escape(key)}=?.*?)(?:&|/|$)");
-
-            // Parameter already set to something
-            if (existingMatch.Success)
-            {
-                var group = existingMatch.Groups[1];
-
-                // Remove existing
-                url = url.Remove(group.Index, group.Length);
-
-                // Insert new one
-                url = url.Insert(group.Index, $"{key}={value}");
-
-                return url;
-            }
-            // Parameter hasn't been set yet
-            else
-            {
-                // See if there are other parameters
-                var hasOtherParams = url.IndexOf('?') >= 0;
-
-                // Prepend either & or ? depending on that
-                var separator = hasOtherParams ? '&' : '?';
-
-                // Assemble new query string
-                return url + separator + key + '=' + value;
-            }
-        }
-
-        private static string SetRouteParameter(string url, string key, string value)
-        {
-            value = value ?? string.Empty;
-
-            // Find existing parameter
-            var existingMatch = Regex.Match(url, $@"/({Regex.Escape(key)}/?.*?)(?:/|$)");
-
-            // Parameter already set to something
-            if (existingMatch.Success)
-            {
-                var group = existingMatch.Groups[1];
-
-                // Remove existing
-                url = url.Remove(group.Index, group.Length);
-
-                // Insert new one
-                url = url.Insert(group.Index, $"{key}/{value}");
-
-                return url;
-            }
-            // Parameter hasn't been set yet
-            else
-            {
-                // Assemble new query string
-                return url + '/' + key + '/' + value;
-            }
-        }
-
-        /// <summary>
-        /// Turns file size in bytes into human-readable string
-        /// </summary>
-        private static string NormalizeFileSize(long fileSize)
-        {
-            string[] units = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
-            double size = fileSize;
-            var unit = 0;
-
-            while (size >= 1024)
-            {
-                size /= 1024;
-                ++unit;
-            }
-
-            return $"{size:0.#} {units[unit]}";
-        }
-
-        /// <summary>
-        /// Tries to parse video ID from a YouTube video URL.
-        /// </summary>
-        public static bool TryParseVideoId(string videoUrl, out string videoId)
-        {
-            videoId = default(string);
-
-            if (string.IsNullOrEmpty(videoUrl))
-                return false;
-
-            // https://www.youtube.com/watch?v=yIVRs6YSbOM
-            var regularMatch =
-                Regex.Match(videoUrl, @"youtube\..+?/watch.*?v=(.*?)(?:&|/|$)").Groups[1].Value;
-            if (!string.IsNullOrEmpty(regularMatch) && ValidateVideoId(regularMatch))
-            {
-                videoId = regularMatch;
-                return true;
-            }
-
-            // https://youtu.be/yIVRs6YSbOM
-            var shortMatch =
-                Regex.Match(videoUrl, @"youtu\.be/(.*?)(?:\?|&|/|$)").Groups[1].Value;
-            if (!string.IsNullOrEmpty(shortMatch) && ValidateVideoId(shortMatch))
-            {
-                videoId = shortMatch;
-                return true;
-            }
-
-            // https://www.youtube.com/embed/yIVRs6YSbOM
-            var embedMatch =
-                Regex.Match(videoUrl, @"youtube\..+?/embed/(.*?)(?:\?|&|/|$)").Groups[1].Value;
-            if (!string.IsNullOrEmpty(embedMatch) && ValidateVideoId(embedMatch))
-            {
-                videoId = embedMatch;
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Verifies that the given string is syntactically a valid YouTube video ID.
-        /// </summary>
-        public static bool ValidateVideoId(string videoId)
-        {
-            if (string.IsNullOrEmpty(videoId))
-                return false;
-
-            if (videoId.Length != 11)
-                return false;
-
-            return !Regex.IsMatch(videoId, @"[^0-9a-zA-Z_\-]");
-        }
-
-        private static Dictionary<string, string> SplitQuery(string query)
-        {
-            var dic = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            var rawParams = query.Split("&");
-            foreach (var rawParam in rawParams)
-            {
-                var param = rawParam.UrlDecode();
-
-                // Look for the equals sign
-                var equalsPos = param.IndexOf('=');
-                if (equalsPos <= 0)
+                    si = new oCaptionSentence();
+                    si.TimeStart = ci.TimeStart;
+                    si.ListIndex.Add(i);
                     continue;
+                }
 
-                // Get the key and value
-                var key = param.Substring(0, equalsPos);
-                var value = equalsPos < param.Length
-                    ? param.Substring(equalsPos + 1)
-                    : string.Empty;
+                if (wi == "i" || wi == "we" || wi == "you" || wi == "they" || wi == "he" || wi == "she" || wi == "it"
+                    || wi == "i'm" || wi == "we're" || wi == "you're" || wi == "they're" || wi == "he's" || wi == "she's" || wi == "it's")
+                {
+                    bool sub = false;
+                    wii = listWord[i - 1].Word.ToLower();
+                    if (i > 0 &&
+                        (wii == "so" || wii == "and" || wii == "if" || wii == "when" || wii == "because"))
+                    {
+                        sub = true;
+                        si.ListIndex.RemoveAt(si.ListIndex.Count - 1);
+                    }
 
-                // Add to dictionary
-                dic[key] = value;
+                    var ws = listWord.Where((x, id) => si.ListIndex.Any(y => y == id)).Select(x => x.Word).ToArray();
+                    si.Words = string.Join(" ", ws);
+                    listSen.Add(si);
+
+                    si = new oCaptionSentence();
+                    si.TimeStart = ci.TimeStart;
+                    if (sub) si.ListIndex.Add(i - 1);
+                    si.ListIndex.Add(i);
+                }
+                else
+                {
+                    si.ListIndex.Add(i);
+                }
             }
 
-            return dic;
+            //string text = string.Empty;
+            //foreach (var se in listSen) text += se.TimeStart + ": " + se.Words + Environment.NewLine;
+            return listSen;
         }
-
-        #endregion
-
-        #region
-
-        //////private PlayerSource GetVideoPlayerSourceAsync(string sourceUrl)
-        //////{
-        //////    // Original code credit:
-        //////    // https://github.com/flagbug/YoutubeExtractor/blob/3106efa1063994fd19c0e967793315f6962b2d3c/YoutubeExtractor/YoutubeExtractor/Decipherer.cs
-        //////    // No copyright, MIT license
-
-        //////    // Try to resolve from cache first
-        //////    var playerSource = _playerSourceCache.GetOrDefault(sourceUrl);
-        //////    if (playerSource != null)
-        //////        return playerSource;
-
-        //////    // Get player source code
-        //////    var sourceRaw = await _httpClient.GetStringAsync(sourceUrl).ConfigureAwait(false);
-
-        //////    // Find the name of the function that handles deciphering
-        //////    var entryPoint = Regex.Match(sourceRaw, @"\""signature"",\s?([a-zA-Z0-9\$]+)\(").Groups[1].Value;
-        //////    if (entryPoint.IsBlank())
-        //////        throw new ParseException("Could not find the entry function for signature deciphering.");
-
-        //////    // Find the body of the function
-        //////    var entryPointPattern = @"(?!h\.)" + Regex.Escape(entryPoint) + @"=function\(\w+\)\{(.*?)\}";
-        //////    var entryPointBody = Regex.Match(sourceRaw, entryPointPattern, RegexOptions.Singleline).Groups[1].Value;
-        //////    if (entryPointBody.IsBlank())
-        //////        throw new ParseException("Could not find the signature decipherer function body.");
-        //////    var entryPointLines = entryPointBody.Split(";").ToArray();
-
-        //////    // Identify cipher functions
-        //////    string reverseFuncName = null;
-        //////    string sliceFuncName = null;
-        //////    string charSwapFuncName = null;
-        //////    var operations = new List<ICipherOperation>();
-
-        //////    // Analyze the function body to determine the names of cipher functions
-        //////    foreach (var line in entryPointLines)
-        //////    {
-        //////        // Break when all functions are found
-        //////        if (reverseFuncName.IsNotBlank() && sliceFuncName.IsNotBlank() && charSwapFuncName.IsNotBlank())
-        //////            break;
-
-        //////        // Get the function called on this line
-        //////        var calledFuncName = Regex.Match(line, @"\w+\.(\w+)\(").Groups[1].Value;
-        //////        if (calledFuncName.IsBlank())
-        //////            continue;
-
-        //////        // Find cipher function names
-        //////        if (Regex.IsMatch(sourceRaw, $@"{Regex.Escape(calledFuncName)}:\bfunction\b\(\w+\)"))
-        //////        {
-        //////            reverseFuncName = calledFuncName;
-        //////        }
-        //////        else if (Regex.IsMatch(sourceRaw,
-        //////            $@"{Regex.Escape(calledFuncName)}:\bfunction\b\([a],b\).(\breturn\b)?.?\w+\."))
-        //////        {
-        //////            sliceFuncName = calledFuncName;
-        //////        }
-        //////        else if (Regex.IsMatch(sourceRaw,
-        //////            $@"{Regex.Escape(calledFuncName)}:\bfunction\b\(\w+\,\w\).\bvar\b.\bc=a\b"))
-        //////        {
-        //////            charSwapFuncName = calledFuncName;
-        //////        }
-        //////    }
-
-        //////    // Analyze the function body again to determine the operation set and order
-        //////    foreach (var line in entryPointLines)
-        //////    {
-        //////        // Get the function called on this line
-        //////        var calledFuncName = Regex.Match(line, @"\w+\.(\w+)\(").Groups[1].Value;
-        //////        if (calledFuncName.IsBlank())
-        //////            continue;
-
-        //////        // Swap operation
-        //////        if (calledFuncName == charSwapFuncName)
-        //////        {
-        //////            var index = Regex.Match(line, @"\(\w+,(\d+)\)").Groups[1].Value.ParseInt();
-        //////            operations.Add(new SwapCipherOperation(index));
-        //////        }
-        //////        // Slice operation
-        //////        else if (calledFuncName == sliceFuncName)
-        //////        {
-        //////            var index = Regex.Match(line, @"\(\w+,(\d+)\)").Groups[1].Value.ParseInt();
-        //////            operations.Add(new SliceCipherOperation(index));
-        //////        }
-        //////        // Reverse operation
-        //////        else if (calledFuncName == reverseFuncName)
-        //////        {
-        //////            operations.Add(new ReverseCipherOperation());
-        //////        }
-        //////    }
-
-        //////    return _playerSourceCache[sourceUrl] = new PlayerSource(operations);
-        //////}
-
-
-        ////////        /// <inheritdoc />
-        ////////        public async Task DownloadMediaStreamAsync(MediaStreamInfo info, Stream output,
-        ////////            IProgress<double> progress = null, CancellationToken cancellationToken = default(CancellationToken))
-        ////////        {
-        ////////            info.GuardNotNull(nameof(info));
-        ////////            output.GuardNotNull(nameof(output));
-
-        ////////            // Determine if stream is rate-limited
-        ////////            var isRateLimited = !Regex.IsMatch(info.Url, @"ratebypass[=/]yes");
-
-        ////////            // Download rate-limited streams in segments
-        ////////            if (isRateLimited)
-        ////////            {
-        ////////                // Determine segment count
-        ////////                const long segmentSize = 9_898_989; // this number was carefully devised through research
-        ////////                var segmentCount = (int)Math.Ceiling(1.0 * info.Size / segmentSize);
-
-        ////////                // Keep track of bytes copied for progress reporting
-        ////////                var totalBytesCopied = 0L;
-
-        ////////                for (var i = 0; i < segmentCount; i++)
-        ////////                {
-        ////////                    // Determine segment range
-        ////////                    var from = i * segmentSize;
-        ////////                    var to = (i + 1) * segmentSize - 1;
-
-        ////////                    // Download segment
-        ////////                    using (var input = await _httpClient.GetStreamAsync(info.Url, from, to).ConfigureAwait(false))
-        ////////                    {
-        ////////                        int bytesCopied;
-        ////////                        do
-        ////////                        {
-        ////////                            // Copy
-        ////////                            bytesCopied = await input.CopyChunkToAsync(output, cancellationToken).ConfigureAwait(false);
-
-        ////////                            // Report progress
-        ////////                            totalBytesCopied += bytesCopied;
-        ////////                            progress?.Report(1.0 * totalBytesCopied / info.Size);
-        ////////                        } while (bytesCopied > 0);
-        ////////                    }
-        ////////                }
-        ////////            }
-        ////////            // Download non-limited streams directly
-        ////////            else
-        ////////            {
-        ////////                using (var input = await GetMediaStreamAsync(info).ConfigureAwait(false))
-        ////////                    await input.CopyToAsync(output, progress, cancellationToken).ConfigureAwait(false);
-        ////////            }
-        ////////        }
-
-        ////////#if NETSTANDARD2_0 || NET45 || NETCOREAPP1_0
-
-        ////////        /// <inheritdoc />
-        ////////        public async Task DownloadMediaStreamAsync(MediaStreamInfo info, string filePath,
-        ////////            IProgress<double> progress = null, CancellationToken cancellationToken = default(CancellationToken))
-        ////////        {
-        ////////            filePath.GuardNotNull(nameof(filePath));
-
-        ////////            using (var output = File.Create(filePath))
-        ////////                await DownloadMediaStreamAsync(info, output, progress, cancellationToken).ConfigureAwait(false);
-        ////////        }
-
-        ////////#endif
-
-        #endregion
-
     }
 
     public class api_mp3 : api_base, IAPI
