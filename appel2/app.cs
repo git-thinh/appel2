@@ -56,6 +56,11 @@ namespace appel
 
         }
 
+        public static void Exit() {
+            player.f_free_Resource();
+            Application.Exit();
+        }
+
         public static void RUN()
         {
             //var lw1 = api_youtube.f_analytic_wordFileXml("demo1.xml");
@@ -78,6 +83,8 @@ namespace appel
             player = new fPlayer();
             player.Shown += (se, ev) =>
             {
+                player.Width = 600;
+                player.Height = 340;
                 string path = string.Empty;
                 //path = @"http://localhost:7777/?type=mp4";
                 //path = @"http://localhost:7777/?type=m4a";
@@ -86,7 +93,8 @@ namespace appel
                 //path = @"G:\_EL\Document\data_el2\media\files\3.mp4";
                 //path = @"https://r3---sn-8qj-i5ols.googlevideo.com/videoplayback?source=youtube&mt=1526388841&mv=m&ms=au%2Crdu&ip=14.177.123.70&key=yt6&c=WEB&dur=8944.047&itag=22&pl=20&mime=video%2Fmp4&mm=31%2C29&sparams=dur%2Cei%2Cid%2Cinitcwndbps%2Cip%2Cipbits%2Citag%2Clmt%2Cmime%2Cmm%2Cmn%2Cms%2Cmv%2Cpl%2Cratebypass%2Crequiressl%2Csource%2Cexpire&mn=sn-8qj-i5ols%2Csn-nv47lnly&id=o-ALaMTgiUsCYKmGhqjlqpkbquWJoaYRFz17H8fIKLaGNX&expire=1526410530&ei=wtj6WsLLC4LeqQHBtryYBQ&ratebypass=yes&fvip=3&lmt=1519643541844596&initcwndbps=885000&requiressl=yes&ipbits=0&signature=0B9374EFB658C87E97146D8A0CF84ED69CB0BAA6.066A39ED106D0D44B8072978C7517096E8769286";
                 //path = @"https://r2---sn-8qj-i5ole.googlevideo.com/videoplayback?expire=1526411244&ipbits=0&signature=4B2CA3B9C5F2C008090EFF7193A26BE060C28BB8.60A7A60846B84DDFF903D73D18DDC7D6843D3D22&requiressl=yes&lmt=1520501837846008&ratebypass=yes&itag=22&c=WEB&key=yt6&mime=video%2Fmp4&id=o-AFfW8oloWYChJia0H715UyKcopAiwtD7l0MPGmi-6KHS&dur=120.534&pl=20&source=youtube&sparams=dur%2Cei%2Cid%2Cinitcwndbps%2Cip%2Cipbits%2Citag%2Clmt%2Cmime%2Cmm%2Cmn%2Cms%2Cmv%2Cpl%2Cratebypass%2Crequiressl%2Csource%2Cexpire&mv=m&initcwndbps=1008750&fvip=2&ms=au%2Crdu&ip=14.177.123.70&mm=31%2C29&mn=sn-8qj-i5ole%2Csn-npoeene6&ei=jNv6WrrxJMy04AKp24HwDw&mt=1526389548";
-                path = @"videoplayback.mp4";
+                //path = @"demo2.mp4";
+                path = @"demo1.mp4";
 
                 player.f_play(path);
             };

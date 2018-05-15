@@ -73,6 +73,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http, Version=2.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -94,9 +95,64 @@
     <Compile Include="API\htmlToText.cs" />
     <Compile Include="API\msg.cs" />
     <Compile Include="API\threadMsg.cs" />
+    <Compile Include="fMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="fPlayer.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="LIB\Fonts\IconButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="LIB\Fonts\IconType.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Class1.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Combination.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Hook.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\HotKeys\HotKeyArgs.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\HotKeys\HotKeySet.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\HotKeys\HotKeySetCollection.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\HotKeys\HotKeySetsListener.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\IKeyboardEvents.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\IKeyboardMouseEvents.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\IMouseEvents.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Implementation\AppEventFacade.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Implementation\AppKeyListener.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Implementation\AppMouseListener.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Implementation\BaseListener.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Implementation\ButtonSet.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Implementation\Callback.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Implementation\Chord.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Implementation\EventFacade.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Implementation\GlobalEventFacade.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Implementation\GlobalKeyListener.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Implementation\GlobalMouseListener.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Implementation\KeyboardState.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Implementation\KeyListener.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Implementation\KeysExtensions.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Implementation\MouseListener.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Implementation\Subscribe.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\KeyCombinationExtensions.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\KeyEventArgsExt.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\KeyPressEventArgsExt.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\MouseEventExtArgs.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\Sequence.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\SequenceBase.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\WinApi\AppMouseStruct.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\WinApi\CallbackData.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\WinApi\HookHelper.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\WinApi\HookIds.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\WinApi\HookNativeMethods.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\WinApi\HookProcedure.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\WinApi\HookProcedureHandle.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\WinApi\HookResult.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\WinApi\HotkeysNativeMethods.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\WinApi\KeyboardHookStruct.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\WinApi\KeyboardNativeMethods.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\WinApi\Messages.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\WinApi\MouseNativeMethods.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\WinApi\MouseStruct.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\WinApi\Point.cs" />
+    <Compile Include="LIB\Gma.System.MouseKeyHook\WinApi\ThreadNativeMethods.cs" />
     <Compile Include="LIB\HtmlAgilityPack.CssSelectors\CssSelector.cs" />
     <Compile Include="LIB\HtmlAgilityPack.CssSelectors\ExtensionMethods.cs" />
     <Compile Include="LIB\HtmlAgilityPack.CssSelectors\NodeExtensionMethods.cs" />
@@ -242,6 +298,25 @@
     <Compile Include="LIB\ControlTransparent.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="LIB\TabStrip\BaseClasses\BaseStyledPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="LIB\TabStrip\Control\FATabStrip.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="LIB\TabStrip\Control\FATabStripCloseButton.cs" />
+    <Compile Include="LIB\TabStrip\Control\FATabStripItem.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="LIB\TabStrip\Control\FATabStripItemCollection.cs" />
+    <Compile Include="LIB\TabStrip\Control\FATabStripMenuGlyph.cs" />
+    <Compile Include="LIB\TabStrip\Delegates.cs" />
+    <Compile Include="LIB\TabStrip\Design\FATabStripDesigner.cs" />
+    <Compile Include="LIB\TabStrip\Design\FATabStripItemDesigner.cs" />
+    <Compile Include="LIB\TabStrip\Design\ICaptionSupport.cs" />
+    <Compile Include="LIB\TabStrip\Enums.cs" />
+    <Compile Include="LIB\TabStrip\Helpers\CollectionWithEvents.cs" />
+    <Compile Include="LIB\TabStrip\_CONST_TAB.cs" />
     <Compile Include="LIB\YoutubeExplode\Exceptions\ParseException.cs" />
     <Compile Include="LIB\YoutubeExplode\Exceptions\VideoRequiresPurchaseException.cs" />
     <Compile Include="LIB\YoutubeExplode\Exceptions\VideoUnavailableException.cs" />
@@ -298,15 +373,22 @@
     <Compile Include="Model\oSetting.cs" />
     <Compile Include="Model\oWord.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="LIB\DLL\Newtonsoft.Json.dll" />
+    <EmbeddedResource Include="Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="LIB\DLL\NAudio.dll" />
-    <Content Include="..\Buildx86\CaptionTrack.xml">
-      <Link>CaptionTrack.xml</Link>
-    </Content>
+    <Content Include="LIB\Gma.System.MouseKeyHook\HotKeys\ReadMe.txt" />
     <Content Include="LIB\ProtoBuf\_ReadMe.txt" />
     <EmbeddedResource Include="LIB\DLL\AxInterop.WMPLib.dll" />
     <EmbeddedResource Include="LIB\DLL\Interop.WMPLib.dll" />
@@ -317,7 +399,9 @@
     <Content Include="LIB\DLL\System.Net.Http.WebRequest.dll" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="LIB\Fonts\ionicons.ttf" />
     <None Include="LIB\HtmlAgilityPack.CssSelectors\README.md" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
