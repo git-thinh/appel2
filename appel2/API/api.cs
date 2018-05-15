@@ -1324,7 +1324,8 @@ namespace appel
                 }
 
                 if (wi == "i" || wi == "we" || wi == "you" || wi == "they" || wi == "he" || wi == "she" || wi == "it"
-                    || wi == "i'm" || wi == "we're" || wi == "you're" || wi == "they're" || wi == "he's" || wi == "she's" || wi == "it's")
+                    || wi == "i'm" || wi == "we're" || wi == "you're" || wi == "they're" || wi == "he's" || wi == "she's" || wi == "it's"
+                    || wi == "how" || wi == "where" || wi == "what" || wi == "whom" || wi == "who" || wi == "which")
                 {
                     bool sub = false;
                     wii = listWord[i - 1].Word.ToLower();
@@ -1350,8 +1351,6 @@ namespace appel
                 }
             }
 
-            //string text = string.Empty;
-            //foreach (var se in listSen) text += se.TimeStart + ": " + se.Words + Environment.NewLine;
             return listSen;
         }
     }

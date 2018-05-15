@@ -61,16 +61,19 @@ namespace appel
             //var lw1 = api_youtube.f_analytic_wordFileXml("demo1.xml");
             //var ls1 = api_youtube.f_render_Sentence(lw1);
 
-            //var lw2 = api_youtube.f_analytic_wordFileXml("demo2.xml");
-            //var ls2 = api_youtube.f_render_Sentence(lw2);
+            var lw2 = api_youtube.f_analytic_wordFileXml("demo2.xml");
+            var ls2 = api_youtube.f_render_Sentence(lw2);
 
-            string videoId = "9fEurt2OZ0I";
-            var _client = new YoutubeClient();
-            // Get data
-            var Video = _client.GetVideoAsync(videoId);
-            var Channel = _client.GetVideoAuthorChannelAsync(videoId);
-            var MediaStreamInfos = _client.GetVideoMediaStreamInfosAsync(videoId);
-            var ClosedCaptionTrackInfos = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+            string text = string.Empty;
+            foreach (var se in ls2) text += se.TimeStart + ": " + se.Words + Environment.NewLine;
+
+            //string videoId = "RQPSzkMNwcw";
+            //var _client = new YoutubeClient();
+            //// Get data
+            //var Video = _client.GetVideoAsync(videoId);
+            //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
+            //var MediaStreamInfos = _client.GetVideoMediaStreamInfosAsync(videoId);
+            //var ClosedCaptionTrackInfos = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
 
             player = new fPlayer();
             player.Shown += (se, ev) =>
