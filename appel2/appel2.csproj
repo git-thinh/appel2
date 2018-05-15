@@ -51,8 +51,21 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>LIB\DLL\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http, Version=2.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>LIB\DLL\System.Net.Http.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -60,8 +73,129 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\CssSelector.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\ExtensionMethods.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\NodeExtensionMethods.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\PseudoClass.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\PseudoClassNameAttribute.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\PseudoClassSelectors\FirstChildPseudoClass.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\PseudoClassSelectors\LastChildPseudoClass.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\PseudoClassSelectors\NotPseudoClass.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\PseudoClassSelectors\NthChildPseudoClass.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\Selectors\AllSelector.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\Selectors\AttributeSelector.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\Selectors\ClassNameSelector.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\Selectors\IdSelector.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\Selectors\ImediateChildrenSelector.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\Selectors\PseudoClassSelector.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\Selectors\SiblingImediateSelector.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\Selectors\SiblingSelector.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\Selectors\TagNameSelector.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\Token.cs" />
+    <Compile Include="LIB\HtmlAgilityPack.CssSelectors\Tokenizer.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\crc32.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\EncodingFoundException.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlAttribute.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlAttributeCollection.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlCmdLine.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlCommentNode.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlConsoleListener.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlDocument.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlDocument.PathMethods.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlDocument.Xpath.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlElementFlag.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlEntity.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlNameTable.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlNode.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlNode.Encapsulator.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlNode.Xpath.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlNodeCollection.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlNodeNavigator.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlNodeType.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlParseError.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlParseErrorCode.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlTextNode.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlWeb.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlWeb.Xpath.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\HtmlWebException.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\InvalidProgramException.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\IOLibrary.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\Metro\HtmlWeb.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\Metro\InvalidProgramException.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\MixedCodeDocument.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\MixedCodeDocumentCodeFragment.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\MixedCodeDocumentFragment.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\MixedCodeDocumentFragmentList.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\MixedCodeDocumentFragmentType.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\MixedCodeDocumentTextFragment.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\NameValuePair.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\NameValuePairList.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\Trace.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\Trace.FullFramework.cs" />
+    <Compile Include="LIB\HtmlAgilityPack\Utilities.cs" />
+    <Compile Include="LIB\YoutubeExplode\Exceptions\ParseException.cs" />
+    <Compile Include="LIB\YoutubeExplode\Exceptions\VideoRequiresPurchaseException.cs" />
+    <Compile Include="LIB\YoutubeExplode\Exceptions\VideoUnavailableException.cs" />
+    <Compile Include="LIB\YoutubeExplode\Internal\CipherOperations\ICipherOperation.cs" />
+    <Compile Include="LIB\YoutubeExplode\Internal\CipherOperations\ReverseCipherOperation.cs" />
+    <Compile Include="LIB\YoutubeExplode\Internal\CipherOperations\SliceCipherOperation.cs" />
+    <Compile Include="LIB\YoutubeExplode\Internal\CipherOperations\SwapCipherOperation.cs" />
+    <Compile Include="LIB\YoutubeExplode\Internal\Extensions.cs" />
+    <Compile Include="LIB\YoutubeExplode\Internal\Guards.cs" />
+    <Compile Include="LIB\YoutubeExplode\Internal\HttpClientEx.cs" />
+    <Compile Include="LIB\YoutubeExplode\Internal\ItagDescriptor.cs" />
+    <Compile Include="LIB\YoutubeExplode\Internal\PlayerContext.cs" />
+    <Compile Include="LIB\YoutubeExplode\Internal\PlayerSource.cs" />
+    <Compile Include="LIB\YoutubeExplode\Internal\ResharperAnnotations.cs" />
+    <Compile Include="LIB\YoutubeExplode\Internal\UrlEx.cs" />
+    <Compile Include="LIB\YoutubeExplode\IYoutubeClient.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\Channel.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\ClosedCaptions\ClosedCaption.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\ClosedCaptions\ClosedCaptionTrack.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\ClosedCaptions\ClosedCaptionTrackInfo.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\ClosedCaptions\Extensions.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\ClosedCaptions\Language.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\Extensions.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\MediaStreams\AudioEncoding.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\MediaStreams\AudioStreamInfo.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\MediaStreams\Container.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\MediaStreams\Extensions.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\MediaStreams\MediaStream.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\MediaStreams\MediaStreamInfo.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\MediaStreams\MediaStreamInfoSet.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\MediaStreams\MuxedStreamInfo.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\MediaStreams\VideoEncoding.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\MediaStreams\VideoQuality.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\MediaStreams\VideoResolution.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\MediaStreams\VideoStreamInfo.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\Playlist.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\PlaylistType.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\Statistics.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\ThumbnailSet.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\Video.cs" />
+    <Compile Include="LIB\YoutubeExplode\YoutubeClient.Channel.cs" />
+    <Compile Include="LIB\YoutubeExplode\YoutubeClient.ClosedCaptionTrack.cs" />
+    <Compile Include="LIB\YoutubeExplode\YoutubeClient.cs" />
+    <Compile Include="LIB\YoutubeExplode\YoutubeClient.MediaStream.cs" />
+    <Compile Include="LIB\YoutubeExplode\YoutubeClient.Playlist.cs" />
+    <Compile Include="LIB\YoutubeExplode\YoutubeClient.Search.cs" />
+    <Compile Include="LIB\YoutubeExplode\YoutubeClient.Static.cs" />
+    <Compile Include="LIB\YoutubeExplode\YoutubeClient.Video.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="LIB\DLL\Newtonsoft.Json.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="LIB\DLL\ReadMe.txt" />
+    <Content Include="LIB\DLL\System.Net.Http.dll" />
+    <Content Include="LIB\DLL\System.Net.Http.Extensions.dll" />
+    <Content Include="LIB\DLL\System.Net.Http.Primitives.dll" />
+    <Content Include="LIB\DLL\System.Net.Http.WebRequest.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LIB\HtmlAgilityPack.CssSelectors\README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
