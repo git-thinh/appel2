@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F552E0E7-EF34-4AA6-9B9C-B4AD9B5BA386}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>appel</RootNamespace>
     <AssemblyName>appel</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
@@ -50,7 +50,22 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AxInterop.WMPLib">
+      <HintPath>LIB\DLL\AxInterop.WMPLib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Interop.WMPLib">
+      <HintPath>LIB\DLL\Interop.WMPLib.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="NAudio">
+      <HintPath>LIB\DLL\NAudio.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>LIB\DLL\Newtonsoft.Json.dll</HintPath>
@@ -58,6 +73,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http, Version=2.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -73,6 +89,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\api.cs" />
+    <Compile Include="API\api_mediaProxy.cs" />
+    <Compile Include="API\htmlToText.cs" />
+    <Compile Include="API\msg.cs" />
+    <Compile Include="API\threadMsg.cs" />
+    <Compile Include="fPlayer.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="LIB\HtmlAgilityPack.CssSelectors\CssSelector.cs" />
     <Compile Include="LIB\HtmlAgilityPack.CssSelectors\ExtensionMethods.cs" />
     <Compile Include="LIB\HtmlAgilityPack.CssSelectors\NodeExtensionMethods.cs" />
@@ -133,6 +157,88 @@
     <Compile Include="LIB\HtmlAgilityPack\Trace.cs" />
     <Compile Include="LIB\HtmlAgilityPack\Trace.FullFramework.cs" />
     <Compile Include="LIB\HtmlAgilityPack\Utilities.cs" />
+    <Compile Include="LIB\ProtoBuf\BclHelpers.cs" />
+    <Compile Include="LIB\ProtoBuf\BufferExtension.cs" />
+    <Compile Include="LIB\ProtoBuf\BufferPool.cs" />
+    <Compile Include="LIB\ProtoBuf\CallbackAttributes.cs" />
+    <Compile Include="LIB\ProtoBuf\Compiler\CompilerContext.cs" />
+    <Compile Include="LIB\ProtoBuf\Compiler\CompilerDelegates.cs" />
+    <Compile Include="LIB\ProtoBuf\Compiler\Local.cs" />
+    <Compile Include="LIB\ProtoBuf\DataFormat.cs" />
+    <Compile Include="LIB\ProtoBuf\Extensible.cs" />
+    <Compile Include="LIB\ProtoBuf\ExtensibleUtil.cs" />
+    <Compile Include="LIB\ProtoBuf\GlobalSuppressions.cs" />
+    <Compile Include="LIB\ProtoBuf\Helpers.cs" />
+    <Compile Include="LIB\ProtoBuf\IExtensible.cs" />
+    <Compile Include="LIB\ProtoBuf\IExtension.cs" />
+    <Compile Include="LIB\ProtoBuf\ImplicitFields.cs" />
+    <Compile Include="LIB\ProtoBuf\KeyValuePairProxy.cs" />
+    <Compile Include="LIB\ProtoBuf\Meta\AttributeMap.cs" />
+    <Compile Include="LIB\ProtoBuf\Meta\BasicList.cs" />
+    <Compile Include="LIB\ProtoBuf\Meta\CallbackSet.cs" />
+    <Compile Include="LIB\ProtoBuf\Meta\MetaType.cs" />
+    <Compile Include="LIB\ProtoBuf\Meta\RuntimeTypeModel.cs" />
+    <Compile Include="LIB\ProtoBuf\Meta\SubType.cs" />
+    <Compile Include="LIB\ProtoBuf\Meta\TypeFormatEventArgs.cs" />
+    <Compile Include="LIB\ProtoBuf\Meta\TypeModel.cs" />
+    <Compile Include="LIB\ProtoBuf\Meta\ValueMember.cs" />
+    <Compile Include="LIB\ProtoBuf\NetObjectCache.cs" />
+    <Compile Include="LIB\ProtoBuf\PrefixStyle.cs" />
+    <Compile Include="LIB\ProtoBuf\ProtoContractAttribute.cs" />
+    <Compile Include="LIB\ProtoBuf\ProtoEnumAttribute.cs" />
+    <Compile Include="LIB\ProtoBuf\ProtoException.cs" />
+    <Compile Include="LIB\ProtoBuf\ProtoIgnoreAttribute.cs" />
+    <Compile Include="LIB\ProtoBuf\ProtoIncludeAttribute.cs" />
+    <Compile Include="LIB\ProtoBuf\ProtoMemberAttribute.cs" />
+    <Compile Include="LIB\ProtoBuf\ProtoReader.cs" />
+    <Compile Include="LIB\ProtoBuf\ProtoWriter.cs" />
+    <Compile Include="LIB\ProtoBuf\SerializationContext.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\ArrayDecorator.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\BlobSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\BooleanSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\ByteSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\CharSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\CompiledSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\DateTimeSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\DecimalSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\DefaultValueDecorator.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\DoubleSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\EnumSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\FieldDecorator.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\GuidSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\ImmutableCollectionDecorator.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\Int16Serializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\Int32Serializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\Int64Serializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\IProtoSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\IProtoTypeSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\ISerializerProxy.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\KeyValuePairDecorator.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\ListDecorator.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\MemberSpecifiedDecorator.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\NetObjectSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\NullDecorator.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\ParseableSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\PropertyDecorator.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\ProtoDecoratorBase.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\SByteSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\SingleSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\StringSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\SubItemSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\SurrogateSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\SystemTypeSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\TagDecorator.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\TimeSpanSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\TupleSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\TypeSerializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\UInt16Serializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\UInt32Serializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\UInt64Serializer.cs" />
+    <Compile Include="LIB\ProtoBuf\Serializers\UriDecorator.cs" />
+    <Compile Include="LIB\ProtoBuf\SubItemToken.cs" />
+    <Compile Include="LIB\ProtoBuf\WireType.cs" />
+    <Compile Include="LIB\ProtoBuf\_demo.cs" />
     <Compile Include="LIB\YoutubeExplode\Exceptions\ParseException.cs" />
     <Compile Include="LIB\YoutubeExplode\Exceptions\VideoRequiresPurchaseException.cs" />
     <Compile Include="LIB\YoutubeExplode\Exceptions\VideoUnavailableException.cs" />
@@ -181,13 +287,22 @@
     <Compile Include="LIB\YoutubeExplode\YoutubeClient.Search.cs" />
     <Compile Include="LIB\YoutubeExplode\YoutubeClient.Static.cs" />
     <Compile Include="LIB\YoutubeExplode\YoutubeClient.Video.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="app.cs" />
+    <Compile Include="Model\oCategory.cs" />
+    <Compile Include="Model\oCrawler.cs" />
+    <Compile Include="Model\oNode.cs" />
+    <Compile Include="Model\oSetting.cs" />
+    <Compile Include="Model\oWord.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="LIB\DLL\Newtonsoft.Json.dll" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="LIB\DLL\NAudio.dll" />
+    <Content Include="LIB\ProtoBuf\_ReadMe.txt" />
+    <EmbeddedResource Include="LIB\DLL\AxInterop.WMPLib.dll" />
+    <EmbeddedResource Include="LIB\DLL\Interop.WMPLib.dll" />
     <Content Include="LIB\DLL\ReadMe.txt" />
     <Content Include="LIB\DLL\System.Net.Http.dll" />
     <Content Include="LIB\DLL\System.Net.Http.Extensions.dll" />
