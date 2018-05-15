@@ -58,7 +58,8 @@ namespace YoutubeExplode.Internal
             const NumberStyles styles = NumberStyles.Float | NumberStyles.AllowThousands;
             var format = NumberFormatInfo.InvariantInfo;
 
-            return double.TryParse(str, styles, format, out var result)
+            double result = 0;
+            return double.TryParse(str, styles, format, out result)
                 ? result
                 : defaultValue;
         }
@@ -76,9 +77,8 @@ namespace YoutubeExplode.Internal
             const NumberStyles styles = NumberStyles.AllowThousands;
             var format = NumberFormatInfo.InvariantInfo;
 
-            return int.TryParse(str, styles, format, out var result)
-                ? result
-                : defaultValue;
+            int result = 0;
+            return int.TryParse(str, styles, format, out result) ? result : defaultValue;
         }
 
         public static long ParseLong(this string str)
@@ -93,8 +93,8 @@ namespace YoutubeExplode.Internal
         {
             const NumberStyles styles = NumberStyles.AllowThousands;
             var format = NumberFormatInfo.InvariantInfo;
-
-            return long.TryParse(str, styles, format, out var result)
+            long result = 0;
+            return long.TryParse(str, styles, format, out result)
                 ? result
                 : defaultValue;
         }
@@ -170,7 +170,8 @@ namespace YoutubeExplode.Internal
         public static TValue GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key,
             TValue defaultValue = default(TValue))
         {
-            return dic.TryGetValue(key, out var result) ? result : defaultValue;
+            TValue result;
+            return dic.TryGetValue(key, out result) == true ? result : defaultValue;
         }
 
         public static XElement StripNamespaces(this XElement element)

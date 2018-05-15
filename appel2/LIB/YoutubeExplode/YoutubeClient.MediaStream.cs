@@ -36,7 +36,8 @@ namespace YoutubeExplode
             if (isRateLimited)
             {
                 // Determine segment count
-                const long segmentSize = 9_898_989; // this number was carefully devised through research
+                //const long segmentSize = 9_898_989; // this number was carefully devised through research
+                const long segmentSize = 9898989; // this number was carefully devised through research
                 var segmentCount = (int)Math.Ceiling(1.0 * info.Size / segmentSize);
 
                 // Keep track of bytes copied for progress reporting

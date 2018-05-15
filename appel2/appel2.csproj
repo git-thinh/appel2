@@ -239,6 +239,9 @@
     <Compile Include="LIB\ProtoBuf\SubItemToken.cs" />
     <Compile Include="LIB\ProtoBuf\WireType.cs" />
     <Compile Include="LIB\ProtoBuf\_demo.cs" />
+    <Compile Include="LIB\ControlTransparent.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="LIB\YoutubeExplode\Exceptions\ParseException.cs" />
     <Compile Include="LIB\YoutubeExplode\Exceptions\VideoRequiresPurchaseException.cs" />
     <Compile Include="LIB\YoutubeExplode\Exceptions\VideoUnavailableException.cs" />
@@ -288,6 +291,7 @@
     <Compile Include="LIB\YoutubeExplode\YoutubeClient.Static.cs" />
     <Compile Include="LIB\YoutubeExplode\YoutubeClient.Video.cs" />
     <Compile Include="app.cs" />
+    <Compile Include="Model\oCaptionTrack.cs" />
     <Compile Include="Model\oCategory.cs" />
     <Compile Include="Model\oCrawler.cs" />
     <Compile Include="Model\oNode.cs" />
@@ -300,6 +304,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="LIB\DLL\NAudio.dll" />
+    <Content Include="..\Buildx86\CaptionTrack.xml">
+      <Link>CaptionTrack.xml</Link>
+    </Content>
     <Content Include="LIB\ProtoBuf\_ReadMe.txt" />
     <EmbeddedResource Include="LIB\DLL\AxInterop.WMPLib.dll" />
     <EmbeddedResource Include="LIB\DLL\Interop.WMPLib.dll" />

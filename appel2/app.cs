@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using YoutubeExplode;
 
 namespace appel
@@ -45,17 +46,82 @@ namespace appel
 
         static fPlayer player;
 
-        public static IFORM get_Main() {
+        public static IFORM get_Main()
+        {
             return player;
         }
 
-        public static void postMessageToService(msg m) {
+        public static void postMessageToService(msg m)
+        {
 
         }
 
         public static void RUN()
         {
-            //string videoId = "xHRpbjTZ9zU";
+            XDocument xdoc = XDocument.Load("CaptionTrack.xml");
+            List<oCaptionWord> listWord = new List<oCaptionWord>();
+            foreach (var p in xdoc.Descendants("p"))
+            {
+                var its = p.Descendants("s").Select(x => new oCaptionWord(x)).ToArray();
+                if (its.Length > 0)
+                {
+                    int tt = 0, dd = 0;
+                    string t = p.Attribute("t").Value, d = p.Attribute("d").Value;
+                    if (!string.IsNullOrEmpty(t)) int.TryParse(t, out tt);
+                    if (!string.IsNullOrEmpty(d)) int.TryParse(d, out dd);
+                    foreach (var it in its) it.TimeStart += tt;
+                    listWord.AddRange(its);
+                }
+            }
+
+            List<oCaptionSentence> listSen = new List<oCaptionSentence>();
+            oCaptionWord ci = null;
+            oCaptionSentence si = new oCaptionSentence();
+            string wi = string.Empty, wii = string.Empty;
+            for (var i = 0; i < listWord.Count; i++)
+            {
+                ci = listWord[i];
+                wi = ci.Word.Trim().ToLower();
+
+                if (i == 0)
+                {
+                    si = new oCaptionSentence();
+                    si.TimeStart = ci.TimeStart;
+                    si.ListIndex.Add(i);
+                    continue;
+                }
+
+                if (wi == "i" || wi == "we" || wi == "you" || wi == "they" || wi == "he" || wi == "she" || wi == "it"
+                    || wi == "i'm" || wi == "we're" || wi == "you're" || wi == "they're" || wi == "he's" || wi == "she's" || wi == "it's")
+                {
+                    bool sub = false;
+                    wii = listWord[i - 1].Word.ToLower();
+                    if (i > 0 &&
+                        (wii == "so" || wii == "and" || wii == "if" || wii == "when" || wii == "because"))
+                    {
+                        sub = true;
+                        si.ListIndex.RemoveAt(si.ListIndex.Count - 1);
+                    }
+
+                    var ws = listWord.Where((x, id) => si.ListIndex.Any(y => y == id)).Select(x => x.Word).ToArray();
+                    si.Words = string.Join(" ", ws);
+                    listSen.Add(si);
+
+                    si = new oCaptionSentence();
+                    si.TimeStart = ci.TimeStart;
+                    if (sub) si.ListIndex.Add(i - 1);
+                    si.ListIndex.Add(i);
+                }
+                else
+                {
+                    si.ListIndex.Add(i);
+                }
+            }
+
+            string text = string.Empty;
+            foreach (var se in listSen) text += se.TimeStart + ": " + se.Words + Environment.NewLine;
+
+            //string videoId = "9fEurt2OZ0I";
             //var _client = new YoutubeClient();
             //// Get data
             //var Video = _client.GetVideoAsync(videoId);
@@ -64,11 +130,18 @@ namespace appel
             //var ClosedCaptionTrackInfos = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
 
             player = new fPlayer();
-            player.Shown += (se, ev) => {
+            player.Shown += (se, ev) =>
+            {
                 string path = string.Empty;
-                path = @"http://localhost:7777/?type=mp4";
+                //path = @"http://localhost:7777/?type=mp4";
                 //path = @"http://localhost:7777/?type=m4a";
                 //path = @"http://localhost:7777/?type=mp3";
+                //path = @"G:\_EL\Document\data_el2\media\files\video.mp4";
+                //path = @"G:\_EL\Document\data_el2\media\files\3.mp4";
+                //path = @"https://r3---sn-8qj-i5ols.googlevideo.com/videoplayback?source=youtube&mt=1526388841&mv=m&ms=au%2Crdu&ip=14.177.123.70&key=yt6&c=WEB&dur=8944.047&itag=22&pl=20&mime=video%2Fmp4&mm=31%2C29&sparams=dur%2Cei%2Cid%2Cinitcwndbps%2Cip%2Cipbits%2Citag%2Clmt%2Cmime%2Cmm%2Cmn%2Cms%2Cmv%2Cpl%2Cratebypass%2Crequiressl%2Csource%2Cexpire&mn=sn-8qj-i5ols%2Csn-nv47lnly&id=o-ALaMTgiUsCYKmGhqjlqpkbquWJoaYRFz17H8fIKLaGNX&expire=1526410530&ei=wtj6WsLLC4LeqQHBtryYBQ&ratebypass=yes&fvip=3&lmt=1519643541844596&initcwndbps=885000&requiressl=yes&ipbits=0&signature=0B9374EFB658C87E97146D8A0CF84ED69CB0BAA6.066A39ED106D0D44B8072978C7517096E8769286";
+                //path = @"https://r2---sn-8qj-i5ole.googlevideo.com/videoplayback?expire=1526411244&ipbits=0&signature=4B2CA3B9C5F2C008090EFF7193A26BE060C28BB8.60A7A60846B84DDFF903D73D18DDC7D6843D3D22&requiressl=yes&lmt=1520501837846008&ratebypass=yes&itag=22&c=WEB&key=yt6&mime=video%2Fmp4&id=o-AFfW8oloWYChJia0H715UyKcopAiwtD7l0MPGmi-6KHS&dur=120.534&pl=20&source=youtube&sparams=dur%2Cei%2Cid%2Cinitcwndbps%2Cip%2Cipbits%2Citag%2Clmt%2Cmime%2Cmm%2Cmn%2Cms%2Cmv%2Cpl%2Cratebypass%2Crequiressl%2Csource%2Cexpire&mv=m&initcwndbps=1008750&fvip=2&ms=au%2Crdu&ip=14.177.123.70&mm=31%2C29&mn=sn-8qj-i5ole%2Csn-npoeene6&ei=jNv6WrrxJMy04AKp24HwDw&mt=1526389548";
+                path = @"videoplayback.mp4";
+
                 player.f_play(path);
             };
 
@@ -78,9 +151,10 @@ namespace appel
     }
 
     class Program
-    { 
+    {
         [STAThread]
-        static void Main(string[] args) {
+        static void Main(string[] args)
+        {
             app.RUN();
         }
     }

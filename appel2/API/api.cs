@@ -1025,9 +1025,9 @@ namespace appel
         {
             if (msg != null && msg.Input != null)
             {
-                string s, url, videoId;
-                HttpWebRequest w;
-                HtmlDocument doc;
+                //string s, url, videoId;
+                //HttpWebRequest w;
+                //HtmlDocument doc;
 
                 switch (msg.KEY)
                 {

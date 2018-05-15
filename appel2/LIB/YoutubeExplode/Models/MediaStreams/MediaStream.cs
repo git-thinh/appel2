@@ -32,8 +32,8 @@ namespace YoutubeExplode.Models.MediaStreams
         /// <inheritdoc />
         public override long Position
         {
-            get => _stream.Position;
-            set => _stream.Position = value;
+            get { return _stream.Position; }
+            set { value = _stream.Position = value; }
         }
 
         /// <summary />

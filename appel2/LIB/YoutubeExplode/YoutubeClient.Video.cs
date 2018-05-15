@@ -16,15 +16,15 @@ using YoutubeExplode.Models.MediaStreams;
 
 namespace YoutubeExplode
 {
-    public partial class YoutubeClient 
+    public partial class YoutubeClient
     {
         private string GetVideoEmbedPageRawAsync(string videoId)
         {
             var url = $"https://www.youtube.com/embed/{videoId}?disable_polymer=true&hl=en";
-            return   _httpClient.GetStringAsync(url).Result; //.ConfigureAwait(false);
+            return _httpClient.GetStringAsync(url).Result; //.ConfigureAwait(false);
         }
 
-        private  JToken GetVideoEmbedPageConfigAsync(string videoId)
+        private JToken GetVideoEmbedPageConfigAsync(string videoId)
         {
             // TODO: check if video is available
 
@@ -66,7 +66,7 @@ namespace YoutubeExplode
         private IDictionary<string, string> GetVideoInfoAsync(string videoId, string sts = "")
         {
             // Get video info
-            var raw =   GetVideoInfoRawAsync(videoId, "embedded", sts); //.ConfigureAwait(false);
+            var raw = GetVideoInfoRawAsync(videoId, "embedded", sts); //.ConfigureAwait(false);
             var videoInfo = UrlEx.SplitQuery(raw);
 
             // If can't be embedded - try another value of el
@@ -95,7 +95,7 @@ namespace YoutubeExplode
         private PlayerContext GetVideoPlayerContextAsync(string videoId)
         {
             // Get embed page config
-            var configJson =   GetVideoEmbedPageConfigAsync(videoId);//.ConfigureAwait(false);
+            var configJson = GetVideoEmbedPageConfigAsync(videoId);//.ConfigureAwait(false);
 
             // Extract values
             var sourceUrl = configJson["assets"]["js"].Value<string>();
@@ -221,7 +221,7 @@ namespace YoutubeExplode
             var keywords = videoInfo["keywords"].Split(",");
 
             // Get video watch page
-            var watchPage =   GetVideoWatchPageAsync(videoId); //.ConfigureAwait(false);
+            var watchPage = GetVideoWatchPageAsync(videoId); //.ConfigureAwait(false);
 
             // Extract values
             var uploadDate = watchPage.QuerySelector("meta[itemprop=\"datePublished\"]").GetAttributeValue("content", string.Empty)
@@ -270,7 +270,7 @@ namespace YoutubeExplode
                 throw new ArgumentException($"Invalid YouTube video ID [{videoId}].", nameof(videoId));
 
             // Get player context
-            var playerContext =   GetVideoPlayerContextAsync(videoId); //.ConfigureAwait(false);
+            var playerContext = GetVideoPlayerContextAsync(videoId); //.ConfigureAwait(false);
 
             // Get video info
             var videoInfo = GetVideoInfoAsync(videoId, playerContext.Sts); //.ConfigureAwait(false);
@@ -327,8 +327,7 @@ namespace YoutubeExplode
                         response.EnsureSuccessStatusCode();
 
                         // Extract content length
-                        contentLength = response.Content.Headers.ContentLength ??
-                                        throw new ParseException("Could not extract content length of muxed stream.");
+                        contentLength = (long)response.Content.Headers.ContentLength; // ??  throw new ParseException("Could not extract content length of muxed stream.");
                     }
 
                     var streamInfo = new MuxedStreamInfo(itag, url, contentLength);
@@ -421,9 +420,9 @@ namespace YoutubeExplode
                         continue;
 
                     // Extract values
-                    var itag = (int) streamXml.Attribute("id");
-                    var url = (string) streamXml.Element("BaseURL");
-                    var bitrate = (long) streamXml.Attribute("bandwidth");
+                    var itag = (int)streamXml.Attribute("id");
+                    var url = (string)streamXml.Element("BaseURL");
+                    var bitrate = (long)streamXml.Attribute("bandwidth");
 
 #if RELEASE
                     if (!MediaStreamInfo.IsKnown(itag))
@@ -446,10 +445,10 @@ namespace YoutubeExplode
                     else
                     {
                         // Parse additional data
-                        var width = (int) streamXml.Attribute("width");
-                        var height = (int) streamXml.Attribute("height");
+                        var width = (int)streamXml.Attribute("width");
+                        var height = (int)streamXml.Attribute("height");
                         var resolution = new VideoResolution(width, height);
-                        var framerate = (int) streamXml.Attribute("frameRate");
+                        var framerate = (int)streamXml.Attribute("frameRate");
 
                         var streamInfo = new VideoStreamInfo(itag, url, contentLength, bitrate, resolution, framerate);
                         videoStreamInfoMap[itag] = streamInfo;
@@ -477,7 +476,7 @@ namespace YoutubeExplode
                 throw new ArgumentException($"Invalid YouTube video ID [{videoId}].", nameof(videoId));
 
             // Get video info
-            var videoInfo =   GetVideoInfoAsync(videoId); //.ConfigureAwait(false);
+            var videoInfo = GetVideoInfoAsync(videoId); //.ConfigureAwait(false);
 
             // Extract captions metadata
             var playerResponseRaw = videoInfo["player_response"];

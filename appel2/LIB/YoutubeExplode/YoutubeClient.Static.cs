@@ -66,10 +66,10 @@ namespace YoutubeExplode
         public static string ParseVideoId(string videoUrl)
         {
             videoUrl.GuardNotNull(nameof(videoUrl));
-
-            return TryParseVideoId(videoUrl, out var result)
-                ? result
-                : throw new FormatException($"Could not parse video ID from given string [{videoUrl}].");
+            string result;
+            //return TryParseVideoId(videoUrl, out result) ? result : throw new FormatException($"Could not parse video ID from given string [{videoUrl}].");
+            TryParseVideoId(videoUrl, out result);
+            return result;
         }
 
         /// <summary>
@@ -158,10 +158,10 @@ namespace YoutubeExplode
         public static string ParsePlaylistId(string playlistUrl)
         {
             playlistUrl.GuardNotNull(nameof(playlistUrl));
-
-            return TryParsePlaylistId(playlistUrl, out var result)
-                ? result
-                : throw new FormatException($"Could not parse playlist ID from given string [{playlistUrl}].");
+            string result;
+            TryParsePlaylistId(playlistUrl, out result);
+            return result;
+            //: throw new FormatException($"Could not parse playlist ID from given string [{playlistUrl}].");
         }
 
         /// <summary>
@@ -209,10 +209,10 @@ namespace YoutubeExplode
         public static string ParseChannelId(string channelUrl)
         {
             channelUrl.GuardNotNull(nameof(channelUrl));
-
-            return TryParseChannelId(channelUrl, out var result)
-                ? result
-                : throw new FormatException($"Could not parse channel ID from given string [{channelUrl}].");
+            string result;
+            TryParseChannelId(channelUrl, out result);
+            return result;
+            //: throw new FormatException($"Could not parse channel ID from given string [{channelUrl}].");
         }
     }
 }
