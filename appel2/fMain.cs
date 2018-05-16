@@ -34,7 +34,8 @@ namespace appel
 
         #endregion
 
-        public fMain() {
+        public fMain()
+        {
             this.FormBorderStyle = FormBorderStyle.None;
             this.Shown += (se, ev) =>
             {
@@ -45,14 +46,15 @@ namespace appel
                 btn_exit.BringToFront();
                 btn_exit.Height = 20;
             };
-            
+
             #region [ TAB ]
 
             btn_exit = new IconButton(20) { IconType = IconType.close_circled, Anchor = AnchorStyles.Right | AnchorStyles.Top };
             btn_exit.Click += (se, ev) => { app.Exit(); };
             this.Controls.Add(btn_exit);
 
-            m_tab = new FATabStrip() {
+            m_tab = new FATabStrip()
+            {
                 Dock = DockStyle.Fill,
                 AlwaysShowClose = false,
                 AlwaysShowMenuGlyph = false,
@@ -110,28 +112,31 @@ namespace appel
 
             #region [ SEARCH ]
 
-            m_search_Result = new Panel() {
+            m_search_Result = new Panel()
+            {
                 AutoScroll = true,
-                BackColor = Color.Blue,
+                BackColor = Color.White,
                 Dock = DockStyle.Fill,
             };
             m_search_Result.MouseMove += f_form_move_MouseDown;
 
-            txt_Search = new TextBox() {
+            txt_Search = new TextBox()
+            {
                 Dock = DockStyle.Right,
             };
 
-            m_search_Header = new Panel() {
+            m_search_Header = new Panel()
+            {
                 Height = 39,
                 Dock = DockStyle.Top,
-                BackColor = Color.Orange,
+                BackColor = Color.White,
                 Padding = new Padding(9),
             };
             m_search_Header.MouseMove += f_form_move_MouseDown;
             m_search_Header.Controls.Add(txt_Search);
             m_tab_Search.Controls.AddRange(new Control[] {
-                m_search_Header,
                 m_search_Result,
+                m_search_Header,
             });
 
             #endregion
@@ -162,18 +167,77 @@ namespace appel
 
         #region [ SEARCH ]
 
-        void f_search_Result() { 
+        void f_search_Result()
+        {
             using (var file = File.OpenRead("videos.bin"))
             {
+                const int margin_bottom = 9;
+                const int margin_left = 9;
+                const int tit_height = 45;
+                int distance_tit = app.m_item_height - tit_height;
+
                 var ls = Serializer.Deserialize<List<Video>>(file);
+                int y = 0, x = 0, row = 0;
+                Control[] pics = new Control[30];
+                Control[] tits = new Control[30];
+                for (int i = 0; i < ls.Count; i++)
+                {
+                    if (i > 29) break;
+                    if (i == 0 || i == 1)
+                    {
+                        x = i == 0 ? margin_left : (app.m_item_width + margin_left * 2);
+                        y = 0;
+                    }
+                    else
+                    {
+                        if (i % 2 == 0)
+                        {
+                            row = i / 2;
+                            x = margin_left;
+                            y = (app.m_item_height * row) + margin_bottom * row;
+                        }
+                        else
+                        {
+                            row = (int)(i / 2);
+                            x = app.m_item_width + margin_left * 2;
+                            y = (app.m_item_height * row) + margin_bottom * row;
+                        }
+                    }
+                    
+                    Label pic = new Label()
+                    {
+                        Text = i.ToString(),
+                        TextAlign = ContentAlignment.MiddleCenter,
 
+                        BackColor = Color.LightGray,
+                        Width = app.m_item_width,
+                        Height = app.m_item_height,
+                        Location = new Point(x, y),
+                    };
+                    Label tit = new Label()
+                    {
+                        Text = ls[i].Title,
+                        TextAlign = ContentAlignment.MiddleLeft,
 
+                        AutoSize = false,
+                        BackColor = Color.Orange,
+                        Width = app.m_item_width,
+                        Height = tit_height,
+                        Location = new Point(x, y - distance_tit)
+                    };
 
+                    pics[i] = pic;
+                    tits[i] = tit;
+                }
 
+                m_search_Result.Controls.AddRange(tits); 
+                m_search_Result.Controls.AddRange(pics);
             }
         }
 
         #endregion
+
+        #region [ RESPONSE MESSAGE ]
 
         public void api_initMsg(msg m)
         {
@@ -182,5 +246,7 @@ namespace appel
         public void api_responseMsg(object sender, threadMsgEventArgs e)
         {
         }
+
+        #endregion
     }
 }
