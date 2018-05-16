@@ -114,6 +114,9 @@
     <Compile Include="fPlayer.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="fYoutubeIframe.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="LIB\Fonts\IconButton.cs">
       <SubType>Component</SubType>
     </Compile>

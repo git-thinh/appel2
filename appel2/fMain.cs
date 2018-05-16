@@ -240,6 +240,8 @@ namespace appel
                         Font = font_Title,
                     };
 
+                    pic.Click += (se, ev) => { new fYoutubeIframe(ls[i].Id).Show(); };
+
                     pics[i] = pic;
                     tits[i] = lbl;
                 }
