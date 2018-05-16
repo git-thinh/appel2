@@ -15,6 +15,9 @@ namespace appel
 {
     public class app
     {
+        public const int m_item_width = 320;
+        public const int m_item_height = 180;
+
         static app()
         {
             AppDomain.CurrentDomain.AssemblyResolve += (se, ev) =>
@@ -60,13 +63,16 @@ namespace appel
 
         }
 
-        public static void Exit() {
+        public static void Exit()
+        {
             player.f_free_Resource();
             Application.Exit();
         }
 
         public static void RUN()
         {
+            RuntimeTypeModel.Default.Add(typeof(DateTimeOffset), false).SetSurrogate(typeof(DateTimeOffsetSurrogate));
+
             //var lw1 = api_youtube.f_analytic_wordFileXml("demo1.xml");
             //var ls1 = api_youtube.f_render_Sentence(lw1);
 
@@ -87,29 +93,30 @@ namespace appel
             //List<Video> video_result = _client.SearchVideosAsync("learn english subtitle");
             //string json = Newtonsoft.Json.JsonConvert.SerializeObject(video_result);
 
-            RuntimeTypeModel.Default.Add(typeof(DateTimeOffset), false).SetSurrogate(typeof(DateTimeOffsetSurrogate));
-
             //List<Video> video_result = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Video>>(File.ReadAllText("videos.json"));
 
             //using (var file = File.Create("videos.bin"))
             //{
             //    Serializer.Serialize<List<Video>>(file, video_result);
+            //} 
+            //using (var file = File.OpenRead("videos.bin"))
+            //{
+            //    var lvs = Serializer.Deserialize<List<Video>>(file);
+
             //}
 
+            main = new fMain();
+            main.Shown += (se, ev) => {
+                main.Width = m_item_width * 2;
+                main.Height = m_item_height * 5;
+            };
 
-            using (var file = File.OpenRead("videos.bin"))
-            {
-                var lvs = Serializer.Deserialize<List<Video>>(file);
-
-            }
-
-                main = new fMain();
 
             player = new fPlayer();
             player.Shown += (se, ev) =>
             {
-                player.Width = 600;
-                player.Height = 340;
+                player.Width = m_item_width * 2;
+                player.Height = m_item_height*2;
                 string path = string.Empty;
                 //path = @"http://localhost:7777/?type=mp4";
                 //path = @"http://localhost:7777/?type=m4a";

@@ -90,11 +90,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="API\api.cs" />
+    <Compile Include="API\api_mp3.cs" />
+    <Compile Include="API\api_base.cs" />
+    <Compile Include="API\api_crawler.cs" />
+    <Compile Include="API\api_fetch.cs" />
+    <Compile Include="API\api_folder_Analytic.cs" />
     <Compile Include="API\api_mediaProxy.cs" />
+    <Compile Include="API\api_nodeStore.cs" />
+    <Compile Include="API\api_settingApp.cs" />
+    <Compile Include="API\api_Translater.cs" />
+    <Compile Include="API\api_word_Download.cs" />
+    <Compile Include="API\api_word_LocalStore.cs" />
+    <Compile Include="API\api_youtube.cs" />
     <Compile Include="API\htmlToText.cs" />
+    <Compile Include="API\IAPI.cs" />
+    <Compile Include="API\IFORM.cs" />
     <Compile Include="API\msg.cs" />
     <Compile Include="API\threadMsg.cs" />
+    <Compile Include="API\_API.cs" />
     <Compile Include="fMain.cs">
       <SubType>Form</SubType>
     </Compile>

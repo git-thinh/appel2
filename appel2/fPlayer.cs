@@ -20,6 +20,7 @@ namespace appel
         private Panel m_resize;
         private bool m_resizing = false;
 
+
         public fPlayer()
         {
             // FORM
@@ -59,14 +60,14 @@ namespace appel
             // RESIZE
             m_resize = new Panel();
             m_resize.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            m_resize.BackColor = Color.Black;
+            m_resize.BackColor = Color.Orange;
             m_resize.Size = new Size(8, 8);
             this.Controls.Add(m_resize);
             m_resize.MouseDown += (se, ev) => { m_resizing = true; };
             m_resize.MouseUp += (se, ev) =>
             {
                 m_resizing = false;
-                Debug.WriteLine("RESIZE: ok ");
+                //Debug.WriteLine("RESIZE: ok ");
                 if (m_media.playState == WMPLib.WMPPlayState.wmppsPlaying)
                 {
                     m_media.Ctlcontrols.pause();

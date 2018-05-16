@@ -1,11 +1,14 @@
 ﻿using FarsiLibrary.Win;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using YoutubeExplode.Models;
 
 namespace appel
 {
@@ -27,6 +30,8 @@ namespace appel
         private TextBox txt_Search;
         private Panel m_search_Result;
 
+        private Panel m_search_Header;
+
         #endregion
 
         public fMain() {
@@ -43,7 +48,7 @@ namespace appel
             
             #region [ TAB ]
 
-            btn_exit = new IconButton(20) { IconType = IconType.close_circled };
+            btn_exit = new IconButton(20) { IconType = IconType.close_circled, Anchor = AnchorStyles.Right | AnchorStyles.Top };
             btn_exit.Click += (se, ev) => { app.Exit(); };
             this.Controls.Add(btn_exit);
 
@@ -110,25 +115,28 @@ namespace appel
                 BackColor = Color.Blue,
                 Dock = DockStyle.Fill,
             };
+            m_search_Result.MouseMove += f_form_move_MouseDown;
 
             txt_Search = new TextBox() {
                 Dock = DockStyle.Right,
             };
 
-            var header = new Panel() {
+            m_search_Header = new Panel() {
                 Height = 39,
                 Dock = DockStyle.Top,
                 BackColor = Color.Orange,
                 Padding = new Padding(9),
             };
-
-            header.Controls.Add(txt_Search);
+            m_search_Header.MouseMove += f_form_move_MouseDown;
+            m_search_Header.Controls.Add(txt_Search);
             m_tab_Search.Controls.AddRange(new Control[] {
-                header,
+                m_search_Header,
                 m_search_Result,
             });
 
             #endregion
+
+            f_search_Result();
         }
 
         #region [ FORM MOVE ]
@@ -152,6 +160,20 @@ namespace appel
 
         #endregion
 
+        #region [ SEARCH ]
+
+        void f_search_Result() { 
+            using (var file = File.OpenRead("videos.bin"))
+            {
+                var ls = Serializer.Deserialize<List<Video>>(file);
+
+
+
+
+            }
+        }
+
+        #endregion
 
         public void api_initMsg(msg m)
         {
