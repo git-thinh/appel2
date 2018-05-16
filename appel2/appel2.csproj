@@ -366,6 +366,7 @@
     <Compile Include="LIB\YoutubeExplode\YoutubeClient.Static.cs" />
     <Compile Include="LIB\YoutubeExplode\YoutubeClient.Video.cs" />
     <Compile Include="app.cs" />
+    <Compile Include="Model\DateTimeOffsetSurrogate.cs" />
     <Compile Include="Model\oCaptionTrack.cs" />
     <Compile Include="Model\oCategory.cs" />
     <Compile Include="Model\oCrawler.cs" />

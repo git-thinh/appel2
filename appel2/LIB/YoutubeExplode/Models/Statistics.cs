@@ -1,30 +1,36 @@
-﻿using YoutubeExplode.Internal;
+﻿using ProtoBuf;
+using YoutubeExplode.Internal;
 
 namespace YoutubeExplode.Models
 {
     /// <summary>
     /// User activity statistics.
     /// </summary>
+    [ProtoContract]
     public class Statistics
     {
         /// <summary>
         /// View count.
         /// </summary>
-        public long ViewCount { get; }
+        [ProtoMember(1)]
+        public long ViewCount { get; set; }
 
         /// <summary>
         /// Like count.
         /// </summary>
-        public long LikeCount { get; }
+        [ProtoMember(2)]
+        public long LikeCount { get; set; }
 
         /// <summary>
         /// Dislike count.
         /// </summary>
-        public long DislikeCount { get; }
+        [ProtoMember(3)]
+        public long DislikeCount { get; set; }
 
         /// <summary>
         /// Average user rating in stars (1 star to 5 stars).
         /// </summary>
+        [ProtoMember(4)]
         public double AverageRating
         {
             get
@@ -32,7 +38,10 @@ namespace YoutubeExplode.Models
                 if (LikeCount + DislikeCount == 0) return 0;
                 return 1 + 4.0 * LikeCount / (LikeCount + DislikeCount);
             }
+            set { }
         }
+
+        public Statistics() { }
 
         /// <summary />
         public Statistics(long viewCount, long likeCount, long dislikeCount)

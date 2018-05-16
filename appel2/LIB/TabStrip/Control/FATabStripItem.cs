@@ -148,6 +148,8 @@ namespace FarsiLibrary.Win
 
         public FATabStripItem(string caption, Control displayControl) 
         {
+            this.BackColor = Color.White;
+
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             SetStyle(ControlStyles.ResizeRedraw, true);
             SetStyle(ControlStyles.UserPaint, true);

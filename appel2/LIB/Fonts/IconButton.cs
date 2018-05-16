@@ -155,7 +155,7 @@ namespace appel
             set
             {
                 // force the font size to be recalculated & redrawn
-                base.Height = value;
+                base.Height = value - 3;
                 IconFont = null;
                 Invalidate();
             }
@@ -232,7 +232,7 @@ namespace appel
 
             // center icon
             float left = (Width - w) / 2;
-            float top = (Height - h) / 2;
+            float top = (Height - h) / 2 + 2;
 
             // Draw string to screen.
             graphics.DrawString(IconChar, IconFont, IconBrush, new PointF(left, top));

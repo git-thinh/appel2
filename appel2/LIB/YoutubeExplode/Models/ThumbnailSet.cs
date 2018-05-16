@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using ProtoBuf;
 using YoutubeExplode.Internal;
 
 namespace YoutubeExplode.Models
@@ -6,6 +7,7 @@ namespace YoutubeExplode.Models
     /// <summary>
     /// Set of thumbnails for a video.
     /// </summary>
+    [ProtoContract]
     public class ThumbnailSet
     {
         private readonly string _videoId;
@@ -14,33 +16,62 @@ namespace YoutubeExplode.Models
         /// Low resolution thumbnail URL.
         /// </summary>
         [NotNull]
-        public string LowResUrl => $"https://img.youtube.com/vi/{_videoId}/default.jpg";
+        [ProtoMember(1)]
+        public string LowResUrl
+        {
+            get
+            {
+                return $"https://img.youtube.com/vi/{_videoId}/default.jpg";
+            }
+            set { }
+        }
 
         /// <summary>
         /// Medium resolution thumbnail URL.
         /// </summary>
         [NotNull]
-        public string MediumResUrl => $"https://img.youtube.com/vi/{_videoId}/mqdefault.jpg";
+        [ProtoMember(2)]
+        public string MediumResUrl {
+            get { return $"https://img.youtube.com/vi/{_videoId}/mqdefault.jpg"; }
+            set { }
+        }
 
         /// <summary>
         /// High resolution thumbnail URL.
         /// </summary>
         [NotNull]
-        public string HighResUrl => $"https://img.youtube.com/vi/{_videoId}/hqdefault.jpg";
+        [ProtoMember(3)]
+        public string HighResUrl
+        {
+            get { return $"https://img.youtube.com/vi/{_videoId}/hqdefault.jpg"; }
+            set { }
+        }
 
         /// <summary>
         /// Standard resolution thumbnail URL.
         /// Not always available.
         /// </summary>
         [NotNull]
-        public string StandardResUrl => $"https://img.youtube.com/vi/{_videoId}/sddefault.jpg";
+        [ProtoMember(4)]
+        public string StandardResUrl
+        {
+            get { return $"https://img.youtube.com/vi/{_videoId}/sddefault.jpg"; }
+            set { }
+        }
 
         /// <summary>
         /// Max resolution thumbnail URL.
         /// Not always available.
         /// </summary>
         [NotNull]
-        public string MaxResUrl => $"https://img.youtube.com/vi/{_videoId}/maxresdefault.jpg";
+        [ProtoMember(5)]
+        public string MaxResUrl
+        {
+            get { return $"https://img.youtube.com/vi/{_videoId}/maxresdefault.jpg"; }
+            set { }
+        }
+
+        public ThumbnailSet() { }
 
         /// <summary />
         public ThumbnailSet(string videoId)

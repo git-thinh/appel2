@@ -25,7 +25,7 @@ namespace YoutubeExplode
         }
 
         /// <inheritdoc />
-        public IList<Video> SearchVideosAsync(string query, int maxPages)
+        public List<Video> SearchVideosAsync(string query, int maxPages)
         {
             query.GuardNotNull(nameof(query));
             maxPages.GuardPositive(nameof(maxPages));
@@ -83,7 +83,7 @@ namespace YoutubeExplode
         }
 
         /// <inheritdoc />
-        public IList<Video> SearchVideosAsync(string query)
+        public List<Video> SearchVideosAsync(string query)
         { 
             return SearchVideosAsync(query, int.MaxValue);
         }

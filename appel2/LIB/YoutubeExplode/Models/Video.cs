@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using ProtoBuf;
 using YoutubeExplode.Internal;
 
 namespace YoutubeExplode.Models
@@ -8,59 +9,73 @@ namespace YoutubeExplode.Models
     /// <summary>
     /// Information about a YouTube video.
     /// </summary>
+    [ProtoContract]
+    [ProtoInclude(6, typeof(ThumbnailSet))]
+    [ProtoInclude(9, typeof(Statistics))]
     public class Video
     {
         /// <summary>
         /// ID of this video.
         /// </summary>
         [NotNull]
-        public string Id { get; }
+        [ProtoMember(1)]
+        public string Id { get; set; }
 
         /// <summary>
         /// Author of this video.
         /// </summary>
         [NotNull]
-        public string Author { get; }
+        [ProtoMember(2)]
+        public string Author { get; set; }
 
         /// <summary>
         /// Upload date of this video.
         /// </summary>
-        public DateTimeOffset UploadDate { get; }
+        [ProtoMember(3)]
+        public DateTimeOffset UploadDate { get; set; }
 
         /// <summary>
         /// Title of this video.
         /// </summary>
         [NotNull]
-        public string Title { get; }
+        [ProtoMember(4)]
+        public string Title { get; set; }
 
         /// <summary>
         /// Description of this video.
         /// </summary>
         [NotNull]
-        public string Description { get; }
+        [ProtoMember(5)]
+        public string Description { get; set; }
 
         /// <summary>
         /// Thumbnails of this video.
         /// </summary>
         [NotNull]
-        public ThumbnailSet Thumbnails { get; }
+        [ProtoMember(6)]
+        public ThumbnailSet Thumbnails { get; set; }
 
         /// <summary>
         /// Duration of this video.
         /// </summary>
-        public TimeSpan Duration { get; }
+        [ProtoMember(7)]
+        public TimeSpan Duration { get; set; }
 
         /// <summary>
         /// Search keywords of this video.
         /// </summary>
         [NotNull, ItemNotNull]
-        public IList<string> Keywords { get; }
+        [ProtoMember(8)]
+        public IList<string> Keywords { get; set; }
 
         /// <summary>
         /// Statistics of this video.
         /// </summary>
         [NotNull]
-        public Statistics Statistics { get; }
+        [ProtoMember(9)]
+        public Statistics Statistics { get; set; }
+
+        public Video() { }
 
         /// <summary />
         public Video(string id, string author, DateTimeOffset uploadDate, string title, string description,

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ProtoBuf;
+using ProtoBuf.Meta;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,6 +9,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using YoutubeExplode;
+using YoutubeExplode.Models;
 
 namespace appel
 {
@@ -45,10 +48,11 @@ namespace appel
         }
 
         static fPlayer player;
+        static fMain main;
 
         public static IFORM get_Main()
         {
-            return player;
+            return main;
         }
 
         public static void postMessageToService(msg m)
@@ -66,11 +70,11 @@ namespace appel
             //var lw1 = api_youtube.f_analytic_wordFileXml("demo1.xml");
             //var ls1 = api_youtube.f_render_Sentence(lw1);
 
-            var lw2 = api_youtube.f_analytic_wordFileXml("demo2.xml");
-            var ls2 = api_youtube.f_render_Sentence(lw2);
+            //var lw2 = api_youtube.f_analytic_wordFileXml("demo2.xml");
+            //var ls2 = api_youtube.f_render_Sentence(lw2);
 
-            string text = string.Empty;
-            foreach (var se in ls2) text += se.TimeStart + ": " + se.Words + Environment.NewLine;
+            //string text = string.Empty;
+            //foreach (var se in ls2) text += se.TimeStart + ": " + se.Words + Environment.NewLine;
 
             //string videoId = "RQPSzkMNwcw";
             //var _client = new YoutubeClient();
@@ -79,6 +83,27 @@ namespace appel
             //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
             //var MediaStreamInfos = _client.GetVideoMediaStreamInfosAsync(videoId);
             //var ClosedCaptionTrackInfos = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+
+            //List<Video> video_result = _client.SearchVideosAsync("learn english subtitle");
+            //string json = Newtonsoft.Json.JsonConvert.SerializeObject(video_result);
+
+            RuntimeTypeModel.Default.Add(typeof(DateTimeOffset), false).SetSurrogate(typeof(DateTimeOffsetSurrogate));
+
+            //List<Video> video_result = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Video>>(File.ReadAllText("videos.json"));
+
+            //using (var file = File.Create("videos.bin"))
+            //{
+            //    Serializer.Serialize<List<Video>>(file, video_result);
+            //}
+
+
+            using (var file = File.OpenRead("videos.bin"))
+            {
+                var lvs = Serializer.Deserialize<List<Video>>(file);
+
+            }
+
+                main = new fMain();
 
             player = new fPlayer();
             player.Shown += (se, ev) =>
@@ -100,7 +125,7 @@ namespace appel
             };
 
             Application.EnableVisualStyles();
-            Application.Run(player);
+            Application.Run(main);
         }
     }
 
