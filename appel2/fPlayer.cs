@@ -13,12 +13,13 @@ namespace appel
 {
     public class fPlayer : Form, IFORM
     {
+        const bool m_hook_MouseMove = true;
+
         private AxWindowsMediaPlayer m_media;
         private ControlTransparent m_modal;
-        private ContextMenu m_menu;
-        private bool allow_hookMouseWheel = true;
+        private Panel m_resize;
+        private bool m_resizing = false;
 
-        bool m_mouse_right = false;
         public fPlayer()
         {
             // FORM
@@ -28,94 +29,75 @@ namespace appel
 
             // MEDIA
             m_media = new AxWindowsMediaPlayer();
-            m_media.Dock = DockStyle.None;
-            m_media.Location = new Point(0, 0);
-            m_media.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
+            //m_media.Location = new Point(0, 0);
+            //m_media.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
+            m_media.Dock = DockStyle.Fill;
             m_media.Enabled = true;
             m_media.PlayStateChange += new _WMPOCXEvents_PlayStateChangeEventHandler(this.f_media_event_PlayStateChange);
             this.Controls.Add(m_media);
 
             // MODAL
             m_modal = new ControlTransparent();
-            m_media.Dock = DockStyle.None;
             m_modal.Location = new Point(0, 0);
             m_modal.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
             m_modal.BackColor = Color.Black;
             m_modal.Opacity = 1;
-            m_modal.DoubleClick += (se, ev) =>
+            m_modal.MouseMove += f_form_move_MouseDown;
+            m_modal.Click += (se, ev) =>
             {
-                if (this.FormBorderStyle == FormBorderStyle.None)
+                if (m_media.playState == WMPLib.WMPPlayState.wmppsPlaying)
                 {
-                    this.FormBorderStyle = FormBorderStyle.Sizable;
-                    this.TopMost = false;
                     m_media.Ctlcontrols.pause();
                 }
                 else
                 {
-                    this.FormBorderStyle = FormBorderStyle.None;
-                    this.TopMost = true;
                     m_media.Ctlcontrols.play();
                 }
             };
-            m_modal.MouseDown += (se, ev) =>
-            {
-                m_mouse_right = false;
-                if (ev.Button == MouseButtons.Right)
-                {
-                    m_mouse_right = true;
-                    // show menu context
-                    m_menu.Show(this, new Point(ev.X, ev.Y));
-                    m_mouse_right = false;
-                }
-                else if (ev.Button == MouseButtons.Left)
-                {
-                    if (m_media.playState == WMPLib.WMPPlayState.wmppsPlaying)
-                    {
-                        m_media.Ctlcontrols.pause();
-                    }
-                    else
-                    {
-                        m_media.Ctlcontrols.play();
-                    }
-                }
-            };
             this.Controls.Add(m_modal);
-            m_modal.MouseLeave += (se, ev) =>
+
+            // RESIZE
+            m_resize = new Panel();
+            m_resize.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            m_resize.BackColor = Color.Black;
+            m_resize.Size = new Size(8, 8);
+            this.Controls.Add(m_resize);
+            m_resize.MouseDown += (se, ev) => { m_resizing = true; };
+            m_resize.MouseUp += (se, ev) =>
             {
-                Debug.WriteLine("MouseLeave: " + m_mouse_right.ToString());
-                //menuItem_Click(m_menu.MenuItems[0], new EventArgs());
-
-                //m_menu.Show(this, new Point(-1000, 0)); 
-                //SendKeys.SendWait("{ESC}");
-                //this.Focus();
+                m_resizing = false;
+                Debug.WriteLine("RESIZE: ok ");
+                if (m_media.playState == WMPLib.WMPPlayState.wmppsPlaying)
+                {
+                    m_media.Ctlcontrols.pause();
+                    m_media.Ctlcontrols.play();
+                }
+                else if (m_media.playState == WMPLib.WMPPlayState.wmppsPaused)
+                {
+                    m_media.Ctlcontrols.play();
+                    m_media.Ctlcontrols.pause();
+                }
             };
-            m_modal.MouseMove += (se, ev) =>
-            {
-                //Debug.WriteLine("MouseMove: " + m_mouse_right.ToString());
-                //menuItem_Click(m_menu.MenuItems[0], new EventArgs());
-
-                f_form_move_MouseDown(se, ev);
-            };
-
-            MenuItem[] mi = new MenuItem[3];
-            mi[0] = new MenuItem("Item1", menuItem_Click);
-            mi[1] = new MenuItem("Item2", menuItem_Click);
-            mi[2] = new MenuItem("Item3", menuItem_Click);
-            m_menu = new ContextMenu(mi);
-            m_menu.MenuItems[0].Visible = false;
 
             // FORM SHOWN
             this.Shown += (se, ev) =>
             {
                 this.TopMost = true;
+
                 m_media.uiMode = "none";
-                m_media.Size = new Size(this.Width, this.Height);
                 m_modal.Size = new Size(this.Width, this.Height);
 
+                m_resize.Location = new Point(this.Width - m_resize.Width, this.Height - m_resize.Height);
+
+
                 m_modal.BringToFront();
+                m_resize.BringToFront();
+
                 f_hook_mouse_Open();
             };
         }
+
+        #region [ MEDIA PLAYER ]
 
         public void f_free_Resource()
         {
@@ -163,9 +145,38 @@ namespace appel
             m_media.URL = path;
         }
 
+        #endregion
+
         /*////////////////////////////////////////////////////////////////////////*/
 
-        #region [ FORM MOVE ]
+        #region [ MOUSE MOVE: IN FORM, OUT FORM ]
+
+        private void f_mouse_move_intoForm(int x, int y)
+        {
+            f_form_Resize(x, y, MOUSE_XY.INT);
+        }
+
+        private void f_mouse_move_outForm(int x, int y)
+        {
+            f_form_Resize(x, y, MOUSE_XY.OUT);
+        }
+
+        #endregion
+
+        #region [ FORM MOVE, RESIZE ]
+
+        enum MOUSE_XY { OUT, INT };
+
+        void f_form_Resize(int x, int y, MOUSE_XY type)
+        {
+            if (m_resizing)
+            {
+                int max_x = this.Location.X + this.Width;
+                int max_y = this.Location.Y + this.Height;
+                this.Width = x - this.Location.X;
+                this.Height = y - this.Location.Y;
+            }
+        }
 
         public const int WM_NCLBUTTONDOWN = 0xA1;
         public const int HT_CAPTION = 0x2;
@@ -186,30 +197,36 @@ namespace appel
 
         #endregion
 
-        #region [ HOOK MOUSE: MOUSE WHEEL, RUN SCROLLBAR ... ]
+        #region [ HOOK MOUSE: MOVE, WHEEL ... ]
 
         void f_hook_mouse_move_CallBack(MouseEventArgs e)
         {
-            if (e.X > this.Location.X && e.X < this.Width + this.Location.X && e.Y > e.Location.Y && e.Y < e.Location.Y + this.Height)
+            int max_x = this.Width + this.Location.X,
+                max_y = e.Location.Y + this.Height;
+            //Debug.WriteLine(this.Location.X + " " +e.X  + " " + max_x + " | " + this.Location.Y + " " +e.Y  + " " + max_y);
+
+            if (e.X > this.Location.X && e.X < max_x
+                && e.Y > this.Location.Y && e.Y < max_y)
             {
-                Debug.WriteLine("IN FORM");
+                //Debug.WriteLine("IN FORM: "+ this.Location.X + " " + e.X + " " + max_x + " | " + this.Location.Y + " " + e.Y + " " + max_y);
+                f_mouse_move_intoForm(e.X, e.Y);
             }
             else
             {
-                Debug.WriteLine("OUT FORM");
-
+                //Debug.WriteLine("OUT FORM: " + this.Location.X + " " + e.X + " " + max_x + " | " + this.Location.Y + " " + e.Y + " " + max_y);
+                f_mouse_move_outForm(e.X, e.Y);
             }
         }
 
         void f_hook_mouse_Open()
         {
-            if (allow_hookMouseWheel)
+            if (m_hook_MouseMove)
                 f_hook_mouse_SubscribeGlobal();
         }
 
         void f_hook_mouse_Close()
         {
-            if (allow_hookMouseWheel)
+            if (m_hook_MouseMove)
                 f_hook_mouse_Unsubscribe();
         }
 

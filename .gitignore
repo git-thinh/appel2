@@ -19,3 +19,5 @@ appel2/obj/Debug/appel2.csproj.FileListAbsolute.txt
 appel2/obj/Debug/appel2.csprojResolveAssemblyReference.cache
 appel2/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
 Buildx86/appel.vshost.exe
+appel2/obj/x86/Debug/appel.Resources.resources
+appel2/obj/x86/Debug/appel2.csproj.GenerateResource.Cache
