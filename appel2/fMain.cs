@@ -15,6 +15,7 @@ namespace appel
     public class fMain : Form, IFORM
     {
         #region [ VARIABLE ]
+        private readonly Font font_Title = new Font("Arial", 11f, FontStyle.Regular);
 
         private IconButton btn_exit;
 
@@ -177,9 +178,14 @@ namespace appel
                 int distance_tit = app.m_item_height - tit_height;
 
                 var ls = Serializer.Deserialize<List<Video>>(file);
-                int y = 0, x = 0, row = 0;
+
+                int y = 0, y2 = 0, x = 0, row = 0;
+                string tit = string.Empty;
                 Control[] pics = new Control[30];
                 Control[] tits = new Control[30];
+
+                #region
+
                 for (int i = 0; i < ls.Count; i++)
                 {
                     if (i > 29) break;
@@ -187,6 +193,7 @@ namespace appel
                     {
                         x = i == 0 ? margin_left : (app.m_item_width + margin_left * 2);
                         y = 0;
+                        y2 = distance_tit;
                     }
                     else
                     {
@@ -202,35 +209,44 @@ namespace appel
                             x = app.m_item_width + margin_left * 2;
                             y = (app.m_item_height * row) + margin_bottom * row;
                         }
+                        y2 = y + distance_tit;
                     }
-                    
-                    Label pic = new Label()
-                    {
-                        Text = i.ToString(),
-                        TextAlign = ContentAlignment.MiddleCenter,
 
+                    PictureBox pic = new PictureBox()
+                    {
+                        //Text = i.ToString(),
+                        //TextAlign = ContentAlignment.MiddleCenter,
                         BackColor = Color.LightGray,
                         Width = app.m_item_width,
                         Height = app.m_item_height,
                         Location = new Point(x, y),
                     };
-                    Label tit = new Label()
+
+                    tit = ls[i].Title.ToLower();
+                    if (tit.Length > 78) tit = tit.Substring(0, 75) + "...";
+
+                    Label lbl = new Label()
                     {
-                        Text = ls[i].Title,
+                        Text = (i + 1).ToString() + ", " + tit,
                         TextAlign = ContentAlignment.MiddleLeft,
 
                         AutoSize = false,
-                        BackColor = Color.Orange,
+                        BackColor = Color.Black,
+                        ForeColor = Color.White,
                         Width = app.m_item_width,
                         Height = tit_height,
-                        Location = new Point(x, y - distance_tit)
+                        Location = new Point(x, y2),
+                        Padding = new Padding(9, 0, 0, 0),
+                        Font = font_Title,
                     };
 
                     pics[i] = pic;
-                    tits[i] = tit;
+                    tits[i] = lbl;
                 }
+                
+                #endregion
 
-                m_search_Result.Controls.AddRange(tits); 
+                m_search_Result.Controls.AddRange(tits);
                 m_search_Result.Controls.AddRange(pics);
             }
         }
