@@ -17,6 +17,8 @@ namespace appel
     {
         public const int m_item_width = 320;
         public const int m_item_height = 180;
+        static fMain main;
+        static Dictionary<string, VideoInfo> m_dicVideo = new Dictionary<string, VideoInfo>();
 
         static app()
         {
@@ -50,23 +52,50 @@ namespace appel
             };
         }
 
-        static fPlayer player;
-        static fMain main;
-
-        public static IFORM get_Main()
+        public static void f_youtube_Open(string videoId, string title)
         {
-            return main;
-        }
+            main.Cursor = Cursors.WaitCursor;
 
-        public static void postMessageToService(msg m)
-        {
+            string url = string.Empty;
+            if (m_dicVideo.ContainsKey(videoId))
+            {
+                var mi = m_dicVideo[videoId];
+                if (mi != null && mi.Media != null && mi.Media.Muxed.Count > 0)
+                {
+                    var mp4 = mi.Media.Muxed.Where(x => x.Container == YoutubeExplode.Models.MediaStreams.Container.Mp4).Take(1).SingleOrDefault();
+                    if (mp4 != null)
+                        url = mp4.Url;
+                }
+            }
+            if (url == string.Empty)
+            {
+                var _client = new YoutubeClient();
+                // Get data
+                //var video = _client.GetVideoAsync(videoId);
+                //var chanel = _client.GetVideoAuthorChannelAsync(videoId);
+                var media = _client.GetVideoMediaStreamInfosAsync(videoId);
+                //var caption = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+                if (media.Muxed.Count > 0)
+                {
+                    var mp4 = media.Muxed.Where(x => x.Container == YoutubeExplode.Models.MediaStreams.Container.Mp4).Take(1).SingleOrDefault();
+                    if (mp4 != null)
+                        url = mp4.Url;
+                }
 
-        }
+                if (!m_dicVideo.ContainsKey(videoId))
+                    m_dicVideo.Add(videoId, new VideoInfo() { Media = media });
+                else
+                    m_dicVideo[videoId].Media = media;
+            }
 
-        public static void Exit()
-        {
-            player.f_free_Resource();
-            Application.Exit();
+            if (url != string.Empty)
+            {
+                new fPlayer(url, title).Show();
+            }
+            else
+                MessageBox.Show("Cannot open videoId: " + title);
+
+            main.Cursor = Cursors.Default;
         }
 
         public static void RUN()
@@ -116,30 +145,43 @@ namespace appel
             };
 
 
-            player = new fPlayer();
-            player.Shown += (se, ev) =>
-            {
-                player.Width = m_item_width * 2;
-                player.Height = m_item_height * 2;
-                string path = string.Empty;
-                //path = @"http://localhost:7777/?type=mp4";
-                //path = @"http://localhost:7777/?type=m4a";
-                //path = @"http://localhost:7777/?type=mp3";
-                //path = @"G:\_EL\Document\data_el2\media\files\video.mp4";
-                //path = @"G:\_EL\Document\data_el2\media\files\3.mp4";
-                //path = @"https://r3---sn-8qj-i5ols.googlevideo.com/videoplayback?source=youtube&mt=1526388841&mv=m&ms=au%2Crdu&ip=14.177.123.70&key=yt6&c=WEB&dur=8944.047&itag=22&pl=20&mime=video%2Fmp4&mm=31%2C29&sparams=dur%2Cei%2Cid%2Cinitcwndbps%2Cip%2Cipbits%2Citag%2Clmt%2Cmime%2Cmm%2Cmn%2Cms%2Cmv%2Cpl%2Cratebypass%2Crequiressl%2Csource%2Cexpire&mn=sn-8qj-i5ols%2Csn-nv47lnly&id=o-ALaMTgiUsCYKmGhqjlqpkbquWJoaYRFz17H8fIKLaGNX&expire=1526410530&ei=wtj6WsLLC4LeqQHBtryYBQ&ratebypass=yes&fvip=3&lmt=1519643541844596&initcwndbps=885000&requiressl=yes&ipbits=0&signature=0B9374EFB658C87E97146D8A0CF84ED69CB0BAA6.066A39ED106D0D44B8072978C7517096E8769286";
-                //path = @"https://r2---sn-8qj-i5ole.googlevideo.com/videoplayback?expire=1526411244&ipbits=0&signature=4B2CA3B9C5F2C008090EFF7193A26BE060C28BB8.60A7A60846B84DDFF903D73D18DDC7D6843D3D22&requiressl=yes&lmt=1520501837846008&ratebypass=yes&itag=22&c=WEB&key=yt6&mime=video%2Fmp4&id=o-AFfW8oloWYChJia0H715UyKcopAiwtD7l0MPGmi-6KHS&dur=120.534&pl=20&source=youtube&sparams=dur%2Cei%2Cid%2Cinitcwndbps%2Cip%2Cipbits%2Citag%2Clmt%2Cmime%2Cmm%2Cmn%2Cms%2Cmv%2Cpl%2Cratebypass%2Crequiressl%2Csource%2Cexpire&mv=m&initcwndbps=1008750&fvip=2&ms=au%2Crdu&ip=14.177.123.70&mm=31%2C29&mn=sn-8qj-i5ole%2Csn-npoeene6&ei=jNv6WrrxJMy04AKp24HwDw&mt=1526389548";
-                path = @"demo2.mp4";
-                //path = @"demo1.mp4";
-
-                player.f_play(path);
-            };
-
-
+            //string path = string.Empty;
+            ////path = @"http://localhost:7777/?type=mp4";
+            ////path = @"http://localhost:7777/?type=m4a";
+            ////path = @"http://localhost:7777/?type=mp3";
+            ////path = @"G:\_EL\Document\data_el2\media\files\video.mp4";
+            ////path = @"G:\_EL\Document\data_el2\media\files\3.mp4";
+            ////path = @"https://r3---sn-8qj-i5ols.googlevideo.com/videoplayback?source=youtube&mt=1526388841&mv=m&ms=au%2Crdu&ip=14.177.123.70&key=yt6&c=WEB&dur=8944.047&itag=22&pl=20&mime=video%2Fmp4&mm=31%2C29&sparams=dur%2Cei%2Cid%2Cinitcwndbps%2Cip%2Cipbits%2Citag%2Clmt%2Cmime%2Cmm%2Cmn%2Cms%2Cmv%2Cpl%2Cratebypass%2Crequiressl%2Csource%2Cexpire&mn=sn-8qj-i5ols%2Csn-nv47lnly&id=o-ALaMTgiUsCYKmGhqjlqpkbquWJoaYRFz17H8fIKLaGNX&expire=1526410530&ei=wtj6WsLLC4LeqQHBtryYBQ&ratebypass=yes&fvip=3&lmt=1519643541844596&initcwndbps=885000&requiressl=yes&ipbits=0&signature=0B9374EFB658C87E97146D8A0CF84ED69CB0BAA6.066A39ED106D0D44B8072978C7517096E8769286";
+            ////path = @"https://r2---sn-8qj-i5ole.googlevideo.com/videoplayback?expire=1526411244&ipbits=0&signature=4B2CA3B9C5F2C008090EFF7193A26BE060C28BB8.60A7A60846B84DDFF903D73D18DDC7D6843D3D22&requiressl=yes&lmt=1520501837846008&ratebypass=yes&itag=22&c=WEB&key=yt6&mime=video%2Fmp4&id=o-AFfW8oloWYChJia0H715UyKcopAiwtD7l0MPGmi-6KHS&dur=120.534&pl=20&source=youtube&sparams=dur%2Cei%2Cid%2Cinitcwndbps%2Cip%2Cipbits%2Citag%2Clmt%2Cmime%2Cmm%2Cmn%2Cms%2Cmv%2Cpl%2Cratebypass%2Crequiressl%2Csource%2Cexpire&mv=m&initcwndbps=1008750&fvip=2&ms=au%2Crdu&ip=14.177.123.70&mm=31%2C29&mn=sn-8qj-i5ole%2Csn-npoeene6&ei=jNv6WrrxJMy04AKp24HwDw&mt=1526389548";
+            ////path = @"demo2.mp4";
+            //path = @"demo1.mp4";
+            //fPlayer player = new fPlayer(path, "TEST"); 
 
             Application.EnableVisualStyles();
+            //Application.Run(player);
             Application.Run(main);
         }
+
+        #region
+
+        public static IFORM get_Main()
+        {
+            return main;
+        }
+
+        public static void postMessageToService(msg m)
+        {
+
+        }
+
+        public static void Exit()
+        {
+            //main.f_free_Resource();
+            Application.Exit();
+        }
+
+
+        #endregion
     }
 
     class Program

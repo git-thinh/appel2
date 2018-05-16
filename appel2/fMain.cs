@@ -14,10 +14,11 @@ namespace appel
 {
     public class fMain : Form, IFORM
     {
-        #region [ VARIABLE ]
+        #region [ VARIABLE ] 
         private readonly Font font_Title = new Font("Arial", 11f, FontStyle.Regular);
 
         private IconButton btn_exit;
+        private Label lbl_title;
 
         private FATabStrip m_tab;
         private FATabStripItem m_tab_Search;
@@ -107,7 +108,18 @@ namespace appel
             });
             m_tab.MouseMove += f_form_move_MouseDown;
 
-            this.Controls.Add(m_tab);
+            lbl_title = new Label()
+            {
+                AutoSize = false,
+                Text = "English Media",
+                Dock = DockStyle.Top,
+                Height = 25,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(9, 0, 0, 0),
+            };
+            lbl_title.MouseMove += f_form_move_MouseDown;
+
+            this.Controls.AddRange(new Control[] { m_tab, lbl_title });
 
             #endregion
 
@@ -240,17 +252,38 @@ namespace appel
                         Font = font_Title,
                     };
 
-                    pic.Click += (se, ev) => { new fYoutubeIframe(ls[i].Id).Show(); };
+                    pic.Click += (se, ev) => {
+                        ((Control)se).BackColor = Color.Gray;
+                        f_video_openMp4(ls[i].Id, ls[i].Title);
+                    };
+                    lbl.Click += (se, ev) => {
+                        f_video_openMp3(ls[i].Id, ls[i].Title);
+                        ((Control)se).BackColor = Color.Orange;
+                    };
 
                     pics[i] = pic;
                     tits[i] = lbl;
                 }
-                
+
                 #endregion
 
                 m_search_Result.Controls.AddRange(tits);
                 m_search_Result.Controls.AddRange(pics);
             }
+        }
+
+        void f_video_openMp4(string videoId, string title)
+        {
+            app.f_youtube_Open(videoId, title);
+        }
+
+        void f_video_openMp3(string videoId, string title)
+        {
+            for (int i = 0; i < m_search_Result.Controls.Count; i++) {
+                if (m_search_Result.Controls[i] is Label)
+                    m_search_Result.Controls[i].BackColor = Color.Black;
+            }
+            lbl_title.Text = title;
         }
 
         #endregion

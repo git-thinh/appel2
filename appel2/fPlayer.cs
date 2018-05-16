@@ -19,10 +19,12 @@ namespace appel
         private ControlTransparent m_modal;
         private Panel m_resize;
         private bool m_resizing = false;
+        private IconButton btn_exit;
 
-
-        public fPlayer()
+        public fPlayer(string url, string title)
         {
+            if (!string.IsNullOrEmpty(title)) this.Text = title;
+
             // FORM
             this.TopMost = true;
             this.FormBorderStyle = FormBorderStyle.None;
@@ -56,17 +58,32 @@ namespace appel
                 }
             };
             this.Controls.Add(m_modal);
+            m_modal.MouseDoubleClick += (se, ev) =>
+            {
+                if (m_media.uiMode == "none")
+                {
+                    m_media.uiMode = "full";
+                    m_modal.Height = this.Height - 45;
+                }
+                else
+                {
+                    m_media.uiMode = "none";
+                    m_modal.Height = this.Height;
+                }
+                m_media.Ctlcontrols.play();
+            };
 
             // RESIZE
             m_resize = new Panel();
             m_resize.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            m_resize.BackColor = Color.Orange;
+            m_resize.BackColor = Color.Black;
             m_resize.Size = new Size(8, 8);
             this.Controls.Add(m_resize);
-            m_resize.MouseDown += (se, ev) => { m_resizing = true; };
+            m_resize.MouseDown += (se, ev) => { f_hook_mouse_Open(); m_resizing = true; };
             m_resize.MouseUp += (se, ev) =>
             {
                 m_resizing = false;
+                f_hook_mouse_Close();
                 //Debug.WriteLine("RESIZE: ok ");
                 if (m_media.playState == WMPLib.WMPPlayState.wmppsPlaying)
                 {
@@ -80,22 +97,39 @@ namespace appel
                 }
             };
 
+            btn_exit = new IconButton(18) { IconType = IconType.ios_close_empty, Anchor = AnchorStyles.Right | AnchorStyles.Top };
+            btn_exit.Click += exit_Click;
+            this.Controls.Add(btn_exit);
+
             // FORM SHOWN
             this.Shown += (se, ev) =>
             {
                 this.TopMost = true;
+                this.Width = app.m_item_width * 2;
+                this.Height = app.m_item_height * 2;
 
                 m_media.uiMode = "none";
-                m_modal.Size = new Size(this.Width, this.Height);
+                m_modal.Size = new Size(this.Width, this.Height); 
 
                 m_resize.Location = new Point(this.Width - m_resize.Width, this.Height - m_resize.Height);
 
 
                 m_modal.BringToFront();
+
+                btn_exit.Location = new Point(this.Width - (btn_exit.Width - 5), 0);
+                btn_exit.BringToFront();
+
                 m_resize.BringToFront();
 
-                f_hook_mouse_Open();
+                f_play(url, title);
             };
+        }
+
+        private void exit_Click(object sender, EventArgs e)
+        {
+            m_media.Ctlcontrols.stop();
+            m_media.Dispose();
+            this.Close();
         }
 
         #region [ MEDIA PLAYER ]
@@ -141,7 +175,7 @@ namespace appel
 
 
         }
-        public void f_play(string path)
+        private void f_play(string path, string title)
         {
             m_media.URL = path;
         }

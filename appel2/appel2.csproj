@@ -114,9 +114,6 @@
     <Compile Include="fPlayer.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="fYoutubeIframe.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="LIB\Fonts\IconButton.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -373,6 +370,7 @@
     <Compile Include="LIB\YoutubeExplode\Models\Statistics.cs" />
     <Compile Include="LIB\YoutubeExplode\Models\ThumbnailSet.cs" />
     <Compile Include="LIB\YoutubeExplode\Models\Video.cs" />
+    <Compile Include="LIB\YoutubeExplode\Models\VideoInfo.cs" />
     <Compile Include="LIB\YoutubeExplode\YoutubeClient.Channel.cs" />
     <Compile Include="LIB\YoutubeExplode\YoutubeClient.ClosedCaptionTrack.cs" />
     <Compile Include="LIB\YoutubeExplode\YoutubeClient.cs" />
