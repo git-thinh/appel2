@@ -16,6 +16,7 @@ namespace appel
     public class app
     {
         public const int m_item_width = 320;
+        public const int m_app_width = m_item_width * 2 + 45;
         public const int m_item_height = 180;
         static fMain main;
         static Dictionary<string, VideoInfo> m_dicVideo = new Dictionary<string, VideoInfo>();
@@ -137,8 +138,8 @@ namespace appel
             main = new fMain();
             main.Shown += (se, ev) =>
             {
-                main.Width = m_item_width * 2 + 45;
-                main.Height = m_item_height * 5;
+                main.Width = m_app_width;
+                main.Height = m_item_height * 3 + 99;
                 main.Top = Screen.PrimaryScreen.WorkingArea.Height - (main.Height + 45);
                 main.Left = Screen.PrimaryScreen.WorkingArea.Width - (main.Width + 45);
 

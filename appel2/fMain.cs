@@ -18,6 +18,9 @@ namespace appel
         private readonly Font font_Title = new Font("Arial", 11f, FontStyle.Regular);
 
         private IconButton btn_exit;
+        private IconButton btn_mini;
+        private IconButton btn_play;
+
         private Label lbl_title;
 
         private FATabStrip m_tab;
@@ -40,26 +43,56 @@ namespace appel
         {
             this.FormBorderStyle = FormBorderStyle.None;
             this.Shown += (se, ev) =>
-            {
-                this.Width = 550;
-                this.Height = 600;
+            {                
+                lbl_title.Width = app.m_app_width - 123;
 
                 btn_exit.Location = new Point(this.Width - 18, 0);
                 btn_exit.BringToFront();
-                btn_exit.Height = 20;
+
+                btn_mini.Location = new Point(this.Width - 18 * 2, 0);
+                btn_mini.BringToFront();
+
+                btn_play.Location = new Point(this.Width - 18 * 4, 9);
+                btn_play.BringToFront();
             };
 
             #region [ TAB ]
+            lbl_title = new Label()
+            {
+                AutoSize = false,
+                Text = "English Media",
+                Height = 25,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Location = new Point(39, 0),                
+                //BackColor = Color.DimGray,
+            };
+            lbl_title.MouseMove += f_form_move_MouseDown;
+            this.Controls.Add(lbl_title);
 
-            btn_exit = new IconButton(20) { IconType = IconType.close_circled, Anchor = AnchorStyles.Right | AnchorStyles.Top };
+            btn_play = new IconButton(32)
+            {
+                ActiveColor = Color.OrangeRed,
+                IconType = IconType.ios_play,
+                Anchor = AnchorStyles.Right | AnchorStyles.Top
+            };
+            btn_play.Click += f_play_iconControlClick;
+            this.Controls.Add(btn_play);
+
+            btn_exit = new IconButton(20) { IconType = IconType.ios_close_empty, Anchor = AnchorStyles.Right | AnchorStyles.Top };
             btn_exit.Click += (se, ev) => { app.Exit(); };
             this.Controls.Add(btn_exit);
+
+            btn_mini = new IconButton(20) { IconType = IconType.ios_minus_empty, Anchor = AnchorStyles.Right | AnchorStyles.Top };
+            btn_mini.Click += (se, ev) => { this.WindowState = FormWindowState.Minimized; };
+            this.Controls.Add(btn_mini);
+
 
             m_tab = new FATabStrip()
             {
                 Dock = DockStyle.Fill,
                 AlwaysShowClose = false,
                 AlwaysShowMenuGlyph = false,
+                Margin = new Padding(0, 45, 0, 0),
             };
             m_tab_Search = new FATabStripItem()
             {
@@ -106,20 +139,12 @@ namespace appel
                 m_tab_Word,
                 m_tab_Text,
             });
+            Label lbl_bgHeader = new Label() { Dock = DockStyle.Top, Height = lbl_title.Height  };
             m_tab.MouseMove += f_form_move_MouseDown;
-
-            lbl_title = new Label()
-            {
-                AutoSize = false,
-                Text = "English Media",
-                Dock = DockStyle.Top,
-                Height = 25,
-                TextAlign = ContentAlignment.MiddleLeft,
-                Padding = new Padding(9, 0, 0, 0),
-            };
-            lbl_title.MouseMove += f_form_move_MouseDown;
-
-            this.Controls.AddRange(new Control[] { m_tab, lbl_title });
+            lbl_bgHeader.MouseMove += f_form_move_MouseDown;
+            this.Controls.AddRange(new Control[] {
+                m_tab,lbl_bgHeader
+            });
 
             #endregion
 
@@ -155,6 +180,44 @@ namespace appel
             #endregion
 
             f_search_Result();
+        }
+
+        private void f_play_iconControlClick(object sender, EventArgs e)
+        {
+            if (btn_play.Tag == null) return;
+
+            if (btn_play.IconType == IconType.ios_pause)
+            {
+                // pause -> play
+                btn_play.IconType = IconType.ios_play;
+                btn_play.InActiveColor = Color.DimGray;
+            }
+            else
+            {
+                // play -> pause
+                btn_play.IconType = IconType.ios_pause;
+                btn_play.InActiveColor = Color.OrangeRed;
+            }
+        }
+        void f_video_openMp4(string videoId, string title)
+        {
+            app.f_youtube_Open(videoId, title);
+        }
+
+        void f_video_openMp3(string videoId, string title)
+        {
+            for (int i = 0; i < m_search_Result.Controls.Count; i++)
+            {
+                if (m_search_Result.Controls[i] is Label)
+                    m_search_Result.Controls[i].BackColor = Color.Black;
+            }
+
+            string tit = title;
+            if (title.Length > 69) tit = title.Substring(0, 65) + "...";
+            lbl_title.Text = tit;
+            btn_play.IconType = IconType.ios_pause;
+            btn_play.InActiveColor = Color.OrangeRed;
+            btn_play.Tag = videoId;
         }
 
         #region [ FORM MOVE ]
@@ -252,11 +315,13 @@ namespace appel
                         Font = font_Title,
                     };
 
-                    pic.Click += (se, ev) => {
+                    pic.Click += (se, ev) =>
+                    {
                         ((Control)se).BackColor = Color.Gray;
                         f_video_openMp4(ls[i].Id, ls[i].Title);
                     };
-                    lbl.Click += (se, ev) => {
+                    lbl.Click += (se, ev) =>
+                    {
                         f_video_openMp3(ls[i].Id, ls[i].Title);
                         ((Control)se).BackColor = Color.Orange;
                     };
@@ -272,19 +337,6 @@ namespace appel
             }
         }
 
-        void f_video_openMp4(string videoId, string title)
-        {
-            app.f_youtube_Open(videoId, title);
-        }
-
-        void f_video_openMp3(string videoId, string title)
-        {
-            for (int i = 0; i < m_search_Result.Controls.Count; i++) {
-                if (m_search_Result.Controls[i] is Label)
-                    m_search_Result.Controls[i].BackColor = Color.Black;
-            }
-            lbl_title.Text = title;
-        }
 
         #endregion
 
