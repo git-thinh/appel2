@@ -23,6 +23,7 @@ namespace appel
 
         public fPlayer(string url, string title)
         {
+            this.Icon = Resources.favicon;
             if (!string.IsNullOrEmpty(title)) this.Text = title;
 
             // FORM

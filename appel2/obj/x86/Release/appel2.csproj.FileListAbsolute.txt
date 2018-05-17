@@ -1,0 +1,8 @@
+C:\_CS\appel2\appel2\obj\x86\Release\appel.Resources.resources
+C:\_CS\appel2\appel2\obj\x86\Release\appel2.csproj.GenerateResource.Cache
+C:\_CS\appel2\appel2\obj\x86\Release\appel2.csproj.CoreCompileInputs.cache
+C:\_CS\appel2\Buildx86\appel.exe
+C:\_CS\appel2\Buildx86\appel.pdb
+C:\_CS\appel2\appel2\obj\x86\Release\appel.exe
+C:\_CS\appel2\appel2\obj\x86\Release\appel.pdb
+C:\_CS\appel2\appel2\obj\x86\Release\appel2.csprojResolveAssemblyReference.cache

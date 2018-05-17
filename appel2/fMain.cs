@@ -16,6 +16,8 @@ namespace appel
     public class fMain : Form, IFORM
     {
         #region [ VARIABLE ] 
+
+        private const int m_media_width = 215;
         private readonly Font font_Title = new Font("Arial", 11f, FontStyle.Regular);
 
         private AxWindowsMediaPlayer m_media;
@@ -33,23 +35,24 @@ namespace appel
         private FATabStripItem m_tab_Word;
         private FATabStripItem m_tab_Grammar;
         private FATabStripItem m_tab_Text;
-        private FATabStripItem m_tab_playList;
-        private FATabStripItem m_tab_scanPC;
 
-        private TextBox txt_Search;
+        private ComboBox m_search_Input;
+        private bool m_search_Online = false;
         private Panel m_search_Result;
 
         private Panel m_search_Header;
 
         private Label lbl_hide_border_left;
+
         #endregion
 
         public fMain()
         {
+            this.Icon = Resources.favicon;
             this.FormBorderStyle = FormBorderStyle.None;
             this.Shown += (se, ev) =>
             {
-                lbl_title.Width = app.m_app_width - 123;
+                lbl_title.Width = app.m_app_width * 2;// - (m_media_width + lbl_title.Location.X + 15);
 
                 btn_exit.Location = new Point(3, 0);
                 btn_exit.BringToFront();
@@ -58,16 +61,16 @@ namespace appel
                 btn_mini.BringToFront();
 
 
-                m_media.uiMode = "mini";
-                m_media.Width = 159;
+                //m_media.uiMode = "mini";
+                m_media.Width = m_media_width;
                 m_media.Height = 44;
-                m_media.Location = new Point(this.Width - (m_media.Width - 2), -1);
+                m_media.Location = new Point(this.Width - (m_media_width - 2), 1);
                 m_media.settings.volume = 100;
                 m_media.BringToFront();
 
                 // lbl_hide_border_left.BackColor = Color.Orange;     
                 lbl_hide_border_left.Height = 44;
-                lbl_hide_border_left.Location = new Point(this.Width - (m_media.Width - 2), -1);
+                lbl_hide_border_left.Location = new Point(this.Width - (m_media_width - 2), -1);
                 lbl_hide_border_left.BringToFront();
             };
 
@@ -156,23 +159,11 @@ namespace appel
             {
                 CanClose = false,
                 Title = "Text",
-            };
-            m_tab_playList = new FATabStripItem()
-            {
-                CanClose = false,
-                Title = "PlayList",
-            };
-            m_tab_scanPC = new FATabStripItem()
-            {
-                CanClose = false,
-                Title = "Scan PC",
-            };
+            }; 
 
             m_tab.Items.AddRange(new FATabStripItem[] {
                 m_tab_Search,
-                m_tab_Tag,
-                m_tab_playList,
-                m_tab_scanPC,
+                m_tab_Tag, 
                 m_tab_Listen,
                 m_tab_Speaking,
                 m_tab_Grammar,
@@ -198,42 +189,74 @@ namespace appel
             };
             m_search_Result.MouseMove += f_form_move_MouseDown;
 
-            txt_Search = new TextBox()
+            m_search_Input = new ComboBox()
             {
-                Dock = DockStyle.Right,
+                Dock = DockStyle.Left,
+                Width = 123,
             };
+            m_search_Input.KeyDown += f_search_input_KeyDown;
 
             m_search_Header = new Panel()
             {
-                Height = 39,
+                Height = 35,
                 Dock = DockStyle.Top,
                 BackColor = Color.White,
-                Padding = new Padding(9),
+                Padding = new Padding(9,9,9,0),
+            };
+            var ico_search_Online = new IconButton(20) {
+                IconType = IconType.android_globe,
+                Dock = DockStyle.Left,
+                BorderStyle = BorderStyle.None,
             };
             m_search_Header.MouseMove += f_form_move_MouseDown;
-            m_search_Header.Controls.Add(txt_Search);
+            m_search_Header.Controls.AddRange(new Control[] {
+                m_search_Input,
+                ico_search_Online,
+            });
             m_tab_Search.Controls.AddRange(new Control[] {
                 m_search_Result,
                 m_search_Header,
             });
-
+            ico_search_Online.Click += (se, ev) => {
+                if (m_search_Online)
+                {
+                    m_search_Online = false;
+                    ico_search_Online.InActiveColor = Color.DimGray;
+                }
+                else
+                {
+                    m_search_Online = true;
+                    ico_search_Online.InActiveColor = Color.DodgerBlue;
+                }
+            };
             #endregion
 
             f_search_Result();
         }
 
-        private void f_media_event_PlayStateChange(object sender, _WMPOCXEvents_PlayStateChangeEvent e)
+        #region [ SEARCH ]
+
+        private void f_search_input_KeyDown(object sender, KeyEventArgs e)
         {
-            throw new NotImplementedException();
+            if (e.KeyCode == Keys.Enter) {
+
+            }
         }
 
+        #endregion
+
         #region [ MEDIA PLAY ]
+
+        private void f_media_event_PlayStateChange(object sender, _WMPOCXEvents_PlayStateChangeEvent e)
+        {
+        }
 
         void f_video_openMp4(string videoId, string title)
         {
             this.Cursor = Cursors.WaitCursor;
 
-            string url = api_youtube.f_get_uriProxyMP4(videoId);
+            this.Text = title;
+            string url = api_youtube.f_get_uriProxy(videoId, MEDIA_TYPE.MP4);
 
             if (url != string.Empty)
             {
@@ -247,6 +270,8 @@ namespace appel
 
         void f_video_openMp3(string videoId, string title)
         {
+            this.Cursor = Cursors.WaitCursor;
+            this.Text = title;
 
             for (int i = 0; i < m_search_Result.Controls.Count; i++)
             {
@@ -256,7 +281,18 @@ namespace appel
 
             string tit = title;
             if (title.Length > 69) tit = title.Substring(0, 65) + "...";
-            lbl_title.Text = tit;
+            lbl_title.Text = title;
+
+            string url = api_youtube.f_get_uriProxy(videoId, MEDIA_TYPE.M4A);
+
+            if (url != string.Empty)
+            {
+                m_media.URL = url;
+            }
+            else
+                MessageBox.Show("Cannot open videoId: " + title);
+
+            this.Cursor = Cursors.Default;
         }
 
         #endregion
@@ -288,9 +324,10 @@ namespace appel
         {
             using (var file = File.OpenRead("videos.bin"))
             {
-                const int margin_bottom = 9;
+                const int margin_bottom = 5;
                 const int margin_left = 9;
                 const int tit_height = 45;
+
                 int distance_tit = app.m_item_height - tit_height;
 
                 var ls = Serializer.Deserialize<List<Video>>(file);

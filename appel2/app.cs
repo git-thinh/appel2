@@ -115,9 +115,9 @@ namespace appel
             main.Shown += (se, ev) =>
             {
                 main.Width = m_app_width;
-                main.Height = m_item_height * 3 + 99;
+                main.Height = m_item_height * 3 + 123;
                 main.Top = Screen.PrimaryScreen.WorkingArea.Height - (main.Height + 45);
-                main.Left = Screen.PrimaryScreen.WorkingArea.Width - (main.Width + 45);
+                main.Left = 45;// Screen.PrimaryScreen.WorkingArea.Width - (main.Width + 45);
 
             }; 
 

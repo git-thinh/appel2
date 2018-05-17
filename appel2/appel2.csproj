@@ -42,13 +42,14 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
+    <OutputPath>..\Buildx86\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -403,6 +404,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="LIB\DLL\NAudio.dll" />
+    <Content Include="favicon.ico" />
     <Content Include="LIB\Gma.System.MouseKeyHook\HotKeys\ReadMe.txt" />
     <Content Include="LIB\ProtoBuf\_ReadMe.txt" />
     <EmbeddedResource Include="LIB\DLL\AxInterop.WMPLib.dll" />

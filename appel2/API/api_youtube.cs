@@ -285,10 +285,10 @@ namespace appel
             return msg;
         }
 
-        public static string f_get_uriProxyMP4(string videoId) {
+        public static string f_get_uriProxy(string videoId, MEDIA_TYPE type) {
 
             string uri = string.Empty;
-            uri = api_proxy_Media.f_get_uriProxy(videoId, MEDIA_TYPE.MP4);
+            uri = api_proxy_Media.f_get_uriProxy(videoId, type);
             if (string.IsNullOrEmpty(uri))
             {
                 var _client = new YoutubeClient();
@@ -300,7 +300,7 @@ namespace appel
 
                 api_proxy_Media.f_add_URL(videoId, media);
 
-                uri = api_proxy_Media.f_get_uriProxy(videoId, MEDIA_TYPE.MP4);
+                uri = api_proxy_Media.f_get_uriProxy(videoId, type);
             }
 
             return uri;
