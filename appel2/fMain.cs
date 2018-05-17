@@ -31,6 +31,8 @@ namespace appel
         private FATabStripItem m_tab_Word;
         private FATabStripItem m_tab_Grammar;
         private FATabStripItem m_tab_Text;
+        private FATabStripItem m_tab_playList;
+        private FATabStripItem m_tab_scanPC;
 
         private TextBox txt_Search;
         private Panel m_search_Result;
@@ -86,6 +88,8 @@ namespace appel
             btn_mini.Click += (se, ev) => { this.WindowState = FormWindowState.Minimized; };
             this.Controls.Add(btn_mini);
 
+            //////////////////////////////////////////////////////////
+            // TAB
 
             m_tab = new FATabStrip()
             {
@@ -129,10 +133,22 @@ namespace appel
                 CanClose = false,
                 Title = "Text",
             };
+            m_tab_playList = new FATabStripItem()
+            {
+                CanClose = false,
+                Title = "PlayList",
+            };
+            m_tab_scanPC = new FATabStripItem()
+            {
+                CanClose = false,
+                Title = "Scan PC",
+            };
 
             m_tab.Items.AddRange(new FATabStripItem[] {
                 m_tab_Search,
                 m_tab_Tag,
+                m_tab_playList,
+                m_tab_scanPC,
                 m_tab_Listen,
                 m_tab_Speaking,
                 m_tab_Grammar,
@@ -182,6 +198,8 @@ namespace appel
             f_search_Result();
         }
 
+        #region [ MEDIA PLAY ]
+
         private void f_play_iconControlClick(object sender, EventArgs e)
         {
             if (btn_play.Tag == null) return;
@@ -199,6 +217,7 @@ namespace appel
                 btn_play.InActiveColor = Color.OrangeRed;
             }
         }
+
         void f_video_openMp4(string videoId, string title)
         {
             app.f_youtube_Open(videoId, title);
@@ -219,6 +238,8 @@ namespace appel
             btn_play.InActiveColor = Color.OrangeRed;
             btn_play.Tag = videoId;
         }
+
+        #endregion
 
         #region [ FORM MOVE ]
 

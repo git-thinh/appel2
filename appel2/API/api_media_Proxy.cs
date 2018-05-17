@@ -7,9 +7,13 @@ using System.Threading;
 
 namespace appel
 {
-    public class api_mediaProxy
+    public class api_media_Proxy : api_base, IAPI
     {
-        public void Execute()
+        public void Close()
+        { 
+        }
+
+        public msg Execute(msg msg)
         {
             var listener = new HttpListener();
             listener.Prefixes.Add("http://*:7777/");
@@ -45,6 +49,7 @@ namespace appel
                 }
             }
         }
+        
     }
 
     public class Relay

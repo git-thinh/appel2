@@ -70,12 +70,7 @@ namespace appel
             }
             if (url == string.Empty)
             {
-                var _client = new YoutubeClient();
-                // Get data
-                //var video = _client.GetVideoAsync(videoId);
-                //var chanel = _client.GetVideoAuthorChannelAsync(videoId);
-                var media = _client.GetVideoMediaStreamInfosAsync(videoId);
-                //var caption = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+                var media = api_youtube.f_get_Media(videoId);
                 if (media.Muxed.Count > 0)
                 {
                     var mp4 = media.Muxed.Where(x => x.Container == YoutubeExplode.Models.MediaStreams.Container.Mp4).Take(1).SingleOrDefault();

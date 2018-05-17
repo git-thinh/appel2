@@ -4,6 +4,8 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Xml.Linq;
+using YoutubeExplode;
+using YoutubeExplode.Models.MediaStreams;
 
 namespace appel
 {
@@ -281,6 +283,19 @@ namespace appel
                 }
             }
             return msg;
+        }
+
+        public static MediaStreamInfoSet f_get_Media(string videoId) {
+            MediaStreamInfoSet media = null;
+
+            var _client = new YoutubeClient();
+            // Get data
+            //var video = _client.GetVideoAsync(videoId);
+            //var chanel = _client.GetVideoAuthorChannelAsync(videoId);
+            media = _client.GetVideoMediaStreamInfosAsync(videoId);
+            //var caption = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+
+            return media;
         }
 
         public static List<oCaptionWord> f_analytic_wordFileXml(string file_xml)
