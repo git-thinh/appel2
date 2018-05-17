@@ -22,3 +22,4 @@ Buildx86/appel.vshost.exe
 appel2/obj/x86/Debug/appel.Resources.resources
 appel2/obj/x86/Debug/appel2.csproj.GenerateResource.Cache
 Buildx86/appel.vshost.exe.manifest
+appel2/obj/x86/Debug/TempPE/Resources.Designer.cs.dll

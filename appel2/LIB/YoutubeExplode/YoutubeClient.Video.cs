@@ -315,20 +315,20 @@ namespace YoutubeExplode
                     }
 
                     // Probe stream and get content length
-                    long contentLength;
-                    using (var response = _httpClient.HeadAsync(url)) //.ConfigureAwait(false))
-                    {
-                        // Some muxed streams can be gone
-                        if (response.StatusCode == HttpStatusCode.NotFound ||
-                            response.StatusCode == HttpStatusCode.Gone)
-                            continue;
+                    long contentLength = 0;
+                    //using (var response = _httpClient.HeadAsync(url)) //.ConfigureAwait(false))
+                    //{
+                    //    // Some muxed streams can be gone
+                    //    if (response.StatusCode == HttpStatusCode.NotFound ||
+                    //        response.StatusCode == HttpStatusCode.Gone)
+                    //        continue;
 
-                        // Ensure success
-                        response.EnsureSuccessStatusCode();
+                    //    // Ensure success
+                    //    response.EnsureSuccessStatusCode();
 
-                        // Extract content length
-                        contentLength = (long)response.Content.Headers.ContentLength; // ??  throw new ParseException("Could not extract content length of muxed stream.");
-                    }
+                    //    // Extract content length
+                    //    contentLength = (long)response.Content.Headers.ContentLength; // ??  throw new ParseException("Could not extract content length of muxed stream.");
+                    //}
 
                     var streamInfo = new MuxedStreamInfo(itag, url, contentLength);
                     muxedStreamInfoMap[itag] = streamInfo;

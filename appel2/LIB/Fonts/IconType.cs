@@ -531,6 +531,7 @@
         ios_analytics_outline = 0xf3cd,
 
         ios_arrow_back = 0xf3cf,
+        ios_arrow_next = 0xf3d1, 
 
         ios_arrow_down = 0xf3d0,
 
@@ -1054,6 +1055,7 @@
 
         ipad = 0xf1f9,
 
+
         iphone = 0xf1fa,
 
         ipod = 0xf1fb,
@@ -1153,6 +1155,7 @@
         pause = 0xf210,
 
         person = 0xf213,
+        buffer = 0xf22d,
 
         person_add = 0xf211,
 
@@ -1426,7 +1429,7 @@
 
         transgender = 0xf4f5,
 
-        trash_a = 0xf252,
+        trash_a = 0xf252, 
 
         trash_b = 0xf253,
 
