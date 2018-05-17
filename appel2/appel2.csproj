@@ -63,10 +63,6 @@
       <HintPath>LIB\DLL\Interop.WMPLib.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
-    <Reference Include="NAudio">
-      <HintPath>LIB\DLL\NAudio.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>LIB\DLL\Newtonsoft.Json.dll</HintPath>
@@ -91,7 +87,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="API\api_mp3.cs" />
     <Compile Include="API\api_base.cs" />
     <Compile Include="API\api_crawler.cs" />
     <Compile Include="API\api_fetch.cs" />
@@ -102,7 +97,7 @@
     <Compile Include="API\api_Translater.cs" />
     <Compile Include="API\api_word_Download.cs" />
     <Compile Include="API\api_word_LocalStore.cs" />
-    <Compile Include="API\api_youtube.cs" />
+    <Compile Include="API\api_media.cs" />
     <Compile Include="API\htmlToText.cs" />
     <Compile Include="API\IAPI.cs" />
     <Compile Include="API\IFORM.cs" />
@@ -403,7 +398,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="LIB\DLL\NAudio.dll" />
     <Content Include="favicon.ico" />
     <Content Include="LIB\Gma.System.MouseKeyHook\HotKeys\ReadMe.txt" />
     <Content Include="LIB\ProtoBuf\_ReadMe.txt" />

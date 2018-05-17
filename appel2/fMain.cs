@@ -191,6 +191,7 @@ namespace appel
             #endregion
 
             #region [ SEARCH ]
+
             m_search_Message = new Label()
             {
                 AutoSize = false,
@@ -249,7 +250,7 @@ namespace appel
             };
 
             m_search_saveResult = new IconButton(24) { IconType = IconType.ios_cloud_download, Dock = DockStyle.Left };
-            IconButton btn_folder = new IconButton(24) { IconType = IconType.android_folder_open, Dock = DockStyle.Left, ToolTipText = "Folder" };
+            IconButton btn_tags = new IconButton(24) { IconType = IconType.pricetags, Dock = DockStyle.Left, ToolTipText = "Tags" };
             IconButton btn_user = new IconButton(22) { IconType = IconType.person, Dock = DockStyle.Left, ToolTipText = "User" };
             IconButton btn_channel = new IconButton(22) { IconType = IconType.android_desktop, Dock = DockStyle.Left, ToolTipText = "Channel" };
 
@@ -291,14 +292,20 @@ namespace appel
 
             m_search_Message.MouseMove += f_form_move_MouseDown;
             m_search_Header.Controls.AddRange(new Control[] {
+                #region
+
                 m_search_Message,
                 btn_channel,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 btn_user,
-                btn_folder,
-                m_search_Input,
-                ico_search_Online,
-                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 9 },
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
+                btn_tags,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 m_search_saveResult,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
+                ico_search_Online,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 3 },
+                m_search_Input,
 
                 btn_add_playlist,
                 new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
@@ -332,6 +339,8 @@ namespace appel
                 m_media_Total,
                 new Label(){ Dock = DockStyle.Right, Padding = new Padding(0,3,0,0), Text = " items ", TextAlign = ContentAlignment.BottomLeft, AutoSize = true, },
                 btn_prev,
+
+                #endregion
             });
 
             #endregion
@@ -494,7 +503,7 @@ namespace appel
             this.Cursor = Cursors.WaitCursor;
 
             this.Text = title;
-            string url = api_youtube.f_get_uriProxy(videoId, MEDIA_TYPE.MP4);
+            string url = api_media.f_get_uriProxy(videoId, MEDIA_TYPE.MP4);
 
             if (url != string.Empty)
             {
@@ -525,7 +534,7 @@ namespace appel
             if (title.Length > 69) tit = title.Substring(0, 65) + "...";
             lbl_title.Text = title;
 
-            string url = api_youtube.f_get_uriProxy(videoId, MEDIA_TYPE.M4A);
+            string url = api_media.f_get_uriProxy(videoId, MEDIA_TYPE.M4A);
 
             if (url != string.Empty)
             {

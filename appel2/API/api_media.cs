@@ -9,9 +9,9 @@ using YoutubeExplode.Models.MediaStreams;
 
 namespace appel
 {
-    public class api_youtube : api_base, IAPI
+    public class api_media : api_base, IAPI
     {
-        public api_youtube()
+        public api_media()
         {
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3
@@ -19,8 +19,6 @@ namespace appel
                 | (SecurityProtocolType)0x00000C00
                 | SecurityProtocolType.Tls;
         }
-
-        public void Close() { }
 
         public msg Execute(msg msg)
         {
@@ -32,7 +30,7 @@ namespace appel
 
                 switch (msg.KEY)
                 {
-                    case _API.YOUTUBE_INFO:
+                    case _API.MEDIA_YOUTUBE_INFO:
                         ////////videoId = (string)msg.Input;
                         ////////url = string.Format("https://www.youtube.com/get_video_info?video_id={0}&el=embedded&sts=&hl=en", videoId);
                         ////////w = (HttpWebRequest)WebRequest.Create(new Uri(url));
@@ -284,6 +282,59 @@ namespace appel
             }
             return msg;
         }
+
+
+        
+        ///////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //var lw1 = api_youtube.f_analytic_wordFileXml("demo1.xml");
+        //var ls1 = api_youtube.f_render_Sentence(lw1);
+
+        //var lw2 = api_youtube.f_analytic_wordFileXml("demo2.xml");
+        //var ls2 = api_youtube.f_render_Sentence(lw2);
+
+        //string text = string.Empty;
+        //foreach (var se in ls2) text += se.TimeStart + ": " + se.Words + Environment.NewLine;
+
+        //string videoId = "RQPSzkMNwcw";
+        //var _client = new YoutubeClient();
+        //// Get data
+        //var Video = _client.GetVideoAsync(videoId);
+        //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
+        //var MediaStreamInfos = _client.GetVideoMediaStreamInfosAsync(videoId);
+        //var ClosedCaptionTrackInfos = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+
+        //List<Video> video_result = _client.SearchVideosAsync("learn english subtitle");
+        //string json = Newtonsoft.Json.JsonConvert.SerializeObject(video_result);
+
+        //List<Video> video_result = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Video>>(File.ReadAllText("videos.json"));
+
+        //using (var file = File.Create("videos.bin"))
+        //{
+        //    Serializer.Serialize<List<Video>>(file, video_result);
+        //} 
+        //using (var file = File.OpenRead("videos.bin"))
+        //{
+        //    var lvs = Serializer.Deserialize<List<Video>>(file);
+
+        //}
+
+        public void Close() { }
 
         public static string f_get_uriProxy(string videoId, MEDIA_TYPE type) {
 
