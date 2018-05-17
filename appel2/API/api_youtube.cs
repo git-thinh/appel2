@@ -285,17 +285,25 @@ namespace appel
             return msg;
         }
 
-        public static MediaStreamInfoSet f_get_Media(string videoId) {
-            MediaStreamInfoSet media = null;
+        public static string f_get_uriProxyMP4(string videoId) {
 
-            var _client = new YoutubeClient();
-            // Get data
-            //var video = _client.GetVideoAsync(videoId);
-            //var chanel = _client.GetVideoAuthorChannelAsync(videoId);
-            media = _client.GetVideoMediaStreamInfosAsync(videoId);
-            //var caption = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+            string uri = string.Empty;
+            uri = api_proxy_Media.f_get_uriProxy(videoId, MEDIA_TYPE.MP4);
+            if (string.IsNullOrEmpty(uri))
+            {
+                var _client = new YoutubeClient();
+                // Get data
+                //var video = _client.GetVideoAsync(videoId);
+                //var chanel = _client.GetVideoAuthorChannelAsync(videoId);
+                var media = _client.GetVideoMediaStreamInfosAsync(videoId);
+                //var caption = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
 
-            return media;
+                api_proxy_Media.f_add_URL(videoId, media);
+
+                uri = api_proxy_Media.f_get_uriProxy(videoId, MEDIA_TYPE.MP4);
+            }
+
+            return uri;
         }
 
         public static List<oCaptionWord> f_analytic_wordFileXml(string file_xml)

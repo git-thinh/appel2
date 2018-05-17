@@ -1,6 +1,7 @@
 ﻿using ProtoBuf;
 using ProtoBuf.Meta;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,11 +16,18 @@ namespace appel
 {
     public class app
     {
+        #region [ VARIABLE ]
+
         public const int m_item_width = 320;
         public const int m_app_width = m_item_width * 2 + 45;
         public const int m_item_height = 180;
         static fMain main;
-        static Dictionary<string, VideoInfo> m_dicVideo = new Dictionary<string, VideoInfo>();
+
+        static ConcurrentDictionary<string, VideoInfo> m_dicVideo = null;
+        static ConcurrentDictionary<string, IthreadMsg> dicService = null;
+        static ConcurrentDictionary<string, msg> dicResponses = null;
+
+        #endregion
 
         static app()
         {
@@ -52,51 +60,24 @@ namespace appel
                 return asm;
             };
         }
-
-        public static void f_youtube_Open(string videoId, string title)
-        {
-            main.Cursor = Cursors.WaitCursor;
-
-            string url = string.Empty;
-            if (m_dicVideo.ContainsKey(videoId))
-            {
-                var mi = m_dicVideo[videoId];
-                if (mi != null && mi.Media != null && mi.Media.Muxed.Count > 0)
-                {
-                    var mp4 = mi.Media.Muxed.Where(x => x.Container == YoutubeExplode.Models.MediaStreams.Container.Mp4).Take(1).SingleOrDefault();
-                    if (mp4 != null)
-                        url = mp4.Url;
-                }
-            }
-            if (url == string.Empty)
-            {
-                var media = api_youtube.f_get_Media(videoId);
-                if (media.Muxed.Count > 0)
-                {
-                    var mp4 = media.Muxed.Where(x => x.Container == YoutubeExplode.Models.MediaStreams.Container.Mp4).Take(1).SingleOrDefault();
-                    if (mp4 != null)
-                        url = mp4.Url;
-                }
-
-                if (!m_dicVideo.ContainsKey(videoId))
-                    m_dicVideo.Add(videoId, new VideoInfo() { Media = media });
-                else
-                    m_dicVideo[videoId].Media = media;
-            }
-
-            if (url != string.Empty)
-            {
-                new fPlayer(url, title).Show();
-            }
-            else
-                MessageBox.Show("Cannot open videoId: " + title);
-
-            main.Cursor = Cursors.Default;
-        }
-
+        
         public static void RUN()
         {
             RuntimeTypeModel.Default.Add(typeof(DateTimeOffset), false).SetSurrogate(typeof(DateTimeOffsetSurrogate));
+
+            m_dicVideo = new ConcurrentDictionary<string, VideoInfo>();
+            dicResponses = new ConcurrentDictionary<string, msg>();
+            dicService = new ConcurrentDictionary<string, IthreadMsg>();
+
+            //dicService.TryAdd(_API.PROXY_MEDIA, new threadMsg(new api_proxy_Media()));
+
+            //dicService.TryAdd(_API.WORD_LOAD_LOCAL, new threadMsg(new api_word_LocalStore()));
+            //dicService.TryAdd(_API.SETTING_APP, new threadMsg(new api_settingApp()));
+            //dicService.TryAdd(_API.FOLDER_ANYLCTIC, new threadMsg(new api_folder_Analytic()));
+            //dicService.TryAdd(_API.CRAWLER, new threadMsg(new api_crawler()));
+            //dicService.TryAdd(_API.YOUTUBE, new threadMsg(new api_youtube()));
+            //dicService.TryAdd(_API.MP3, new threadMsg(new api_mp3()));
+
 
             //var lw1 = api_youtube.f_analytic_wordFileXml("demo1.xml");
             //var ls1 = api_youtube.f_render_Sentence(lw1);
@@ -138,8 +119,7 @@ namespace appel
                 main.Top = Screen.PrimaryScreen.WorkingArea.Height - (main.Height + 45);
                 main.Left = Screen.PrimaryScreen.WorkingArea.Width - (main.Width + 45);
 
-            };
-
+            }; 
 
             //string path = string.Empty;
             ////path = @"http://localhost:7777/?type=mp4";
@@ -153,6 +133,7 @@ namespace appel
             //path = @"demo1.mp4";
             //fPlayer player = new fPlayer(path, "TEST"); 
 
+            api_proxy_Media.Start();
             Application.EnableVisualStyles();
             //Application.Run(player);
             Application.Run(main);

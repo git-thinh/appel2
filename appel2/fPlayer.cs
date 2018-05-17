@@ -32,8 +32,6 @@ namespace appel
 
             // MEDIA
             m_media = new AxWindowsMediaPlayer();
-            //m_media.Location = new Point(0, 0);
-            //m_media.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
             m_media.Dock = DockStyle.Fill;
             m_media.Enabled = true;
             m_media.PlayStateChange += new _WMPOCXEvents_PlayStateChangeEventHandler(this.f_media_event_PlayStateChange);
@@ -108,6 +106,7 @@ namespace appel
                 this.Width = app.m_item_width * 2;
                 this.Height = app.m_item_height * 2;
 
+                m_media.settings.volume = 100;
                 m_media.uiMode = "none";
                 m_modal.Size = new Size(this.Width, this.Height); 
 

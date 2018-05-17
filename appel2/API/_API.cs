@@ -10,6 +10,9 @@ namespace appel
         public const string MP3 = "MP3";
         public const string MP3_PLAY = "MP3_PLAY";
 
+        public const string PROXY = "PROXY";
+        public const string PROXY_MEDIA = "PROXY_MEDIA";
+
         public const string YOUTUBE = "YOUTUBE";
         public const string YOUTUBE_INFO = "YOUTUBE_INFO";
 

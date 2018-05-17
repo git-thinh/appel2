@@ -1,4 +1,5 @@
-﻿using FarsiLibrary.Win;
+﻿using AxWMPLib;
+using FarsiLibrary.Win;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
@@ -17,9 +18,10 @@ namespace appel
         #region [ VARIABLE ] 
         private readonly Font font_Title = new Font("Arial", 11f, FontStyle.Regular);
 
+        private AxWindowsMediaPlayer m_media;
+
         private IconButton btn_exit;
         private IconButton btn_mini;
-        private IconButton btn_play;
 
         private Label lbl_title;
 
@@ -39,52 +41,74 @@ namespace appel
 
         private Panel m_search_Header;
 
+        private Label lbl_hide_border_left;
         #endregion
 
         public fMain()
         {
             this.FormBorderStyle = FormBorderStyle.None;
             this.Shown += (se, ev) =>
-            {                
+            {
                 lbl_title.Width = app.m_app_width - 123;
 
-                btn_exit.Location = new Point(this.Width - 18, 0);
+                btn_exit.Location = new Point(3, 0);
                 btn_exit.BringToFront();
 
-                btn_mini.Location = new Point(this.Width - 18 * 2, 0);
+                btn_mini.Location = new Point(25, 0);
                 btn_mini.BringToFront();
 
-                btn_play.Location = new Point(this.Width - 18 * 4, 9);
-                btn_play.BringToFront();
+
+                m_media.uiMode = "mini";
+                m_media.Width = 159;
+                m_media.Height = 44;
+                m_media.Location = new Point(this.Width - (m_media.Width - 2), -1);
+                m_media.settings.volume = 100;
+                m_media.BringToFront();
+
+                // lbl_hide_border_left.BackColor = Color.Orange;     
+                lbl_hide_border_left.Height = 44;
+                lbl_hide_border_left.Location = new Point(this.Width - (m_media.Width - 2), -1);
+                lbl_hide_border_left.BringToFront();
             };
 
+            #region [ MEDIA ]
+
+            lbl_hide_border_left = new Label()
+            {
+                AutoSize = false,
+                Width = 3, 
+                Anchor = AnchorStyles.Right | AnchorStyles.Top
+            };
+            this.Controls.Add(lbl_hide_border_left);
+
+            // MEDIA
+            m_media = new AxWindowsMediaPlayer();
+            m_media.Enabled = true;
+            m_media.PlayStateChange += new _WMPOCXEvents_PlayStateChangeEventHandler(this.f_media_event_PlayStateChange);
+            m_media.Anchor = AnchorStyles.Right | AnchorStyles.Top;
+            this.Controls.Add(m_media);
+
+            #endregion
+
             #region [ TAB ]
+
             lbl_title = new Label()
             {
                 AutoSize = false,
                 Text = "English Media",
                 Height = 25,
                 TextAlign = ContentAlignment.MiddleLeft,
-                Location = new Point(39, 0),                
+                Location = new Point(55, 0),
                 //BackColor = Color.DimGray,
             };
             lbl_title.MouseMove += f_form_move_MouseDown;
             this.Controls.Add(lbl_title);
 
-            btn_play = new IconButton(32)
-            {
-                ActiveColor = Color.OrangeRed,
-                IconType = IconType.ios_play,
-                Anchor = AnchorStyles.Right | AnchorStyles.Top
-            };
-            btn_play.Click += f_play_iconControlClick;
-            this.Controls.Add(btn_play);
-
-            btn_exit = new IconButton(20) { IconType = IconType.ios_close_empty, Anchor = AnchorStyles.Right | AnchorStyles.Top };
+            btn_exit = new IconButton(20) { IconType = IconType.ios_close_empty, Anchor = AnchorStyles.Left | AnchorStyles.Top };
             btn_exit.Click += (se, ev) => { app.Exit(); };
             this.Controls.Add(btn_exit);
 
-            btn_mini = new IconButton(20) { IconType = IconType.ios_minus_empty, Anchor = AnchorStyles.Right | AnchorStyles.Top };
+            btn_mini = new IconButton(20) { IconType = IconType.ios_minus_empty, Anchor = AnchorStyles.Left | AnchorStyles.Top };
             btn_mini.Click += (se, ev) => { this.WindowState = FormWindowState.Minimized; };
             this.Controls.Add(btn_mini);
 
@@ -155,7 +179,7 @@ namespace appel
                 m_tab_Word,
                 m_tab_Text,
             });
-            Label lbl_bgHeader = new Label() { Dock = DockStyle.Top, Height = lbl_title.Height  };
+            Label lbl_bgHeader = new Label() { Dock = DockStyle.Top, Height = lbl_title.Height };
             m_tab.MouseMove += f_form_move_MouseDown;
             lbl_bgHeader.MouseMove += f_form_move_MouseDown;
             this.Controls.AddRange(new Control[] {
@@ -198,33 +222,32 @@ namespace appel
             f_search_Result();
         }
 
-        #region [ MEDIA PLAY ]
-
-        private void f_play_iconControlClick(object sender, EventArgs e)
+        private void f_media_event_PlayStateChange(object sender, _WMPOCXEvents_PlayStateChangeEvent e)
         {
-            if (btn_play.Tag == null) return;
-
-            if (btn_play.IconType == IconType.ios_pause)
-            {
-                // pause -> play
-                btn_play.IconType = IconType.ios_play;
-                btn_play.InActiveColor = Color.DimGray;
-            }
-            else
-            {
-                // play -> pause
-                btn_play.IconType = IconType.ios_pause;
-                btn_play.InActiveColor = Color.OrangeRed;
-            }
+            throw new NotImplementedException();
         }
+
+        #region [ MEDIA PLAY ]
 
         void f_video_openMp4(string videoId, string title)
         {
-            app.f_youtube_Open(videoId, title);
+            this.Cursor = Cursors.WaitCursor;
+
+            string url = api_youtube.f_get_uriProxyMP4(videoId);
+
+            if (url != string.Empty)
+            {
+                new fPlayer(url, title).Show();
+            }
+            else
+                MessageBox.Show("Cannot open videoId: " + title);
+
+            this.Cursor = Cursors.Default;
         }
 
         void f_video_openMp3(string videoId, string title)
         {
+
             for (int i = 0; i < m_search_Result.Controls.Count; i++)
             {
                 if (m_search_Result.Controls[i] is Label)
@@ -234,9 +257,6 @@ namespace appel
             string tit = title;
             if (title.Length > 69) tit = title.Substring(0, 65) + "...";
             lbl_title.Text = tit;
-            btn_play.IconType = IconType.ios_pause;
-            btn_play.InActiveColor = Color.OrangeRed;
-            btn_play.Tag = videoId;
         }
 
         #endregion
