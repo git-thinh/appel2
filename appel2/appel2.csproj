@@ -91,7 +91,7 @@
     <Compile Include="API\api_crawler.cs" />
     <Compile Include="API\api_fetch.cs" />
     <Compile Include="API\api_folder_Analytic.cs" />
-    <Compile Include="API\api_proxy_Media.cs" />
+    <Compile Include="API\api_media_Proxy.cs" />
     <Compile Include="API\api_nodeStore.cs" />
     <Compile Include="API\api_settingApp.cs" />
     <Compile Include="API\api_Translater.cs" />
@@ -380,6 +380,7 @@
     <Compile Include="Model\oCaptionTrack.cs" />
     <Compile Include="Model\oCategory.cs" />
     <Compile Include="Model\oCrawler.cs" />
+    <Compile Include="Model\oMedia.cs" />
     <Compile Include="Model\oNode.cs" />
     <Compile Include="Model\oSetting.cs" />
     <Compile Include="Model\oWord.cs" />

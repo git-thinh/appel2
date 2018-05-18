@@ -53,7 +53,9 @@ namespace appel
                 while (_exit == false)
                 {
                     tm.ResetEvent.WaitOne();
-                    if (_exit == false)
+                    if (_exit)
+                        break;
+                    else
                     {
                         msg m = api.Execute(_msg);
                         //if (onMessageComplete != null) onMessageComplete.Invoke(this, new threadMsgEventArgs(m));
@@ -73,8 +75,8 @@ namespace appel
         public void Stop()
         {
             _exit = true;
-            _resetEvent.Set();
             _api.Close();
+            _resetEvent.Set();
         }
     }
 }

@@ -1,23 +1,22 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Xml.Linq;
 using YoutubeExplode;
+using YoutubeExplode.Models;
 using YoutubeExplode.Models.MediaStreams;
 
 namespace appel
 {
     public class api_media : api_base, IAPI
     {
+        static ConcurrentDictionary<string, VideoInfo> m_dicVideo = null;
+
         public api_media()
         {
-            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3
-                | (SecurityProtocolType)3072
-                | (SecurityProtocolType)0x00000C00
-                | SecurityProtocolType.Tls;
         }
 
         public msg Execute(msg msg)
@@ -30,7 +29,18 @@ namespace appel
 
                 switch (msg.KEY)
                 {
+                    case _API.MEDIA_KEY_SEARCH:
+                        break;
+                    case _API.MEDIA_KEY_DOWNLOAD_PHOTO:
+                        break;
+                    case _API.MEDIA_KEY_UPDATE_LENGTH:
+                        break;
+                    case _API.MEDIA_KEY_UPDATE_INFO:
+                        break;
+                    case _API.MEDIA_KEY_UPDATE_CAPTION:
+                        break;
                     case _API.MEDIA_YOUTUBE_INFO:
+                        #region
                         ////////videoId = (string)msg.Input;
                         ////////url = string.Format("https://www.youtube.com/get_video_info?video_id={0}&el=embedded&sts=&hl=en", videoId);
                         ////////w = (HttpWebRequest)WebRequest.Create(new Uri(url));
@@ -277,6 +287,7 @@ namespace appel
                         ////////    ////var progress = new Progress<double>(p => Console.Title = $"YoutubeExplode Demo [{p:P0}]");
                         ////////    ////await client.DownloadMediaStreamAsync(streamInfo, fileName, progress);
                         ////////}, w);
+                        #endregion
                         break;
                 }
             }
@@ -284,7 +295,7 @@ namespace appel
         }
 
 
-        
+
         ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -336,10 +347,11 @@ namespace appel
 
         public void Close() { }
 
-        public static string f_get_uriProxy(string videoId, MEDIA_TYPE type) {
+        public static string f_get_uriProxy(string videoId, MEDIA_TYPE type)
+        {
 
             string uri = string.Empty;
-            uri = api_proxy_Media.f_get_uriProxy(videoId, type);
+            uri = api_media_Proxy.f_get_uriProxy(videoId, type);
             if (string.IsNullOrEmpty(uri))
             {
                 var _client = new YoutubeClient();
@@ -349,9 +361,9 @@ namespace appel
                 var media = _client.GetVideoMediaStreamInfosAsync(videoId);
                 //var caption = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
 
-                api_proxy_Media.f_add_URL(videoId, media);
+                api_media_Proxy.f_add_URL(videoId, media);
 
-                uri = api_proxy_Media.f_get_uriProxy(videoId, type);
+                uri = api_media_Proxy.f_get_uriProxy(videoId, type);
             }
 
             return uri;

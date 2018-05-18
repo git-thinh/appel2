@@ -10,18 +10,19 @@ using YoutubeExplode.Models.MediaStreams;
 
 namespace appel
 {
-    public class api_proxy_Media 
+    public class api_media_Proxy : api_base, IAPI
     {
         static ConcurrentDictionary<string, string> m_dicProxy = null;
         static int m_port = 0;
         static HttpListener m_listener;
         static bool m_running = true;
 
-        public api_proxy_Media()
+        public api_media_Proxy()
         {
+            Start();
         }
 
-        public static void Start()
+        void Start()
         {
             m_dicProxy = new ConcurrentDictionary<string, string>();
 
@@ -40,52 +41,50 @@ namespace appel
                 HttpListener listener = (HttpListener)lis;
                 while (m_running)
                 {
-                    var ctx = listener.GetContext();
-                    if (ctx.Request.RawUrl == "/crossdomain.xml")
+                    try
                     {
-                        ctx.Response.ContentType = "text/xml";
-                        string xml =
-    @"<cross-domain-policy>
+                        var ctx = listener.GetContext();
+                        if (ctx.Request.RawUrl == "/crossdomain.xml")
+                        {
+                            ctx.Response.ContentType = "text/xml";
+                            string xml =
+        @"<cross-domain-policy>
     <allow-access-from domain=""*.*"" headers=""SOAPAction""/>
     <allow-http-request-headers-from domain=""*.*"" headers=""SOAPAction""/> 
     <site-control permitted-cross-domain-policies=""master-only""/>
 </cross-domain-policy>";
-                        xml =
-    @"<?xml version=""1.0""?>
+                            xml =
+        @"<?xml version=""1.0""?>
 <!DOCTYPE cross-domain-policy SYSTEM ""http://www.macromedia.com/xml/dtds/cross-domain-policy.dtd"">
 <cross-domain-policy>
   <allow-access-from domain=""*"" />
 </cross-domain-policy>";
-                        byte[] bytes = Encoding.UTF8.GetBytes(xml);
-                        ctx.Response.OutputStream.Write(bytes, 0, bytes.Length);
-                        ctx.Response.OutputStream.Flush();
-                        ctx.Response.OutputStream.Close();
-                        ctx.Response.Close();
-                    }
-                    else
-                    {
-                        string key = ctx.Request.QueryString["key"];
-                        if (!m_dicProxy.ContainsKey(key))
-                        {
-                            byte[] bytes = Encoding.UTF8.GetBytes(string.Format("Cannot find key: ", key));
+                            byte[] bytes = Encoding.UTF8.GetBytes(xml);
                             ctx.Response.OutputStream.Write(bytes, 0, bytes.Length);
                             ctx.Response.OutputStream.Flush();
                             ctx.Response.OutputStream.Close();
                             ctx.Response.Close();
                         }
                         else
-                            new Thread(new Relay(ctx).ProcessRequest).Start();
+                        {
+                            string key = ctx.Request.QueryString["key"];
+                            if (!m_dicProxy.ContainsKey(key))
+                            {
+                                byte[] bytes = Encoding.UTF8.GetBytes(string.Format("Cannot find key: ", key));
+                                ctx.Response.OutputStream.Write(bytes, 0, bytes.Length);
+                                ctx.Response.OutputStream.Flush();
+                                ctx.Response.OutputStream.Close();
+                                ctx.Response.Close();
+                            }
+                            else
+                                new Thread(new Relay(ctx).ProcessRequest).Start();
+                        }
                     }
+                    catch { }
                 }
             })).Start(m_listener); 
         }
-
-        public static void Stop()
-        {
-            m_running = false;
-            m_listener.Stop();
-        }
-                  
+         
         public static string f_get_uriProxy(string mediaId, MEDIA_TYPE type)
         {
             string key = string.Format("{0}{1}", type, mediaId);
@@ -115,7 +114,19 @@ namespace appel
             if (vi != null)
                 m_dicProxy.TryAdd(key_video, vi.Url);
         }
-        
+
+        public msg Execute(msg msg)
+        {
+            return msg;
+        }
+
+        public void Close()
+        {
+            m_listener.Stop();
+            m_running = false;
+
+            Thread.Sleep(10);
+        }
     }
 
     public enum MEDIA_TYPE
@@ -147,16 +158,16 @@ namespace appel
             switch (type)
             {
                 case "m4a":
-                    uri = api_proxy_Media.f_get_uriSrcByKey(key);
+                    uri = api_media_Proxy.f_get_uriSrcByKey(key);
                     break;
                 case "mp4":
-                    uri = api_proxy_Media.f_get_uriSrcByKey(key);
+                    uri = api_media_Proxy.f_get_uriSrcByKey(key);
                     break;
                 case "web": // webm
-                    uri = api_proxy_Media.f_get_uriSrcByKey(key);
+                    uri = api_media_Proxy.f_get_uriSrcByKey(key);
                     break;
                 case "mp3":
-                    uri = api_proxy_Media.f_get_uriSrcByKey(key);
+                    uri = api_media_Proxy.f_get_uriSrcByKey(key);
                     break;
             }
             

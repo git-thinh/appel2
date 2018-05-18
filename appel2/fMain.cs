@@ -580,6 +580,10 @@ namespace appel
         {
         }
 
+        public void f_form_freeResource()
+        {
+        }
+
         #endregion
     }
 }

@@ -21,6 +21,10 @@ namespace appel
         private bool m_resizing = false;
         private IconButton btn_exit;
 
+        public void f_form_freeResource()
+        {
+        }
+
         public fPlayer(string url, string title)
         {
             this.Icon = Resources.favicon;

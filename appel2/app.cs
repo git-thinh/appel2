@@ -5,8 +5,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using YoutubeExplode;
@@ -16,18 +18,13 @@ namespace appel
 {
     public class app
     {
-        #region [ VARIABLE ]
-
         public const int m_item_width = 320;
         public const int m_app_width = m_item_width * 2 + 45;
         public const int m_item_height = 180;
         static fMain main;
 
-        static ConcurrentDictionary<string, VideoInfo> m_dicVideo = null;
         static ConcurrentDictionary<string, IthreadMsg> dicService = null;
         static ConcurrentDictionary<string, msg> dicResponses = null;
-
-        #endregion
 
         static app()
         {
@@ -63,36 +60,70 @@ namespace appel
 
         public static void RUN()
         {
+            // active SSL 1.1, 1.2, 1.3 for WebClient request HTTPS
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | (SecurityProtocolType)3072 | (SecurityProtocolType)0x00000C00 | SecurityProtocolType.Tls;
+            // registry models to protofuf
             RuntimeTypeModel.Default.Add(typeof(DateTimeOffset), false).SetSurrogate(typeof(DateTimeOffsetSurrogate));
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            m_dicVideo = new ConcurrentDictionary<string, VideoInfo>();
             dicResponses = new ConcurrentDictionary<string, msg>();
             dicService = new ConcurrentDictionary<string, IthreadMsg>();
 
-            //dicService.TryAdd(_API.PROXY_MEDIA, new threadMsg(new api_proxy_Media()));
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            //dicService.TryAdd(_API.WORD_LOAD_LOCAL, new threadMsg(new api_word_LocalStore()));
-            //dicService.TryAdd(_API.SETTING_APP, new threadMsg(new api_settingApp()));
-            //dicService.TryAdd(_API.FOLDER_ANYLCTIC, new threadMsg(new api_folder_Analytic()));
-            //dicService.TryAdd(_API.CRAWLER, new threadMsg(new api_crawler()));
-            //dicService.TryAdd(_API.YOUTUBE, new threadMsg(new api_youtube()));
-            //dicService.TryAdd(_API.MP3, new threadMsg(new api_mp3()));
+            dicService.TryAdd(_API.MEDIA, new threadMsg(new api_media()));
+            dicService.TryAdd(_API.MEDIA_PROXY, new threadMsg(new api_media_Proxy()));
 
 
-
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             main = new fMain();
-            main.Shown += (se, ev) =>
-            {
-                main.Width = m_app_width;
-                main.Height = m_item_height * 3 + 123;
-                main.Top = (Screen.PrimaryScreen.WorkingArea.Height - main.Height) / 2;
-                main.Left = (Screen.PrimaryScreen.WorkingArea.Width - main.Width) / 2;
-            };
-
-            api_proxy_Media.Start();
+            main.Shown += main_Shown;
+            main.FormClosing += main_Closing;
             Application.EnableVisualStyles();
             Application.Run(main);
         }
+
+        public static void Exit()
+        {
+            //main.f_free_Resource();
+            Application.Exit();
+        }
+
+        #region [ MAIN ]
+
+        private static void main_Closing(object sender, FormClosingEventArgs e)
+        {
+            if (main == null) return;
+
+            var confirmResult = MessageBox.Show("Are you sure to exit this application ?", "Confirm Exit!", MessageBoxButtons.YesNo);
+            if (confirmResult == DialogResult.Yes)
+            {
+                foreach (var kv in dicService)
+                    if (kv.Value != null)
+                        kv.Value.Stop();
+
+                main.f_form_freeResource();
+
+                // wait for complete threads, free resource
+                Thread.Sleep(200);
+
+                //Application.ExitThread();
+                //Application.Exit();
+            }
+            else
+                e.Cancel = true;
+        }
+
+        private static void main_Shown(object sender, EventArgs e)
+        {
+            main.Width = m_app_width;
+            main.Height = m_item_height * 3 + 123;
+            main.Top = (Screen.PrimaryScreen.WorkingArea.Height - main.Height) / 2;
+            main.Left = (Screen.PrimaryScreen.WorkingArea.Width - main.Width) / 2;
+        }
+
+        #endregion
 
         #region
 
@@ -106,11 +137,6 @@ namespace appel
 
         }
 
-        public static void Exit()
-        {
-            //main.f_free_Resource();
-            Application.Exit();
-        }
 
 
         #endregion
@@ -119,9 +145,6 @@ namespace appel
     class Program
     {
         [STAThread]
-        static void Main(string[] args)
-        {
-            app.RUN();
-        }
+        static void Main(string[] args) { app.RUN(); }
     }
 }

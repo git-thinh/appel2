@@ -9,5 +9,6 @@ namespace appel
     {
         void api_responseMsg(object sender, threadMsgEventArgs e);
         void api_initMsg(msg m);
+        void f_form_freeResource();
     }
 }
