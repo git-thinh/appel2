@@ -30,7 +30,25 @@ namespace appel
 
         [ProtoMember(7)]
         public List<string> Keywords { get; set; }
-        
+
+        [ProtoMember(8)]
+        public string PathMp3_Local { get; set; }
+
+        [ProtoMember(9)]
+        public string PathMp3_GoogleDriver { get; set; }
+
+        [ProtoMember(10)]
+        public string PathMp3_YoutubeID { get; set; }
+
+        [ProtoMember(11)]
+        public string PathMp4_Local { get; set; }
+
+        [ProtoMember(12)]
+        public string PathMp4_GoogleDriver { get; set; }
+
+        [ProtoMember(13)]
+        public string PathMp4_YoutubeID { get; set; }
+
         [JsonIgnore]
         public string URLs { get; set; }
 
