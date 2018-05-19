@@ -10,7 +10,7 @@ namespace appel
         public int TotalItem { set; get; } = 0;
         public int CountResult { set; get; } = 0;
         public int PageNumber { set; get; } = 1;
-        public int PageSize { set; get; } = 6;
+        public int PageSize { set; get; } = 10;
         public List<long> MediaIds = new List<long>();
     }
 }

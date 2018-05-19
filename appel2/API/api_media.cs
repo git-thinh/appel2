@@ -23,8 +23,8 @@ namespace appel
 
         static ConcurrentDictionary<long, Bitmap> dicPhoto = null;
         static ConcurrentDictionary<long, oMedia> dicMedia = null;
-        static ConcurrentDictionary<long, oMediaPath> dicPath = null; 
-         
+        static ConcurrentDictionary<long, oMediaPath> dicPath = null;
+
         public void Init()
         {
             dicMedia = new ConcurrentDictionary<long, oMedia>();
@@ -44,39 +44,89 @@ namespace appel
         {
             if (msg != null && Open)
             {
-                        string input = (string)msg.Input;
-                //string s, url, videoId;
-                //HttpWebRequest w;
-                //HtmlDocument doc;
+                //string videoId = "RQPSzkMNwcw";
+                //var _client = new YoutubeClient();
+                //// Get data
+                //var Video = _client.GetVideoAsync(videoId);
+                //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
+                //var MediaStreamInfos = _client.GetVideoMediaStreamInfosAsync(videoId);
+                //var ClosedCaptionTrackInfos = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+                //List<Video> video_result = _client.SearchVideosAsync("learn english subtitle");
 
                 switch (msg.KEY)
                 {
                     case _API.MEDIA_KEY_INITED:
+                        #region 
+
                         break;
+
+                    #endregion
+                    case _API.MEDIA_KEY_PLAY_VIDEO:
+                        #region
+                        if (true)
+                        {
+                            long mediaId = (long)msg.Input;
+                            oMediaPath p = null;
+                            if (dicPath.TryGetValue(mediaId, out p))
+                            {
+                                if (!string.IsNullOrEmpty(p.YoutubeID))
+                                {
+                                    if (!string.IsNullOrEmpty(p.PathMp4_Youtube))
+                                    {
+                                        msg.Output.Ok = true;
+                                        msg.Output.Data = p.PathMp4_Youtube;
+                                        f_responseToMain(msg);
+                                    }
+                                    else {
+                                        var _client = new YoutubeClient();
+                                        //var Video = _client.GetVideoAsync(videoId);
+                                        //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
+                                        var ms = _client.GetVideoMediaStreamInfosAsync(p.YoutubeID);
+                                        var ms_video = ms.Muxed.Where(x => x.Container == Container.Mp4).Take(1).SingleOrDefault();
+                                        var ms_audio = ms.Audio.Where(x => x.Container == Container.M4A).Take(1).SingleOrDefault();
+
+                                        if (ms_audio != null) 
+                                            p.PathMp3_Youtube = ms_audio.Url; 
+
+                                        if (ms_video != null) {
+                                            p.PathMp4_Youtube = ms_video.Url;
+
+                                            msg.Output.Ok = true;
+                                            msg.Output.Data = p.PathMp4_Youtube;
+                                            f_responseToMain(msg); 
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    #endregion
                     case _API.MEDIA_KEY_SEARCH:
                         #region 
-                        if (!string.IsNullOrEmpty(input))
+                        if (true)
                         {
+                            string input = (string)msg.Input;
+                            if (input == null) input = string.Empty;
+                            oMediaSearchLocalResult resultSearch = new oMediaSearchLocalResult();
+
                             List<long> lsSearch = new List<long>();
                             int min = 0, max = 6, count = 0;
                             foreach (var kv in dicMedia)
                             {
                                 if (kv.Value.Title.ToLower().Contains(input))
                                 {
-                                    if (lsSearch.Count < 6)
+                                    if (lsSearch.Count < resultSearch.PageSize)
                                         lsSearch.Add(kv.Key);
                                     count++;
                                 }
                             }
 
-                            oMediaSearchLocalResult resultSearch = new oMediaSearchLocalResult();
                             resultSearch.TotalItem = dicMedia.Count;
                             resultSearch.CountResult = count;
                             resultSearch.MediaIds = lsSearch;
 
                             msg.Output.Ok = true;
-                            msg.Output.Data = resultSearch;
-
+                            msg.Output.Data = resultSearch; 
                             f_responseToMain(msg);
                         }
                         break;
@@ -358,7 +408,7 @@ namespace appel
             dicPath.TryGetValue(mediaId, out m);
             return m;
         }
-        
+
 
         #region [ PROXY ]
 
@@ -543,7 +593,6 @@ namespace appel
         //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
         //var MediaStreamInfos = _client.GetVideoMediaStreamInfosAsync(videoId);
         //var ClosedCaptionTrackInfos = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
-
         //List<Video> video_result = _client.SearchVideosAsync("learn english subtitle");
         //string json = Newtonsoft.Json.JsonConvert.SerializeObject(video_result);
 

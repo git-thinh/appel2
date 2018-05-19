@@ -108,8 +108,8 @@ namespace appel
             this.Shown += (se, ev) =>
             {
                 this.TopMost = true;
-                this.Width = app.m_item_width * 2;
-                this.Height = app.m_item_height * 2;
+                this.Width = app.m_player_width;
+                this.Height = app.m_player_height;
 
                 m_media.settings.volume = 100;
                 m_media.uiMode = "none";

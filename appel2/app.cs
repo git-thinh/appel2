@@ -21,9 +21,14 @@ namespace appel
     PermissionSet(SecurityAction.InheritanceDemand, Name = "FullTrust")]
     public class app
     {
-        public const int m_item_width = 320;
-        public const int m_app_width = m_item_width * 2 + 45;
-        public const int m_item_height = 180;
+        public const int m_box_width = 320;
+        public const int m_box_height = 180; 
+        public const int m_app_width = m_box_width * 2 + 45;
+        public const int m_app_height = 590;
+        public const int m_player_width = 640;
+        public const int m_player_height = 360;
+         
+        
         static fMain main;
 
         static ConcurrentDictionary<string, IthreadMsg> dicService = null;
@@ -138,7 +143,7 @@ namespace appel
         private static void main_Shown(object sender, EventArgs e)
         {
             main.Width = m_app_width;
-            main.Height = m_item_height * 3 + 123;
+            main.Height = m_app_height;
             main.Top = (Screen.PrimaryScreen.WorkingArea.Height - main.Height) / 2;
             main.Left = (Screen.PrimaryScreen.WorkingArea.Width - main.Width) / 2;
         }
