@@ -66,7 +66,7 @@ namespace YoutubeExplode.Models
         /// </summary>
         [NotNull, ItemNotNull]
         [ProtoMember(8)]
-        public IList<string> Keywords { get; set; }
+        public List<string> Keywords { get; set; }
 
         /// <summary>
         /// Statistics of this video.
@@ -79,7 +79,7 @@ namespace YoutubeExplode.Models
 
         /// <summary />
         public Video(string id, string author, DateTimeOffset uploadDate, string title, string description,
-            ThumbnailSet thumbnails, TimeSpan duration, IList<string> keywords, Statistics statistics)
+            ThumbnailSet thumbnails, TimeSpan duration, List<string> keywords, Statistics statistics)
         {
             Id = id.GuardNotNull(nameof(id));
             Author = author.GuardNotNull(nameof(author));

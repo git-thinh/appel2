@@ -218,7 +218,7 @@ namespace YoutubeExplode
             var author = videoInfo["author"];
             var duration = TimeSpan.FromSeconds(videoInfo["length_seconds"].ParseDouble());
             var viewCount = videoInfo["view_count"].ParseLong();
-            var keywords = videoInfo["keywords"].Split(",");
+            var keywords = videoInfo["keywords"].Split(",").ToList();
 
             // Get video watch page
             var watchPage = GetVideoWatchPageAsync(videoId); //.ConfigureAwait(false);

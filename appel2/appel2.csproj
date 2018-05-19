@@ -384,6 +384,9 @@
     <Compile Include="Model\oCategory.cs" />
     <Compile Include="Model\oCrawler.cs" />
     <Compile Include="Model\oMedia.cs" />
+    <Compile Include="Model\oMediaChannel.cs" />
+    <Compile Include="Model\oMediaPath.cs" />
+    <Compile Include="Model\oMediaVocabulary.cs" />
     <Compile Include="Model\oNode.cs" />
     <Compile Include="Model\oSetting.cs" />
     <Compile Include="Model\oWord.cs" />

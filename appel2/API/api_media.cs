@@ -1,6 +1,10 @@
-﻿using System;
+﻿using ProtoBuf;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -13,10 +17,32 @@ namespace appel
 {
     public class api_media : api_base, IAPI
     {
+        static ConcurrentDictionary<long, Bitmap> dicPhoto = null;
+        static ConcurrentDictionary<long, oMedia> dicMedia = null;
+        static ConcurrentDictionary<long, oMediaPath> dicPath = null;
+
         static ConcurrentDictionary<string, VideoInfo> m_dicVideo = null;
 
         public api_media()
         {
+            dicMedia = new ConcurrentDictionary<long, oMedia>();
+            dicPhoto = new ConcurrentDictionary<long, Bitmap>();
+            dicPath = new ConcurrentDictionary<long, oMediaPath>();
+
+            using (var file = File.OpenRead("videos.bin"))
+            {
+                var ls = Serializer.Deserialize<List<Video>>(file);
+                foreach (var v in ls)
+                {
+                    oMedia m = new oMedia(v);
+                    oMediaPath p = new oMediaPath(m.Id, v.Id);
+
+                    if (!dicMedia.ContainsKey(m.Id)) dicMedia.TryAdd(m.Id, m);
+                    if (!dicPath.ContainsKey(m.Id)) dicPath.TryAdd(m.Id, p);
+
+                    f_image_loadInit(m.Id); 
+                }
+            }
         }
 
         public msg Execute(msg msg)
@@ -294,7 +320,44 @@ namespace appel
             return msg;
         }
 
+        private void f_image_loadInit(long mediaId)
+        {
+            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "photo");
+            if (Directory.Exists(dir) == false) Directory.CreateDirectory(dir);
 
+            string filename = Path.Combine(dir, mediaId.ToString() + ".jpg");
+            if (File.Exists(filename))
+            {
+                Stream stream = File.OpenRead(filename);
+                Bitmap bitmap = new Bitmap(stream);
+                dicPhoto.TryAdd(mediaId, bitmap);
+                stream.Close();
+            }
+            else
+            {
+                oMediaPath m;
+                if (dicPath.TryGetValue(mediaId, out m))
+                {
+                    string imageUrl = string.Format("https://img.youtube.com/vi/{0}/default.jpg", m.YoutubeID);
+                    try
+                    {
+                        WebClient client = new WebClient();
+                        Stream stream = client.OpenRead(imageUrl);
+                        Bitmap bitmap = new Bitmap(stream);
+
+                        if (bitmap != null)
+                            bitmap.Save(filename, ImageFormat.Jpeg);
+
+                        dicPhoto.TryAdd(mediaId, bitmap);
+
+                        stream.Flush();
+                        stream.Close();
+                        client.Dispose();
+                    }
+                    catch { }
+                }
+            }
+        }
 
         ///////////////////////////////////////////////////////////////////////////////
 

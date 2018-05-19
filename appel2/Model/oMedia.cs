@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using YoutubeExplode.Models;
 
 namespace appel
 {
@@ -11,7 +12,7 @@ namespace appel
     public class oMedia
     {
         [ProtoMember(1)]
-        public string Id { get; set; }
+        public long Id { get; set; }
         
         [ProtoMember(2)]
         public string Author { get; set; }
@@ -26,32 +27,52 @@ namespace appel
         public string Description { get; set; }
         
         [ProtoMember(6)]
-        public int Duration { get; set; }
+        public int DurationSecond { get; set; }
 
         [ProtoMember(7)]
         public List<string> Keywords { get; set; }
 
         [ProtoMember(8)]
-        public string PathMp3_Local { get; set; }
+        public string SubtileEnglish { get; set; }
+        
+        public List<Tuple<string,string>> Vocabulary { get; set; }
 
-        [ProtoMember(9)]
-        public string PathMp3_GoogleDriver { get; set; }
+        public oMedia() { } 
+        public oMedia(Video v) {
+            Id = convert_id_bit_shifting(v.Id);  
+            DurationSecond = (int)v.Duration.TotalSeconds;
+            Title = v.Title;
+            Description = v.Description;
+            Keywords = v.Keywords;
+            Author = v.Author;
+            UploadDate = int.Parse(v.UploadDate.ToString("yyMMdd"));
+        }
 
-        [ProtoMember(10)]
-        public string PathMp3_YoutubeID { get; set; }
+        long convert_id(string key)
+        {
+            byte[] bytes = Encoding.ASCII.GetBytes(key);
+            long result = BitConverter.ToInt64(bytes, 0);
+            return result;
+        }
 
-        [ProtoMember(11)]
-        public string PathMp4_Local { get; set; }
-
-        [ProtoMember(12)]
-        public string PathMp4_GoogleDriver { get; set; }
-
-        [ProtoMember(13)]
-        public string PathMp4_YoutubeID { get; set; }
-
-        [JsonIgnore]
-        public string URLs { get; set; }
-
-        public oMedia() { }
+        long convert_id_bit_shifting(string key)
+        {
+            long val = 0;
+            for (int i = 3; i >= 0; i--)
+            {
+                val <<= 8;
+                val += (int)key[i];
+            }
+            return val;
+        }
+        public override string ToString()
+        {
+            return string.Format("{0} - {1}", Id, Title);
+        }
     }
+
+
+
+
+
 }

@@ -64,7 +64,7 @@ namespace YoutubeExplode
                         .Cast<Match>()
                         .Select(m => m.Value)
                         .Where(s => s.IsNotBlank())
-                        .ToArray();
+                        .ToList();
 
                     // Statistics
                     var videoViewCount = videoJson["views"].Value<string>().StripNonDigit().ParseLong();
