@@ -49,6 +49,8 @@ namespace appel
 
         private Label lbl_hide_border_left;
 
+        private Label m_statu_api;
+
         #endregion
 
         public fMain()
@@ -85,6 +87,15 @@ namespace appel
             };
 
             #region [ MEDIA ]
+            m_statu_api = new Label()
+            {
+                Dock = DockStyle.Bottom,
+                Text = "English Media",
+                TextAlign = ContentAlignment.TopLeft,
+                AutoSize = false,
+                Height = 15,
+                Padding = new Padding(5, 0, 0, 0),
+            };
 
             lbl_hide_border_left = new Label()
             {
@@ -186,6 +197,7 @@ namespace appel
             lbl_bgHeader.MouseMove += f_form_move_MouseDown;
             this.Controls.AddRange(new Control[] {
                 m_tab,lbl_bgHeader
+                ,m_statu_api
             });
 
             #endregion
@@ -345,7 +357,7 @@ namespace appel
 
             #endregion
 
-            f_search_Result();
+            //f_search_Result();
         }
 
 
@@ -462,10 +474,10 @@ namespace appel
         {
             if (e.KeyCode == Keys.Enter)
             {
-                if (m_search_Online)
+                string key = m_search_Input.Text.Trim();
+                if (key.Length > 1)
                 {
-                    string key = m_search_Input.Text.Trim();
-                    if (key.Length > 3)
+                    if (m_search_Online)
                     {
                         Cursor = Cursors.WaitCursor;
                         m_search_Message.Text = "SEARCH: " + key + "...";
@@ -476,8 +488,13 @@ namespace appel
                         Cursor = Cursors.Default;
                     }
                     else
-                        m_search_Message.Text = "Length of keywords must be greater than 3 characters.";
+                    {
+                        m_search_Message.Text = "Search local [" + key + "] ...";
+                        app.f_postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH, key);
+                    }
                 }
+                else
+                    m_search_Message.Text = "Length of keywords must be greater than 1 characters.";
             }
         }
 

@@ -7,7 +7,9 @@ namespace appel
 {
     public class _API
     {
-        public const string MEDIA                    = "MEDIA";
+        public const string MEDIA = "MEDIA";
+        public const string MEDIA_KEY_INITED = "MEDIA_KEY_INITED";
+
         public const string MEDIA_PROXY              = "MEDIA_PROXY";
         public const string MEDIA_YOUTUBE_INFO       = "YOUTUBE_INFO";
 

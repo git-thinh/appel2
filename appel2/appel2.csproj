@@ -91,15 +91,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\api_base.cs" />
-    <Compile Include="API\api_crawler.cs" />
-    <Compile Include="API\api_fetch.cs" />
-    <Compile Include="API\api_folder_Analytic.cs" />
-    <Compile Include="API\api_media_Proxy.cs" />
-    <Compile Include="API\api_nodeStore.cs" />
-    <Compile Include="API\api_settingApp.cs" />
-    <Compile Include="API\api_Translater.cs" />
-    <Compile Include="API\api_word_Download.cs" />
-    <Compile Include="API\api_word_LocalStore.cs" />
     <Compile Include="API\api_media.cs" />
     <Compile Include="API\htmlToText.cs" />
     <Compile Include="API\IAPI.cs" />
@@ -386,6 +377,7 @@
     <Compile Include="Model\oMedia.cs" />
     <Compile Include="Model\oMediaChannel.cs" />
     <Compile Include="Model\oMediaPath.cs" />
+    <Compile Include="Model\oMediaSearchLocalResult.cs" />
     <Compile Include="Model\oMediaVocabulary.cs" />
     <Compile Include="Model\oNode.cs" />
     <Compile Include="Model\oSetting.cs" />

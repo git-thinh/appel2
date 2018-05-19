@@ -13,12 +13,12 @@ namespace appel
 
 
     public class threadMsgPara
-    { 
+    {
         private readonly ManualResetEvent _resetEvent;
-        public threadMsgPara( ManualResetEvent resetEvent)
-        { 
+        public threadMsgPara(ManualResetEvent resetEvent)
+        {
             _resetEvent = resetEvent;
-        } 
+        }
         public ManualResetEvent ResetEvent { get { return _resetEvent; } }
     }
 
@@ -27,8 +27,8 @@ namespace appel
         public threadMsgEventArgs(msg msg)
         {
             Message = msg;
-        } 
-        public  msg Message { get; set; } 
+        }
+        public msg Message { get; set; }
     }
 
     public class threadMsg : IthreadMsg
@@ -49,6 +49,9 @@ namespace appel
             _threadEvent = new ManualResetEvent(false);
             _thread = new Thread(new ParameterizedThreadStart(delegate (object evt)
             {
+                api.Init();
+                api.Open = true;
+                app.f_postToAPI(_API.MEDIA, _API.MEDIA_KEY_INITED, null);
                 threadMsgPara tm = (threadMsgPara)evt;
                 while (_exit == false)
                 {
@@ -60,7 +63,7 @@ namespace appel
                         msg m = api.Execute(_msg);
                         //if (onMessageComplete != null) onMessageComplete.Invoke(this, new threadMsgEventArgs(m));
                     }
-                    tm.ResetEvent.Reset(); 
+                    tm.ResetEvent.Reset();
                 }
             }));
             _thread.Start(new threadMsgPara(_resetEvent));

@@ -7,6 +7,9 @@ namespace appel
 {
     public interface IAPI
     {
+        bool Open { set; get; }
+
+        void Init();
         msg Execute(msg msg);
         void Close();
     }

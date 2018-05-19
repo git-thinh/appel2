@@ -26,6 +26,23 @@ namespace appel
         static ConcurrentDictionary<string, IthreadMsg> dicService = null;
         static ConcurrentDictionary<string, msg> dicResponses = null;
 
+        public static void f_postToAPI(string api, string key, object data)
+        {
+            if (dicService.ContainsKey(api))
+            {
+                IthreadMsg sv;
+                if (dicService.TryGetValue(api, out sv))
+                {
+                    new Thread(new ParameterizedThreadStart((object _sv) =>
+                    {
+                        IthreadMsg so = (IthreadMsg)_sv;
+                        so.Execute(new msg() { API = api, KEY = key, Input = data });
+                    })).Start(sv);
+                }
+
+            }
+        }
+
         static app()
         {
             AppDomain.CurrentDomain.AssemblyResolve += (se, ev) =>
@@ -73,7 +90,7 @@ namespace appel
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             dicService.TryAdd(_API.MEDIA, new threadMsg(new api_media()));
-            dicService.TryAdd(_API.MEDIA_PROXY, new threadMsg(new api_media_Proxy()));
+            //dicService.TryAdd(_API.MEDIA_PROXY, new threadMsg(new api_media_Proxy()));
 
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -12,12 +12,18 @@ namespace appel
 {
     public class api_media_Proxy : api_base, IAPI
     {
+        public bool Open { set; get; } = false;
+
         static ConcurrentDictionary<string, string> m_dicProxy = null;
         static int m_port = 0;
         static HttpListener m_listener;
         static bool m_running = true;
 
         public api_media_Proxy()
+        {
+        }
+
+        public void Init()
         {
             Start();
         }
@@ -127,6 +133,7 @@ namespace appel
 
             Thread.Sleep(10);
         }
+
     }
 
     public enum MEDIA_TYPE
