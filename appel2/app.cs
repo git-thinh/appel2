@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Security.Permissions;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -16,6 +17,8 @@ using YoutubeExplode.Models;
 
 namespace appel
 {
+    [PermissionSet(SecurityAction.LinkDemand, Name = "Everything"),
+    PermissionSet(SecurityAction.InheritanceDemand, Name = "FullTrust")]
     public class app
     {
         public const int m_item_width = 320;

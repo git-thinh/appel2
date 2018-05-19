@@ -14,12 +14,11 @@ namespace appel
 
         public api_base()
         {
-            if (fom == null)
-                fom = app.get_Main();
             if (timer == null)
             {
                 timer = new System.Threading.Timer(new System.Threading.TimerCallback((obj) =>
                 {
+                    if (fom == null) fom = app.get_Main();
                     lock (_lock)
                     {
                         if (cache.Count > 0)
@@ -36,10 +35,6 @@ namespace appel
         {
             lock (_lock) cache.Enqueue(m);
         }
-
-        public void f_api_Inited(msg m)
-        {
-            if (fom != null) fom.api_initMsg(m);
-        }
+        
     }
 }

@@ -363,9 +363,13 @@ namespace appel
 
         #region [ SEARCH ]
 
-        private void f_search_draw_Media(List<Video> ls)
+        private void f_search_draw_Media(List<long> ls)
         {
-            m_search_Result.Controls.Clear();
+            m_search_Result.crossThreadPerformSafely(() =>
+            {
+                m_search_Result.Controls.Clear();
+            });
+
             if (ls.Count == 0) return;
 
             const int margin_bottom = 5;
@@ -407,6 +411,9 @@ namespace appel
                     y2 = y + distance_tit;
                 }
 
+                oMedia media = api_media.f_get_Media(ls[i]);
+                if (media == null) continue;
+
                 PictureBox pic = new PictureBox()
                 {
                     //Text = i.ToString(),
@@ -415,10 +422,17 @@ namespace appel
                     Width = app.m_item_width,
                     Height = app.m_item_height,
                     Location = new Point(x, y),
-                    Tag = ls[i].Id + "¦" + ls[i].Title,
+                    Tag = media.Id + "¦" + media.Title,
                 };
+                string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "photo");
+                file = Path.Combine(file, media.Id.ToString() + ".jpg");
+                if (File.Exists(file))
+                {
+                    var fs = File.OpenRead(file);
+                    pic.Image = new Bitmap(fs);
+                }
 
-                tit = ls[i].Title.ToLower();
+                tit = media.Title.ToLower();
                 if (tit.Length > 78) tit = tit.Substring(0, 75) + "...";
 
                 Label lbl = new Label()
@@ -434,7 +448,7 @@ namespace appel
                     Location = new Point(x, y2),
                     Padding = new Padding(9, 0, 0, 0),
                     Font = font_Title,
-                    Tag = ls[i].Id + "¦" + ls[i].Title,
+                    Tag = media.Id + "¦" + media.Title,
                 };
 
                 pic.Click += (se, ev) =>
@@ -458,8 +472,11 @@ namespace appel
 
             #endregion
 
-            m_search_Result.Controls.AddRange(tits);
-            m_search_Result.Controls.AddRange(pics);
+            m_search_Result.crossThreadPerformSafely(() =>
+            {
+                m_search_Result.Controls.AddRange(tits);
+                m_search_Result.Controls.AddRange(pics);
+            });
         }
 
         private void f_search_goPagePrevClick(object sender, EventArgs e)
@@ -483,7 +500,7 @@ namespace appel
                         m_search_Message.Text = "SEARCH: " + key + "...";
                         var _client = new YoutubeClient();
                         List<Video> rs = _client.SearchVideosAsync(key);
-                        f_search_draw_Media(rs);
+                        //f_search_draw_Media(rs);
                         m_search_Message.Text = "SEARCH: " + key + " found " + rs.Count + " videos online.";
                         Cursor = Cursors.Default;
                     }
@@ -498,13 +515,9 @@ namespace appel
             }
         }
 
-        void f_search_Result()
+        void f_search_Result(oMediaSearchLocalResult rs)
         {
-            using (var file = File.OpenRead("videos.bin"))
-            {
-                var ls = Serializer.Deserialize<List<Video>>(file);
-                f_search_draw_Media(ls);
-            }
+            f_search_draw_Media(rs.MediaIds);
         }
 
         #endregion
@@ -589,12 +602,26 @@ namespace appel
 
         #region [ RESPONSE MESSAGE ]
 
-        public void api_initMsg(msg m)
-        {
-        }
-
         public void api_responseMsg(object sender, threadMsgEventArgs e)
         {
+            msg m = e.Message;
+            if (m != null)
+            {
+                switch (m.API)
+                {
+                    case _API.MEDIA:
+                        switch (m.KEY)
+                        {
+                            case _API.MEDIA_KEY_SEARCH:
+                                if (m.Output.Ok)
+                                    f_search_Result((oMediaSearchLocalResult)m.Output.Data);
+                                else
+                                    m_statu_api.Text = "Search error";
+                                break;
+                        }
+                        break;
+                }
+            }
         }
 
         public void f_form_freeResource()

@@ -23,35 +23,8 @@ namespace appel
 
         static ConcurrentDictionary<long, Bitmap> dicPhoto = null;
         static ConcurrentDictionary<long, oMedia> dicMedia = null;
-        static ConcurrentDictionary<long, oMediaPath> dicPath = null;
-
-        static ConcurrentDictionary<string, VideoInfo> m_dicVideo = null;
-
-
-        public api_media()
-        {
-
-
-            ////using (var file = File.OpenRead("videos.bin"))
-            ////{
-            ////    var ls = Serializer.Deserialize<List<Video>>(file);
-            ////    foreach (var v in ls)
-            ////    {
-            ////        oMedia m = new oMedia(v);
-            ////        oMediaPath p = new oMediaPath(m.Id, v.Id);
-
-            ////        if (!dicMedia.ContainsKey(m.Id)) dicMedia.TryAdd(m.Id, m);
-            ////        if (!dicPath.ContainsKey(m.Id)) dicPath.TryAdd(m.Id, p);
-
-            ////        f_image_loadInit(m.Id); 
-            ////    }
-            ////}
-            ////using (var file = File.Create("minfo.bin"))
-            ////    Serializer.Serialize<ConcurrentDictionary<long, oMedia>>(file, dicMedia);
-            ////using (var file = File.Create("mpath.bin"))
-            ////    Serializer.Serialize<ConcurrentDictionary<long, oMediaPath>>(file, dicPath);
-        }
-
+        static ConcurrentDictionary<long, oMediaPath> dicPath = null; 
+         
         public void Init()
         {
             dicMedia = new ConcurrentDictionary<long, oMedia>();
@@ -69,8 +42,9 @@ namespace appel
 
         public msg Execute(msg msg)
         {
-            if (msg != null)
+            if (msg != null && Open)
             {
+                        string input = (string)msg.Input;
                 //string s, url, videoId;
                 //HttpWebRequest w;
                 //HtmlDocument doc;
@@ -81,7 +55,6 @@ namespace appel
                         break;
                     case _API.MEDIA_KEY_SEARCH:
                         #region 
-                        string input = (string)msg.Input;
                         if (!string.IsNullOrEmpty(input))
                         {
                             List<long> lsSearch = new List<long>();
@@ -103,6 +76,8 @@ namespace appel
 
                             msg.Output.Ok = true;
                             msg.Output.Data = resultSearch;
+
+                            f_responseToMain(msg);
                         }
                         break;
 
@@ -369,6 +344,21 @@ namespace appel
             }
             return msg;
         }
+
+        public static oMedia f_get_Media(long mediaId)
+        {
+            oMedia m = null;
+            dicMedia.TryGetValue(mediaId, out m);
+            return m;
+        }
+
+        public static oMediaPath f_get_MediaPath(long mediaId)
+        {
+            oMediaPath m = null;
+            dicPath.TryGetValue(mediaId, out m);
+            return m;
+        }
+        
 
         #region [ PROXY ]
 
