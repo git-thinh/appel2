@@ -236,6 +236,7 @@ namespace appel
                 ScrollBars = ScrollBars.Vertical, 
                 Font = font_Title
             };
+            m_tab_Text.Padding = new Padding(9, 0, 0, 0);
             m_tab_Text.Controls.Add(m_media_text);
 
             #endregion
@@ -713,7 +714,7 @@ namespace appel
                         switch (m.KEY)
                         {
                             case _API.WORD_KEY_ANALYTIC:
-                                if (m.Output.Ok)
+                                if (m.Output.Ok && (long)m.Input == m_media_current_id)
                                 {
                                     m_media_text.crossThreadPerformSafely(() =>
                                     {

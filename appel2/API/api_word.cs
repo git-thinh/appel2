@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web;
 using System.Xml.Linq;
 using YoutubeExplode;
 
@@ -75,7 +76,8 @@ namespace appel
                     {
                         long mediaId = (long)m.Input;
                         oMedia mi = api_media.f_media_getInfo(mediaId);
-                        if (mi != null) { 
+                        if (mi != null)
+                        {
                             //var _client = new YoutubeClient();
                             //string videoId = api_media.f_media_getYoutubeID(mediaId);
                             //var cap = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
@@ -100,22 +102,39 @@ namespace appel
                             if (mi.Keywords != null && mi.Keywords.Count > 0)
                                 content += Environment.NewLine + string.Join(" ", mi.Keywords);
 
-                            //content = content
-                            //    .Replace(" https://", Environment.NewLine + " https //")
-                            //    .Replace(" http://", Environment.NewLine + " http //");
+                            //var lw1 = f_analytic_wordXml(mi.SubtileEnglish);
+                            //var ls1 = f_render_Sentence(lw1);
+                            //string text = string.Empty;
+                            //foreach (var se in ls1) text += se.TimeStart + ": " + se.Words + Environment.NewLine;
+                            string text = mi.SubtileEnglish;
+                            if (!string.IsNullOrEmpty(text))
+                            {
+                                text = Regex.Replace(text, @"<[^>]*>", String.Empty);
+                                text = HttpUtility.HtmlDecode(text);
+                                text = text.Replace('\r', ' ').Replace('\n', ' ');
+                                string[] a = text.Split(new char[] { '.' })
+                                    .Select(x => x.Trim())
+                                    .Where(x => x != string.Empty)
+                                    .ToArray();
+                                text = string.Join(Environment.NewLine, a);
+                                text = text.Replace("?", "?" + Environment.NewLine);
+                                a = text.Split(new char[] { '\r', '\n' })
+                                   .Select(x => x.Trim())
+                                   .Where(x => x != string.Empty)
+                                   .ToArray();
+                                text = string.Empty;
+                                foreach (string ti in a)
+                                    if (ti[ti.Length - 1] == '?') text += ti + Environment.NewLine;
+                                    else text += ti + "." + Environment.NewLine;
 
-                            //var lw1 = f_analytic_wordFileXml(mi.SubtileEnglish);
-                            var lw1 = f_analytic_wordXml(mi.SubtileEnglish);
-                            var ls1 = f_render_Sentence(lw1);
-                            string text = string.Empty;
-                            foreach (var se in ls1) text += se.TimeStart + ": " + se.Words + Environment.NewLine;
 
-                            content += Environment.NewLine + Environment.NewLine + Environment.NewLine +
-                                "[{CC}]" + Environment.NewLine + Environment.NewLine + text;
+                            }
+
+                            content += Environment.NewLine + Environment.NewLine + Environment.NewLine + text;
                             dicMediaContent.TryAdd(mediaId, content);
 
                             m.Output.Ok = true;
-                            m.Output.Data = content;
+                            m.Output.Data = text;
                             response_toMain(m);
 
                             string[] ts = content.Split(new char[] { '\r', '\n', '.', ':', '-', ',' })
