@@ -19,6 +19,9 @@ namespace appel
 {
     public class api_media : api_base, IAPI
     {
+        const string file_media = "minfo.bin";
+        const string file_path = "mpath.bin";
+
         public bool Open { set; get; } = false;
 
         static ConcurrentDictionary<long, Bitmap> dicPhoto = null;
@@ -32,10 +35,10 @@ namespace appel
             dicPhoto = new ConcurrentDictionary<long, Bitmap>();
             dicPath = new ConcurrentDictionary<long, oMediaPath>();
 
-            using (var file = File.OpenRead("minfo.bin"))
+            using (var file = File.OpenRead(file_media))
                 dicMedia = Serializer.Deserialize<ConcurrentDictionary<long, oMedia>>(file);
 
-            using (var file = File.OpenRead("mpath.bin"))
+            using (var file = File.OpenRead(file_path))
                 dicPath = Serializer.Deserialize<ConcurrentDictionary<long, oMediaPath>>(file);
 
             if (dicMedia.Count > 0)
@@ -229,17 +232,79 @@ namespace appel
                                     count++;
                                 }
                             }
-
                             resultSearch.TotalItem = dicMedia.Count;
                             resultSearch.PageSize = m.PageSize;
                             resultSearch.PageNumber = m.PageNumber;
                             resultSearch.CountResult = count;
                             resultSearch.MediaIds = lsSearch;
 
-                            m.Counter = count;
-                            m.Output.Ok = true;
-                            m.Output.Data = resultSearch;
-                            f_responseToMain(m);
+                            if (m.PageNumber == 1 && !string.IsNullOrEmpty(input))
+                            {
+                                //new Thread(new ParameterizedThreadStart((object _m) =>
+                                //{
+                                //    f_responseToMain((msg)_m);
+                                //})).Start(new msg() {
+                                //    API = m.API,
+                                //    KEY = m.KEY,
+                                //    Input = input,
+                                //    Counter = count,
+                                //    Output = new msgOutput() {
+                                //        Ok = true,
+                                //        Data = resultSearch
+                                //    }
+                                //});
+
+                                System.Threading.Tasks.Task.Factory.StartNew((object _m) =>
+                                {
+                                    f_responseToMain((msg)_m);
+                                }, new msg()
+                                {
+                                    API = m.API,
+                                    KEY = m.KEY,
+                                    Input = input,
+                                    Counter = count,
+                                    Output = new msgOutput()
+                                    {
+                                        Ok = true,
+                                        Data = resultSearch
+                                    }
+                                });
+
+                                var _client = new YoutubeClient();
+                                List<Video> rs = _client.SearchVideosAsync(input);
+                                bool hasUpdate = false;
+                                foreach (var v in rs)
+                                {
+                                    oMedia me = new oMedia(v);
+                                    if (!dicMedia.ContainsKey(me.Id))
+                                    {
+                                        oMediaPath pe = new oMediaPath(me.Id, v.Id);
+                                        dicPath.TryAdd(me.Id, pe);
+
+                                        string con = me.Title;
+                                        if (!string.IsNullOrEmpty(me.Description))
+                                            con += Environment.NewLine + me.Description;
+
+                                        if (me.Keywords != null && me.Keywords.Count > 0)
+                                            con += Environment.NewLine + string.Join(" ", me.Keywords);
+
+                                        api_word.f_word_addContentAnaltic(me.Id, con);
+                                        if (hasUpdate == false) hasUpdate = true;
+                                    }
+                                }
+                                if (hasUpdate)
+                                {
+                                    f_media_writeFile();
+                                    Execute(m);
+                                }
+                            }
+                            else
+                            {
+                                m.Counter = count;
+                                m.Output.Ok = true;
+                                m.Output.Data = resultSearch;
+                                f_responseToMain(m);
+                            }
                         }
                         break;
 
@@ -511,6 +576,14 @@ namespace appel
             proxy_Close();
         }
 
+        private void f_media_writeFile()
+        {
+            using (var file = File.Create(file_media))
+                Serializer.Serialize<ConcurrentDictionary<long, oMedia>>(file, dicMedia);
+
+            using (var file = File.Create(file_path))
+                Serializer.Serialize<ConcurrentDictionary<long, oMediaPath>>(file, dicPath);
+        }
 
         private void f_image_loadInit(long mediaId)
         {
@@ -906,8 +979,11 @@ namespace appel
                     }
                     else
                     {
-                        requestData.context.Response.ContentType = "video/mp4";
-                        responseStreamFromWebSiteBeingRelayed.CopyTo(originalResponse.OutputStream);
+                        try
+                        {
+                            responseStreamFromWebSiteBeingRelayed.CopyTo(originalResponse.OutputStream);
+                        }
+                        catch { }
                     }
                     originalResponse.OutputStream.Close();
                 }

@@ -499,21 +499,24 @@ namespace appel
                 string key = m_search_Input.Text.Trim();
                 if (key.Length > 1)
                 {
-                    if (m_search_Online)
-                    {
-                        Cursor = Cursors.WaitCursor;
-                        m_search_Message.Text = "SEARCH: " + key + "...";
-                        var _client = new YoutubeClient();
-                        List<Video> rs = _client.SearchVideosAsync(key);
-                        //f_search_draw_Media(rs);
-                        m_search_Message.Text = "SEARCH: " + key + " found " + rs.Count + " videos online.";
-                        Cursor = Cursors.Default;
-                    }
-                    else
-                    {
-                        m_search_Message.Text = "Search local [" + key + "] ...";
-                        app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH, key);
-                    }
+                    m_search_Message.Text = "Finding [" + key + "] ...";
+                    app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH, key);
+
+                    //if (m_search_Online)
+                    //{
+                    //    Cursor = Cursors.WaitCursor;
+                    //    m_search_Message.Text = "SEARCH: " + key + "...";
+                    //    var _client = new YoutubeClient();
+                    //    List<Video> rs = _client.SearchVideosAsync(key);
+                    //    //f_search_draw_Media(rs);
+                    //    m_search_Message.Text = "SEARCH: " + key + " found " + rs.Count + " videos online.";
+                    //    Cursor = Cursors.Default;
+                    //}
+                    //else
+                    //{
+                    //    m_search_Message.Text = "Search local [" + key + "] ...";
+                    //    app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH, key);
+                    //}
                 }
                 else
                     m_search_Message.Text = "Length of keywords must be greater than 1 characters.";

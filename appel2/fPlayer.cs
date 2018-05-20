@@ -31,9 +31,33 @@ namespace appel
             if (!string.IsNullOrEmpty(title)) this.Text = title;
 
             // FORM
-            this.TopMost = true;
+            //this.TopMost = true;
             this.FormBorderStyle = FormBorderStyle.None;
             this.BackColor = Color.Black;
+
+            // FORM SHOWN
+            this.Shown += (se, ev) =>
+            {
+                //this.TopMost = true;
+                this.Width = app.m_player_width;
+                this.Height = app.m_player_height;
+
+                m_media.settings.volume = 100;
+                m_media.uiMode = "none";
+                m_modal.Size = new Size(this.Width, this.Height);
+
+                m_resize.Location = new Point(this.Width - m_resize.Width, this.Height - m_resize.Height);
+
+
+                m_modal.BringToFront();
+
+                btn_exit.Location = new Point(this.Width - (btn_exit.Width - 5), 0);
+                btn_exit.BringToFront();
+
+                m_resize.BringToFront();
+
+                f_play(url, title);
+            };
 
             // MEDIA
             m_media = new AxWindowsMediaPlayer();
@@ -104,29 +128,6 @@ namespace appel
             btn_exit.Click += exit_Click;
             this.Controls.Add(btn_exit);
 
-            // FORM SHOWN
-            this.Shown += (se, ev) =>
-            {
-                this.TopMost = true;
-                this.Width = app.m_player_width;
-                this.Height = app.m_player_height;
-
-                m_media.settings.volume = 100;
-                m_media.uiMode = "none";
-                m_modal.Size = new Size(this.Width, this.Height); 
-
-                m_resize.Location = new Point(this.Width - m_resize.Width, this.Height - m_resize.Height);
-
-
-                m_modal.BringToFront();
-
-                btn_exit.Location = new Point(this.Width - (btn_exit.Width - 5), 0);
-                btn_exit.BringToFront();
-
-                m_resize.BringToFront();
-
-                f_play(url, title);
-            };
         }
 
         private void exit_Click(object sender, EventArgs e)
