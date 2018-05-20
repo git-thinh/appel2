@@ -49,7 +49,7 @@ namespace appel
         private Panel m_search_Header;
 
         private Label lbl_hide_border_left;
-        private Label m_statu_api;
+        private Label m_msg_api;
 
         #endregion
 
@@ -88,7 +88,7 @@ namespace appel
             };
 
             #region [ MEDIA ]
-            m_statu_api = new Label()
+            m_msg_api = new Label()
             {
                 Dock = DockStyle.Bottom,
                 Text = "English Media",
@@ -198,7 +198,7 @@ namespace appel
             lbl_bgHeader.MouseMove += f_form_move_MouseDown;
             this.Controls.AddRange(new Control[] {
                 m_tab,lbl_bgHeader
-                ,m_statu_api
+                ,m_msg_api
             });
 
             #endregion
@@ -647,7 +647,16 @@ namespace appel
             {
                 switch (m.API)
                 {
+                    case _API.MSG_ANALYTIC_WORD:
+                        break;
+                    case _API.MSG_ANALYTIC_CONTENT:
+                        m_msg_api.crossThreadPerformSafely(() =>
+                        {
+                            m_msg_api.Text = m.Log;
+                        });
+                        break;
                     case _API.MEDIA:
+                        #region
                         switch (m.KEY)
                         {
                             case _API.MEDIA_KEY_SEARCH:
@@ -658,7 +667,7 @@ namespace appel
                                     m_search_current_msg = m.clone();
                                 }
                                 else
-                                    m_statu_api.Text = "Search error";
+                                    m_msg_api.Text = "Search error";
                                 break;
                             case _API.MEDIA_KEY_PLAY_AUDIO:
                                 if (m.Output.Ok)
@@ -670,6 +679,7 @@ namespace appel
                                 break;
                         }
                         break;
+                        #endregion
                 }
             }
         }

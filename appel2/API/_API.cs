@@ -7,6 +7,9 @@ namespace appel
 {
     public class _API
     {
+        public const string MSG_ANALYTIC_CONTENT = "MSG_ANALYTIC_CONTENT";
+        public const string MSG_ANALYTIC_WORD = "MSG_ANALYTIC_WORD";
+
         public const string WORD = "WORD";
         public const string WORD_KEY_INITED = "WORD_KEY_INITED"; 
         public const string WORD_KEY_ANALYTIC = "WORD_KEY_ANALYTIC";

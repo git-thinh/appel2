@@ -11,39 +11,51 @@ namespace appel
     {
         public bool Open { set; get; } = false;
 
-        static bool m_word_Analytic = false;
-        static System.Threading.Timer timer = null;
+        static bool m_flag_analytic_content = false;
+        static System.Threading.Timer timer_Content = null;
+        static bool m_flag_analytic_word = false;
+        static System.Threading.Timer timer_Word = null;
+
         static ConcurrentDictionary<long, string> dicMediaContent = null;
+        static ConcurrentDictionary<long, string[]> dicMediaClause = null;
         static ConcurrentDictionary<long, oWordCount[]> dicMediaWord = null;
 
         static ConcurrentDictionary<string, int> dicWordCounter = null;
         static ConcurrentDictionary<string, bool> dicWordAnalytic = null;
 
-        static ConcurrentDictionary<string, string> dicPronunce = null;
-        static ConcurrentDictionary<string, string> dicMeanVi = null;
-        static ConcurrentDictionary<string, List<string>> dicMedia = null;
-        static ConcurrentDictionary<string, List<string>> dicSentence = null;
-        static ConcurrentDictionary<string, List<string>> dicStruct = null;
+        static ConcurrentDictionary<string, string> dicWordPronunce = null;
+        static ConcurrentDictionary<string, string> dicWordMeanVi = null;
+
+        static ConcurrentDictionary<string, List<string>> dicWordMedia = null;
+        static ConcurrentDictionary<string, List<string>> dicWordStruct = null;
 
         public void Init()
         {
-            dicMediaWord = new ConcurrentDictionary<long, oWordCount[]>();
             dicMediaContent = new ConcurrentDictionary<long, string>();
+            dicMediaWord = new ConcurrentDictionary<long, oWordCount[]>();
+            dicMediaClause = new ConcurrentDictionary<long, string[]>();
 
             dicWordCounter = new ConcurrentDictionary<string, int>();
             dicWordAnalytic = new ConcurrentDictionary<string, bool>();
 
-            dicPronunce = new ConcurrentDictionary<string, string>();
-            dicMeanVi = new ConcurrentDictionary<string, string>();
-            dicMedia = new ConcurrentDictionary<string, List<string>>();
-            dicSentence = new ConcurrentDictionary<string, List<string>>();
-            dicStruct = new ConcurrentDictionary<string, List<string>>();
+            dicWordPronunce = new ConcurrentDictionary<string, string>();
+            dicWordMeanVi = new ConcurrentDictionary<string, string>();
+            dicWordMedia = new ConcurrentDictionary<string, List<string>>();
+            dicWordStruct = new ConcurrentDictionary<string, List<string>>();
 
-            if (timer == null)
+            if (timer_Content == null)
             {
-                timer = new System.Threading.Timer(new System.Threading.TimerCallback((obj) =>
+                timer_Content = new System.Threading.Timer(new System.Threading.TimerCallback((obj) =>
                 {
-                    f_word_analyticContent();
+                    f_word_analytic_CONTENT();
+                }), null, 100, 100);
+            }
+
+            if (timer_Word == null)
+            {
+                timer_Word = new System.Threading.Timer(new System.Threading.TimerCallback((obj) =>
+                {
+                    f_word_analytic_WORD();
                 }), null, 100, 100);
             }
         }
@@ -70,7 +82,7 @@ namespace appel
 
         public void Close()
         {
-            if (timer != null) timer.Dispose();
+            if (timer_Content != null) timer_Content.Dispose();
         }
 
         public static void f_word_addContentAnaltic(long mediaId, string content)
@@ -79,13 +91,27 @@ namespace appel
                 dicMediaContent.TryAdd(mediaId, content);
         }
 
-        private void f_word_analyticContent()
+        private void f_word_analytic_WORD()
         {
-            if (m_word_Analytic == false)
+            if (m_flag_analytic_word == false)
             {
                 if (dicMediaContent.Count > 0)
                 {
-                    m_word_Analytic = true;
+                    m_flag_analytic_word = true;
+                    string word = string.Empty;
+                    //f_notificationToMain(new msg() { API = _API.MSG_ANALYTIC_WORD, Log = word });
+                    m_flag_analytic_word = false;
+                }
+            }
+        }
+
+        private void f_word_analytic_CONTENT()
+        {
+            if (m_flag_analytic_content == false)
+            {
+                if (dicMediaContent.Count > 0)
+                {
+                    m_flag_analytic_content = true;
 
                     string content = string.Empty;
                     long mediaId = dicMediaContent.Keys.Take(1).SingleOrDefault();
@@ -97,6 +123,8 @@ namespace appel
                             .Where(x => x != string.Empty && x.IndexOf(' ') != -1)
                             .Distinct()
                             .ToArray();
+                        if (!dicMediaClause.ContainsKey(mediaId))
+                            dicMediaClause.TryAdd(mediaId, ts);
 
                         string temp = Regex.Replace(content, "[^0-9a-zA-Z]+", " ").ToLower();
                         temp = Regex.Replace(temp, "[ ]{2,}", " ").ToLower();
@@ -127,14 +155,13 @@ namespace appel
 
                             if (!dicWordAnalytic.ContainsKey(word))
                                 dicWordAnalytic.TryAdd(word, false);
-
-
                         }
 
-
+                        string tit = api_media.f_media_getTitle(mediaId);
+                        f_notificationToMain(new msg() { API = _API.MSG_ANALYTIC_CONTENT, Log = tit, Output = new msgOutput() { Data = mediaId, Ok = true } });
                     }
 
-                    m_word_Analytic = false;
+                    m_flag_analytic_content = false;
                 }
             }
         }

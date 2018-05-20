@@ -30,7 +30,7 @@ namespace appel
 
         public string KEY = string.Empty;
 
-        public string Log = string.Empty;
+        public string Log = string.Empty; 
 
         public int PageNumber = 1;
 
