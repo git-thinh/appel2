@@ -25,6 +25,7 @@ namespace appel
         static ConcurrentDictionary<long, oMedia> dicMedia = null;
         static ConcurrentDictionary<long, oMediaPath> dicPath = null;
 
+
         public void Init()
         {
             dicMedia = new ConcurrentDictionary<long, oMedia>();
@@ -37,6 +38,20 @@ namespace appel
             using (var file = File.OpenRead("mpath.bin"))
                 dicPath = Serializer.Deserialize<ConcurrentDictionary<long, oMediaPath>>(file);
 
+            if (dicMedia.Count > 0)
+            {
+                foreach (var kv in dicMedia)
+                {
+                    string con = kv.Value.Title;
+                    if (!string.IsNullOrEmpty(kv.Value.Description))
+                        con += Environment.NewLine + kv.Value.Description;
+
+                    if (kv.Value.Keywords != null && kv.Value.Keywords.Count > 0)
+                        con += Environment.NewLine + string.Join(" ", kv.Value.Keywords);
+
+                    api_word.f_word_addContentAnaltic(kv.Key, con);
+                }
+            }
             f_proxy_Start();
         }
 
@@ -131,7 +146,7 @@ namespace appel
             }
             return url;
         }
-        
+
         #endregion
 
         public msg Execute(msg m)
@@ -151,10 +166,8 @@ namespace appel
                 switch (m.KEY)
                 {
                     case _API.MEDIA_KEY_INITED:
-                        #region 
-
+                        #region  
                         break;
-
                     #endregion
                     case _API.MEDIA_KEY_PLAY_AUDIO:
                         #region
@@ -239,7 +252,7 @@ namespace appel
                         break;
                     case _API.MEDIA_KEY_UPDATE_CAPTION:
                         break;
-                    case _API.MEDIA_YOUTUBE_INFO:
+                        //case _API.MEDIA_YOUTUBE_INFO:
                         #region
                         ////////videoId = (string)msg.Input;
                         ////////url = string.Format("https://www.youtube.com/get_video_info?video_id={0}&el=embedded&sts=&hl=en", videoId);
@@ -488,7 +501,7 @@ namespace appel
                         ////////    ////await client.DownloadMediaStreamAsync(streamInfo, fileName, progress);
                         ////////}, w);
                         #endregion
-                        break;
+                        //    break;
                 }
             }
             return m;
@@ -683,7 +696,7 @@ namespace appel
 
 
         #region [ PROXY ]
-        
+
         static int m_port = 0;
         static HttpListener m_listener;
         static bool m_running = true;

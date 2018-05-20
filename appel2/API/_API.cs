@@ -7,15 +7,17 @@ namespace appel
 {
     public class _API
     {
+        public const string WORD = "WORD";
+        public const string WORD_KEY_INITED = "WORD_KEY_INITED"; 
+        public const string WORD_KEY_ANALYTIC = "WORD_KEY_ANALYTIC";
+
         public const string MEDIA = "MEDIA";
         public const string MEDIA_KEY_INITED = "MEDIA_KEY_INITED";
+        public const string MEDIA_KEY_SEARCH         = "MEDIA_KEY_SEARCH";
         public const string MEDIA_KEY_PLAY_VIDEO = "MEDIA_KEY_PLAY_VIDEO";
         public const string MEDIA_KEY_PLAY_AUDIO = "MEDIA_KEY_PLAY_AUDIO";
 
-        public const string MEDIA_PROXY              = "MEDIA_PROXY";
-        public const string MEDIA_YOUTUBE_INFO       = "YOUTUBE_INFO";
 
-        public const string MEDIA_KEY_SEARCH         = "MEDIA_KEY_SEARCH";
         public const string MEDIA_KEY_DOWNLOAD_PHOTO = "MEDIA_KEY_DOWNLOAD_PHOTO";
         public const string MEDIA_KEY_UPDATE_LENGTH  = "MEDIA_KEY_UPDATE_LENGTH";
 
