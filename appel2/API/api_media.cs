@@ -23,16 +23,14 @@ namespace appel
         const string file_path = "mpath.bin";
 
         public bool Open { set; get; } = false;
-
-        static ConcurrentDictionary<long, Bitmap> dicPhoto = null;
+        
         static ConcurrentDictionary<long, oMedia> dicMedia = null;
         static ConcurrentDictionary<long, oMediaPath> dicPath = null;
 
 
         public void Init()
         {
-            dicMedia = new ConcurrentDictionary<long, oMedia>();
-            dicPhoto = new ConcurrentDictionary<long, Bitmap>();
+            dicMedia = new ConcurrentDictionary<long, oMedia>(); 
             dicPath = new ConcurrentDictionary<long, oMediaPath>();
 
             using (var file = File.OpenRead(file_media))
@@ -157,15 +155,6 @@ namespace appel
             if (m != null && Open)
             {
                 if (m.Output == null) m.Output = new msgOutput();
-                //string videoId = "RQPSzkMNwcw";
-                //var _client = new YoutubeClient();
-                //// Get data
-                //var Video = _client.GetVideoAsync(videoId);
-                //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
-                //var MediaStreamInfos = _client.GetVideoMediaStreamInfosAsync(videoId);
-                //var ClosedCaptionTrackInfos = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
-                //List<Video> video_result = _client.SearchVideosAsync("learn english subtitle");
-
                 switch (m.KEY)
                 {
                     case _API.MEDIA_KEY_INITED:
@@ -182,7 +171,7 @@ namespace appel
                             {
                                 m.Output.Ok = true;
                                 m.Output.Data = f_proxy_getUriProxy(mediaId, MEDIA_TYPE.M4A);
-                                f_responseToMain(m);
+                                response_toMain(m);
                             }
                             else
                             {
@@ -201,7 +190,7 @@ namespace appel
                             {
                                 m.Output.Ok = true;
                                 m.Output.Data = f_proxy_getUriProxy(mediaId, MEDIA_TYPE.MP4);
-                                f_responseToMain(m);
+                                response_toMain(m);
                             }
                             else
                             {
@@ -238,73 +227,57 @@ namespace appel
                             resultSearch.CountResult = count;
                             resultSearch.MediaIds = lsSearch;
 
-                            if (m.PageNumber == 1 && !string.IsNullOrEmpty(input))
-                            {
-                                //new Thread(new ParameterizedThreadStart((object _m) =>
-                                //{
-                                //    f_responseToMain((msg)_m);
-                                //})).Start(new msg() {
-                                //    API = m.API,
-                                //    KEY = m.KEY,
-                                //    Input = input,
-                                //    Counter = count,
-                                //    Output = new msgOutput() {
-                                //        Ok = true,
-                                //        Data = resultSearch
-                                //    }
-                                //});
+                            m.Counter = count;
+                            m.Output.Ok = true;
+                            m.Output.Data = resultSearch;
+                            response_toMain(m);
 
-                                System.Threading.Tasks.Task.Factory.StartNew((object _m) =>
-                                {
-                                    f_responseToMain((msg)_m);
-                                }, new msg()
-                                {
-                                    API = m.API,
-                                    KEY = m.KEY,
-                                    Input = input,
-                                    Counter = count,
-                                    Output = new msgOutput()
-                                    {
-                                        Ok = true,
-                                        Data = resultSearch
-                                    }
-                                });
+                            //if (m.PageNumber == 1 && !string.IsNullOrEmpty(input))
+                            //{
+                            //    if (count > 0)
+                            //    {
+                            //        var m2 = m.clone();
+                            //        m2.Input = input;
+                            //        m2.Output.Data = resultSearch.clone(); 
+                            //        f_responseToMain(m2);
+                            //    }
 
-                                var _client = new YoutubeClient();
-                                List<Video> rs = _client.SearchVideosAsync(input);
-                                bool hasUpdate = false;
-                                foreach (var v in rs)
-                                {
-                                    oMedia me = new oMedia(v);
-                                    if (!dicMedia.ContainsKey(me.Id))
-                                    {
-                                        oMediaPath pe = new oMediaPath(me.Id, v.Id);
-                                        dicPath.TryAdd(me.Id, pe);
+                            //    var _client = new YoutubeClient();
+                            //    List<Video> rs = _client.SearchVideosAsync(input);
+                            //    bool hasUpdate = false;
+                            //    foreach (var v in rs)
+                            //    {
+                            //        oMedia me = new oMedia(v);
+                            //        if (!dicMedia.ContainsKey(me.Id))
+                            //        {
+                            //            oMediaPath pe = new oMediaPath(me.Id, v.Id);
+                            //            dicMedia.TryAdd(me.Id, me);
+                            //            dicPath.TryAdd(me.Id, pe);
 
-                                        string con = me.Title;
-                                        if (!string.IsNullOrEmpty(me.Description))
-                                            con += Environment.NewLine + me.Description;
+                            //            //string con = me.Title;
+                            //            //if (!string.IsNullOrEmpty(me.Description))
+                            //            //    con += Environment.NewLine + me.Description;
 
-                                        if (me.Keywords != null && me.Keywords.Count > 0)
-                                            con += Environment.NewLine + string.Join(" ", me.Keywords);
+                            //            //if (me.Keywords != null && me.Keywords.Count > 0)
+                            //            //    con += Environment.NewLine + string.Join(" ", me.Keywords);
 
-                                        api_word.f_word_addContentAnaltic(me.Id, con);
-                                        if (hasUpdate == false) hasUpdate = true;
-                                    }
-                                }
-                                if (hasUpdate)
-                                {
-                                    f_media_writeFile();
-                                    Execute(m);
-                                }
-                            }
-                            else
-                            {
-                                m.Counter = count;
-                                m.Output.Ok = true;
-                                m.Output.Data = resultSearch;
-                                f_responseToMain(m);
-                            }
+                            //            //api_word.f_word_addContentAnaltic(me.Id, con);
+
+                            //            //f_image_loadInit(me.Id);
+
+                            //            if (hasUpdate == false) hasUpdate = true;
+                            //        }
+                            //    }
+                            //    if (hasUpdate)
+                            //    {
+                            //        f_media_writeFile();
+                            //        Execute(m);
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    f_responseToMain(m);
+                            //}
                         }
                         break;
 
@@ -319,6 +292,16 @@ namespace appel
                         break;
                         //case _API.MEDIA_YOUTUBE_INFO:
                         #region
+
+                //string videoId = "RQPSzkMNwcw";
+                //var _client = new YoutubeClient();
+                //// Get data
+                //var Video = _client.GetVideoAsync(videoId);
+                //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
+                //var MediaStreamInfos = _client.GetVideoMediaStreamInfosAsync(videoId);
+                //var ClosedCaptionTrackInfos = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+                //List<Video> video_result = _client.SearchVideosAsync("learn english subtitle");
+
                         ////////videoId = (string)msg.Input;
                         ////////url = string.Format("https://www.youtube.com/get_video_info?video_id={0}&el=embedded&sts=&hl=en", videoId);
                         ////////w = (HttpWebRequest)WebRequest.Create(new Uri(url));
@@ -591,14 +574,7 @@ namespace appel
             if (Directory.Exists(dir) == false) Directory.CreateDirectory(dir);
 
             string filename = Path.Combine(dir, mediaId.ToString() + ".jpg");
-            if (File.Exists(filename))
-            {
-                Stream stream = File.OpenRead(filename);
-                Bitmap bitmap = new Bitmap(stream);
-                dicPhoto.TryAdd(mediaId, bitmap);
-                stream.Close();
-            }
-            else
+            if (!File.Exists(filename)) 
             {
                 oMediaPath m;
                 if (dicPath.TryGetValue(mediaId, out m))
@@ -612,9 +588,7 @@ namespace appel
 
                         if (bitmap != null)
                             bitmap.Save(filename, ImageFormat.Jpeg);
-
-                        dicPhoto.TryAdd(mediaId, bitmap);
-
+                        
                         stream.Flush();
                         stream.Close();
                         client.Dispose();

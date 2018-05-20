@@ -37,6 +37,9 @@ namespace appel
         private FATabStripItem m_tab_Grammar;
         private FATabStripItem m_tab_Text;
 
+        private long m_media_current_id = 0;
+        private string m_media_current_title = string.Empty;
+
         private msg m_search_current_msg = null;
         private TextBox m_search_Input;
         private bool m_search_Online = false;
@@ -47,6 +50,8 @@ namespace appel
         private Label m_search_Message;
         private IconButton m_search_saveResult;
         private Panel m_search_Header;
+        IconButton btn_play;
+
 
         private Label lbl_hide_border_left;
         private Label m_msg_api;
@@ -69,7 +74,6 @@ namespace appel
                 btn_mini.Location = new Point(25, 0);
                 btn_mini.BringToFront();
 
-
                 //m_media.uiMode = "mini";
                 m_media.Width = m_media_width;
                 m_media.Height = 44;
@@ -83,11 +87,15 @@ namespace appel
                 lbl_hide_border_left.Location = new Point((this.Width - (m_media_width - 2)) - 40, -1);
                 lbl_hide_border_left.BringToFront();
 
+                btn_play.Location = new Point(this.Width - m_media_width, 3);
+                btn_play.BringToFront();
+
                 m_search_Input.Focus();
                 app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH, string.Empty);
             };
 
             #region [ MEDIA ]
+
             m_msg_api = new Label()
             {
                 Dock = DockStyle.Bottom,
@@ -113,6 +121,24 @@ namespace appel
             m_media.PlayStateChange += new _WMPOCXEvents_PlayStateChangeEventHandler(this.f_media_event_PlayStateChange);
             m_media.Anchor = AnchorStyles.Right | AnchorStyles.Top;
             this.Controls.Add(m_media);
+
+            btn_play = new IconButton(24)
+            {
+                IconType = IconType.ios_play_outline,
+                Anchor = AnchorStyles.Right | AnchorStyles.Top,
+                Visible = false,
+                Width = m_media_width * 2 - 100,
+                Height = 43,
+            };
+            btn_play.Click += (se, ev) =>
+            {
+                if (m_media_current_id > 0)
+                {
+                    btn_play.Visible = false; 
+                    if (m_media.Visible) m_media.Ctlcontrols.play(); 
+                }
+            };
+            this.Controls.Add(btn_play);
 
             #endregion
 
@@ -411,11 +437,11 @@ namespace appel
                 {
                     //Text = i.ToString(),
                     //TextAlign = ContentAlignment.MiddleCenter,
-                    BackColor = Color.WhiteSmoke,
+                    BackColor = Color.LightGray,
                     Width = app.m_item_width,
                     Height = app.m_item_height,
                     Location = new Point(x, y),
-                    Tag = media.Id + "¦" + media.Title,
+                    Tag = media.Id
                 };
                 string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "photo");
                 file = Path.Combine(file, media.Id.ToString() + ".jpg");
@@ -427,6 +453,7 @@ namespace appel
 
                 Label lbl = new Label()
                 {
+                    Name = media.Id.ToString(),
                     Text = (i + 1).ToString() + ", " + media.Title,
                     TextAlign = ContentAlignment.MiddleLeft,
 
@@ -438,20 +465,20 @@ namespace appel
                     Location = new Point(pic.Location.X + app.m_item_width, pic.Location.Y),
                     Padding = new Padding(9, 0, 0, 0),
                     Font = font_Title,
-                    Tag = media.Id + "¦" + media.Title,
                 };
 
-                pic.Click += (se, ev) =>
+                pic.MouseDoubleClick += (se, ev) =>
                 {
                     ((Control)se).BackColor = Color.Gray;
-                    string[] a = ((Control)se).Tag.ToString().Split('¦');
-                    f_video_openMp4_Request(long.Parse(a[0]), a[1]);
+                    string mid = ((Control)se).Tag.ToString();
+
+                    Control _lbl = m_search_Result.Controls.Find(mid, false).SingleOrDefault();
+                    if (_lbl != null)
+                        f_media_labelTitle_MouseClick(_lbl, null);
+
+                    f_video_openMp4_Request();
                 };
-                lbl.Click += (se, ev) =>
-                {
-                    string[] a = ((Control)se).Tag.ToString().Split('¦');
-                    f_video_openMp3_Request(long.Parse(a[0]), a[1]);
-                };
+                lbl.MouseClick += f_media_labelTitle_MouseClick;
                 lbl.MouseMove += f_form_move_MouseDown;
                 pic.MouseMove += f_form_move_MouseDown;
 
@@ -548,25 +575,53 @@ namespace appel
 
         #region [ MEDIA ]
 
+        private void f_media_labelTitle_MouseClick(object sender, MouseEventArgs e)
+        {
+            Control it = ((Control)sender);
+            it.BackColor = Color.Orange;
+            long mid = long.Parse(it.Name);
+
+            if (mid == m_media_current_id) return;
+
+            if (m_media_current_id > 0)
+            {
+                Control itprev = m_search_Result.Controls.Find(m_media_current_id.ToString(), false).SingleOrDefault();
+                if (itprev != null)
+                    itprev.BackColor = Color.LightGray;
+            }
+
+            m_media_current_id = mid;
+            m_media_current_title = it.Text;
+
+            this.Text = m_media_current_title;
+            lbl_title.Text = m_media_current_title;
+
+            if (m_media.playState == WMPLib.WMPPlayState.wmppsPlaying) m_media.Ctlcontrols.stop();
+            if (e != null)
+            {
+                if (m_media.Visible) m_media.Visible = false;
+                btn_play.InActiveColor = Color.DimGray;
+                btn_play.Visible = true;
+                f_video_openMp3_Request();
+            } 
+        }
+
+
         private void f_media_event_PlayStateChange(object sender, _WMPOCXEvents_PlayStateChangeEvent e)
         {
         }
 
-        void f_video_openMp4_Request(long videoId, string title)
+        void f_video_openMp4_Request()
         {
-            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_PLAY_VIDEO, Log = title, Input = videoId });
+            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_PLAY_VIDEO, Input = m_media_current_id });
         }
 
         void f_video_openMp4_Callback(string url, string title)
         {
-            //string title = string.Empty;
-            //string url = api_media.f_get_uriProxy(videoId, MEDIA_TYPE.MP4);
-
             if (url != string.Empty)
             {
                 this.Invoke((Action)(() =>
                 {
-                    this.Text = title;
                     this.Cursor = Cursors.WaitCursor;
                     var f = new fPlayer(url, title);
                     f.Show();
@@ -579,39 +634,24 @@ namespace appel
                 MessageBox.Show("Cannot open videoId: " + title);
         }
 
-        void f_video_openMp3_Request(long videoId, string title)
+        void f_video_openMp3_Request()
         {
-            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_PLAY_AUDIO, Log = title, Input = videoId });
+            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_PLAY_AUDIO, Input = m_media_current_id });
         }
 
         void f_video_openMp3_Callback(string url, string title)
         {
-            //string title = string.Empty;
-            //string url = api_media.f_get_uriProxy(videoId, MEDIA_TYPE.M4A);
             if (url != string.Empty)
             {
-
-
                 this.Invoke((Action)(() =>
                 {
                     this.Cursor = Cursors.WaitCursor;
-                    this.Text = title;
+                    btn_play.InActiveColor = Color.Orange;
                     m_media.Visible = true;
-
-                    for (int i = 0; i < m_search_Result.Controls.Count; i++)
-                    {
-                        if (m_search_Result.Controls[i] is Label)
-                            m_search_Result.Controls[i].BackColor = Color.LightGray;
-                    }
-
-                    string tit = title;
-                    if (title.Length > 69) tit = title.Substring(0, 65) + "...";
-                    lbl_title.Text = title;
-
                     m_media.URL = url;
+                    m_media.close();
                     this.Cursor = Cursors.Default;
                 }));
-
             }
             else
                 MessageBox.Show("Cannot open videoId: " + title);
@@ -673,11 +713,11 @@ namespace appel
                                     m_msg_api.Text = "Search error";
                                 break;
                             case _API.MEDIA_KEY_PLAY_AUDIO:
-                                if (m.Output.Ok)
+                                if (m.Output.Ok && (long)m.Input == m_media_current_id)
                                     f_video_openMp3_Callback((string)m.Output.Data, m.Log);
                                 break;
                             case _API.MEDIA_KEY_PLAY_VIDEO:
-                                if (m.Output.Ok)
+                                if (m.Output.Ok && (long)m.Input == m_media_current_id)
                                     f_video_openMp4_Callback((string)m.Output.Data, m.Log);
                                 break;
                         }

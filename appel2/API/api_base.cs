@@ -52,16 +52,21 @@ namespace appel
             }
         }
 
-        public void f_notificationToMain(msg m)
+        public void notification_toMain(msg m)
         {
             lock (_lock_msg) cache_msg.Enqueue(m);
         }
 
-        public void f_responseToMain(msg m)
+        public void response_toMain(msg m)
         {
-            lock (_lock_api) cache_api.Enqueue(m);
-            //if (fom == null) fom = app.get_Main();
-            //if (fom != null) fom.api_responseMsg(null, new threadMsgEventArgs(m));
+            lock (_lock_api) cache_api.Enqueue(m); 
+        }
+
+        public void response_toMainRuntime(msg m)
+        {
+            if (fom == null) fom = app.get_Main();
+            if (fom != null)
+                fom.api_responseMsg(null, new threadMsgEventArgs(m));
         }
 
     }

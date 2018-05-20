@@ -17,30 +17,48 @@ namespace appel
         public string lpData;
     }
 
+    [ProtoContract]
     public class msgOutput
     {
+        [ProtoMember(1)]
         public bool Ok = false;
+
+        [ProtoMember(2)]
         public int Total = 0;
+
         public object Data { set; get; }
     }
 
+    [ProtoContract]
+    [ProtoInclude(8, typeof(msgOutput))]
     public class msg
     {
+        [ProtoMember(1)]
         public string API = string.Empty;
 
+        [ProtoMember(2)]
         public string KEY = string.Empty;
 
-        public string Log = string.Empty; 
+        [ProtoMember(3)]
+        public string Log = string.Empty;
 
+        [ProtoMember(4)]
+        public string Token = string.Empty;
+
+        [ProtoMember(5)]
         public int PageNumber = 1;
 
+        [ProtoMember(6)]
         public int PageSize = 10;
 
+        [ProtoMember(7)]
         public int Counter = 0;
+
+        [ProtoMember(8)]
+        public msgOutput Output { set; get; }
 
         public object Input { set; get; }
 
-        public msgOutput Output { set; get; }
         public msg()
         {
             Output = new msgOutput();
@@ -48,30 +66,7 @@ namespace appel
 
         public msg clone()
         {
-            msg m = new msg()
-            {
-                API = this.API,
-                KEY = this.KEY,
-                Log = this.Log,
-                Input = this.Input,
-                PageNumber = this.PageNumber,
-                PageSize = this.PageSize,
-                Counter = this.Counter,
-                Output = null,
-            };
-            //if (input != null)
-            //{
-            //    string json = JsonConvert.SerializeObject(input);
-            //    Type type = input.GetType();
-            //    m.Input = JsonConvert.DeserializeObject(json, type);
-            //}
-            //if (output != null)
-            //{
-            //    string json = JsonConvert.SerializeObject(output);
-            //    m.Output = JsonConvert.DeserializeObject<msgOutput>(json);
-            //    m.Output.Data = null;
-            //}
-            return m;
+            return Serializer.DeepClone<msg>(this);
         }
     }
 

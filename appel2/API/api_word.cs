@@ -43,21 +43,21 @@ namespace appel
             dicWordMedia = new ConcurrentDictionary<string, List<string>>();
             dicWordStruct = new ConcurrentDictionary<string, List<string>>();
 
-            if (timer_Content == null)
-            {
-                timer_Content = new System.Threading.Timer(new System.Threading.TimerCallback((obj) =>
-                {
-                    f_word_analytic_CONTENT();
-                }), null, 100, 100);
-            }
+            //if (timer_Content == null)
+            //{
+            //    timer_Content = new System.Threading.Timer(new System.Threading.TimerCallback((obj) =>
+            //    {
+            //        f_word_analytic_CONTENT();
+            //    }), null, 100, 100);
+            //}
 
-            if (timer_Word == null)
-            {
-                timer_Word = new System.Threading.Timer(new System.Threading.TimerCallback((obj) =>
-                {
-                    f_word_analytic_WORD();
-                }), null, 100, 100);
-            }
+            //if (timer_Word == null)
+            //{
+            //    timer_Word = new System.Threading.Timer(new System.Threading.TimerCallback((obj) =>
+            //    {
+            //        f_word_analytic_WORD();
+            //    }), null, 100, 100);
+            //}
         }
 
         public msg Execute(msg m)
@@ -158,7 +158,7 @@ namespace appel
                         }
 
                         string tit = api_media.f_media_getTitle(mediaId);
-                        f_notificationToMain(new msg() { API = _API.MSG_ANALYTIC_CONTENT, Log = tit, Output = new msgOutput() { Data = mediaId, Ok = true } });
+                        notification_toMain(new msg() { API = _API.MSG_ANALYTIC_CONTENT, Log = tit, Output = new msgOutput() { Data = mediaId, Ok = true } });
                     }
 
                     m_flag_analytic_content = false;

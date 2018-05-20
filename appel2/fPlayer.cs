@@ -27,18 +27,14 @@ namespace appel
 
         public fPlayer(string url, string title)
         {
+            this.TopMost = true;
             this.Icon = Resources.favicon;
-            if (!string.IsNullOrEmpty(title)) this.Text = title;
-
-            // FORM
-            //this.TopMost = true;
             this.FormBorderStyle = FormBorderStyle.None;
             this.BackColor = Color.Black;
-
-            // FORM SHOWN
+            if (!string.IsNullOrEmpty(title)) this.Text = title;  
             this.Shown += (se, ev) =>
             {
-                //this.TopMost = true;
+                this.TopMost = true;
                 this.Width = app.m_player_width;
                 this.Height = app.m_player_height;
 
