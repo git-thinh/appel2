@@ -20,83 +20,59 @@ namespace appel
 
         private readonly Font font_Title = new Font("Arial", 11f, FontStyle.Regular);
 
-        private AxWindowsMediaPlayer m_media;
-        private const int m_media_width = 215;
-
         private IconButton btn_exit;
         private IconButton btn_mini;
 
         private Label lbl_title;
 
-        private FATabStrip m_tab;
-        private FATabStripItem m_tab_Search;
-        private FATabStripItem m_tab_Tag;
-        private FATabStripItem m_tab_Listen;
-        private FATabStripItem m_tab_Speaking;
-        private FATabStripItem m_tab_Word;
-        private FATabStripItem m_tab_Grammar;
-        private FATabStripItem m_tab_Text;
 
         private TextBox m_media_text;
         private long m_media_current_id = 0;
         private string m_media_current_title = string.Empty;
 
-        private msg m_search_current_msg = null;
-        private TextBox m_search_Input;
-        private bool m_search_Online = false;
-        private Panel m_search_Result;
-        private Label m_search_PageCurrent;
-        private Label m_search_PageTotal;
-        private Label m_media_Total;
-        private Label m_search_Message;
-        private IconButton m_search_saveResult;
-        private Panel m_search_Header;
-        IconButton btn_play;
-
-
-        private Label lbl_hide_border_left;
         private Label m_msg_api;
 
         #endregion
 
-        public fMain()
-        {
-            this.Icon = Resources.favicon;
-            this.FormBorderStyle = FormBorderStyle.None;
-            this.Shown += (se, ev) =>
-            {
-                m_search_Message.Text = string.Empty;
-                m_media.Visible = false;
-                lbl_title.Width = app.m_app_width * 2;// - (m_media_width + lbl_title.Location.X + 15);
+        void f_main_Shown() { 
+            m_search_Message.Text = string.Empty;
+            m_media.Visible = false;
+            lbl_title.Width = app.m_app_width * 2;// - (m_media_width + lbl_title.Location.X + 15);
 
-                btn_exit.Location = new Point(3, 0);
-                btn_exit.BringToFront();
+            btn_exit.Location = new Point(3, 0);
+            btn_exit.BringToFront();
 
-                btn_mini.Location = new Point(25, 0);
-                btn_mini.BringToFront();
+            btn_mini.Location = new Point(25, 0);
+            btn_mini.BringToFront();
 
-                //m_media.uiMode = "mini";
-                m_media.Width = m_media_width;
-                m_media.Height = 44;
-                m_media.Location = new Point(this.Width - (m_media_width - 2), 1);
-                m_media.settings.volume = 100;
-                m_media.BringToFront();
+            //m_media.uiMode = "mini";
+            m_media.Width = m_media_width;
+            m_media.Height = 44;
+            m_media.Location = new Point(this.Width - (m_media_width - 2), 1);
+            m_media.settings.volume = 100;
+            m_media.BringToFront();
 
-                //lbl_hide_border_left.BackColor = Color.Orange;
-                lbl_hide_border_left.Height = 45;
-                lbl_hide_border_left.Width = 42;
-                lbl_hide_border_left.Location = new Point((this.Width - (m_media_width - 2)) - 40, -1);
-                lbl_hide_border_left.BringToFront();
+            //lbl_hide_border_left.BackColor = Color.Orange;
+            lbl_hide_border_left.Height = 45;
+            lbl_hide_border_left.Width = 12;
+            lbl_hide_border_left.Location = new Point((this.Width - (m_media_width - 2)) - 10, -1);
+            lbl_hide_border_left.BringToFront();
 
-                btn_play.Location = new Point(this.Width - m_media_width, 3);
-                btn_play.BringToFront();
+            btn_play.Location = new Point(this.Width - m_media_width, 3);
+            btn_play.BringToFront();
 
-                m_search_Input.Focus();
-                app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH, string.Empty);
-            };
+            m_search_Input.Focus();
+            app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH, string.Empty);
+        }
 
-            #region [ MEDIA ]
+        #region [ AUDIO ]
 
+        IconButton btn_play;
+        private AxWindowsMediaPlayer m_media;
+        private const int m_media_width = 215;
+        private Label lbl_hide_border_left;
+
+        void f_audio_initUI() {
             m_msg_api = new Label()
             {
                 Dock = DockStyle.Bottom,
@@ -131,6 +107,7 @@ namespace appel
                 Width = m_media_width * 2 - 100,
                 Height = 43,
             };
+            btn_play.MouseMove += f_form_move_MouseDown;
             btn_play.Click += (se, ev) =>
             {
                 if (m_media_current_id > 0)
@@ -140,10 +117,23 @@ namespace appel
                 }
             };
             this.Controls.Add(btn_play);
+        }
 
-            #endregion
+        #endregion
 
-            #region [ TAB ]
+        #region [ TAB ]
+
+        private FATabStrip m_tab;
+        private FATabStripItem m_tab_Store;
+        private FATabStripItem m_tab_Search;
+        private FATabStripItem m_tab_Tag;
+        private FATabStripItem m_tab_Listen;
+        private FATabStripItem m_tab_Speaking;
+        private FATabStripItem m_tab_Word;
+        private FATabStripItem m_tab_Grammar;
+        private FATabStripItem m_tab_Text;
+
+        void f_tab_initUI() {
 
             lbl_title = new Label()
             {
@@ -174,6 +164,11 @@ namespace appel
                 AlwaysShowClose = false,
                 AlwaysShowMenuGlyph = false,
                 Margin = new Padding(0, 45, 0, 0),
+            };
+            m_tab_Store = new FATabStripItem()
+            {
+                CanClose = false,
+                Title = "Store",
             };
             m_tab_Search = new FATabStripItem()
             {
@@ -212,6 +207,7 @@ namespace appel
             };
 
             m_tab.Items.AddRange(new FATabStripItem[] {
+                m_tab_Store,
                 m_tab_Search,
                 m_tab_Tag,
                 m_tab_Listen,
@@ -233,15 +229,171 @@ namespace appel
                 Multiline = true,
                 Dock = DockStyle.Fill,
                 BorderStyle = BorderStyle.None,
-                ScrollBars = ScrollBars.Vertical, 
+                ScrollBars = ScrollBars.Vertical,
                 Font = font_Title
             };
             m_tab_Text.Padding = new Padding(9, 0, 0, 0);
             m_tab_Text.Controls.Add(m_media_text);
 
-            #endregion
+        }
 
-            #region [ SEARCH ]
+        #endregion
+
+        #region [ STORE ] 
+
+        Label m_store_Message;
+        Panel m_store_Result;
+        TextBox m_store_Input;
+        Panel m_store_Header;
+
+        Label m_store_PageCurrent;
+        Label m_store_PageTotal;
+        Label m_store_TotalItems;
+
+        void f_store_initUI() { 
+            m_store_Message = new Label()
+            {
+                AutoSize = false,
+                Dock = DockStyle.Fill,
+                //BackColor = Color.Gray,
+                Text = "Message here ...",
+                TextAlign = ContentAlignment.MiddleCenter,
+            };
+
+            m_store_Result = new Panel()
+            {
+                AutoScroll = true,
+                BackColor = Color.White,
+                Dock = DockStyle.Fill,
+            };
+            m_store_Result.MouseMove += f_form_move_MouseDown;
+
+            m_store_Input = new TextBox()
+            {
+                Dock = DockStyle.Left,
+                Width = 123,
+            };
+            m_store_Input.KeyDown += (se, ev) => { };
+            m_store_Header = new Panel()
+            {
+                Height = 35,
+                Dock = DockStyle.Bottom,
+                BackColor = Color.White,
+                Padding = new Padding(9, 9, 9, 0),
+            };
+            m_store_Header.MouseMove += f_form_move_MouseDown;
+            m_tab_Store.Controls.AddRange(new Control[] {
+                m_store_Result,
+                m_store_Header,
+                new Label(){ AutoSize = false, Height = 9, Dock = DockStyle.Top }
+            });
+
+            IconButton btn_saveResult = new IconButton(24) { IconType = IconType.ios_cloud_download, Dock = DockStyle.Left };
+            IconButton btn_tags = new IconButton(24) { IconType = IconType.pricetags, Dock = DockStyle.Left, ToolTipText = "Tags" };
+            IconButton btn_user = new IconButton(22) { IconType = IconType.person, Dock = DockStyle.Left, ToolTipText = "User" };
+            IconButton btn_channel = new IconButton(22) { IconType = IconType.android_desktop, Dock = DockStyle.Left, ToolTipText = "Channel" };
+
+            IconButton btn_next = new IconButton(16) { IconType = IconType.ios_arrow_back, Dock = DockStyle.Right };
+            IconButton btn_prev = new IconButton(16) { IconType = IconType.ios_arrow_next, Dock = DockStyle.Right };
+            IconButton btn_remove = new IconButton(22) { IconType = IconType.trash_a, Dock = DockStyle.Right };
+            IconButton btn_add_playlist = new IconButton(22) { IconType = IconType.android_add, Dock = DockStyle.Right, ToolTipText = "Add to Playlist" };
+
+
+
+            m_store_PageCurrent = new Label()
+            {
+                AutoSize = true,
+                //BackColor = Color.Gray,
+                Text = "1",
+                TextAlign = ContentAlignment.BottomRight,
+                Dock = DockStyle.Right,
+                Padding = new Padding(9, 3, 0, 0)
+            };
+            m_store_PageTotal = new Label()
+            {
+                AutoSize = true,
+                //BackColor = Color.Yellow,
+                Text = "1",
+                TextAlign = ContentAlignment.BottomLeft,
+                Dock = DockStyle.Right,
+                Padding = new Padding(0, 3, 0, 0)
+            };
+            m_store_TotalItems = new Label()
+            {
+                AutoSize = true,
+                //BackColor = Color.Blue,
+                Text = "1",
+                TextAlign = ContentAlignment.BottomLeft,
+                Dock = DockStyle.Right,
+                Padding = new Padding(0, 3, 0, 0)
+            };
+            btn_next.Click += f_search_goPageNextClick;
+            btn_prev.Click += f_search_goPagePrevClick;
+
+
+            m_store_Message.MouseMove += f_form_move_MouseDown;
+            m_store_Header.Controls.AddRange(new Control[] {
+                #region
+
+                m_store_Message,
+                btn_channel,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
+                btn_user,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
+                btn_tags,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
+                btn_saveResult,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
+                m_store_Input,
+
+                btn_add_playlist,
+                new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
+                btn_remove,
+                new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
+                btn_next,
+                m_store_PageCurrent,
+                new Label()
+                {
+                    AutoSize = true,
+                    //BackColor = Color.Red,
+                    Text = "|",
+                    TextAlign = ContentAlignment.BottomLeft,
+                    Dock = DockStyle.Right,
+                    Padding = new Padding(5,3,5,0),
+                },
+                m_store_PageTotal,
+                new Label()
+                {
+                    AutoSize = true,
+                    //BackColor = Color.Red,
+                    Text = "_",
+                    TextAlign = ContentAlignment.BottomLeft,
+                    Dock = DockStyle.Right,
+                    Padding = new Padding(5,3,5,0),
+                },
+                m_store_TotalItems,
+                new Label(){ Dock = DockStyle.Right, Padding = new Padding(0,3,0,0), Text = " items ", TextAlign = ContentAlignment.BottomLeft, AutoSize = true, },
+                btn_prev,
+
+                #endregion
+            });
+        }
+
+        #endregion
+
+        #region [ SEARCH ]
+
+        private msg m_search_current_msg = null;
+        private TextBox m_search_Input; 
+        private Panel m_search_Result;
+        private Label m_search_PageCurrent;
+        private Label m_search_PageTotal;
+        private Label m_search_TotalItems;
+        private Label m_search_Message;
+        private IconButton m_search_saveResult;
+        private Panel m_search_Header;
+
+        void f_search_initUI() {
 
             m_search_Message = new Label()
             {
@@ -273,32 +425,13 @@ namespace appel
                 Dock = DockStyle.Bottom,
                 BackColor = Color.White,
                 Padding = new Padding(9, 9, 9, 0),
-            };
-            var ico_search_Online = new IconButton(20)
-            {
-                IconType = IconType.android_globe,
-                Dock = DockStyle.Left,
-                BorderStyle = BorderStyle.None,
-            };
+            }; 
             m_search_Header.MouseMove += f_form_move_MouseDown;
             m_tab_Search.Controls.AddRange(new Control[] {
                 m_search_Result,
                 m_search_Header,
                 new Label(){ AutoSize = false, Height = 9, Dock = DockStyle.Top }
-            });
-            ico_search_Online.Click += (se, ev) =>
-            {
-                if (m_search_Online)
-                {
-                    m_search_Online = false;
-                    ico_search_Online.InActiveColor = Color.DimGray;
-                }
-                else
-                {
-                    m_search_Online = true;
-                    ico_search_Online.InActiveColor = Color.DodgerBlue;
-                }
-            };
+            }); 
 
             m_search_saveResult = new IconButton(24) { IconType = IconType.ios_cloud_download, Dock = DockStyle.Left };
             IconButton btn_tags = new IconButton(24) { IconType = IconType.pricetags, Dock = DockStyle.Left, ToolTipText = "Tags" };
@@ -328,7 +461,7 @@ namespace appel
                 Dock = DockStyle.Right,
                 Padding = new Padding(0, 3, 0, 0)
             };
-            m_media_Total = new Label()
+            m_search_TotalItems = new Label()
             {
                 AutoSize = true,
                 //BackColor = Color.Blue,
@@ -353,9 +486,7 @@ namespace appel
                 btn_tags,
                 new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 m_search_saveResult,
-                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
-                ico_search_Online,
-                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 3 },
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 }, 
                 m_search_Input,
 
                 btn_add_playlist,
@@ -387,18 +518,14 @@ namespace appel
                     Dock = DockStyle.Right,
                     Padding = new Padding(5,3,5,0),
                 },
-                m_media_Total,
+                m_search_TotalItems,
                 new Label(){ Dock = DockStyle.Right, Padding = new Padding(0,3,0,0), Text = " items ", TextAlign = ContentAlignment.BottomLeft, AutoSize = true, },
                 btn_prev,
 
                 #endregion
             });
 
-            #endregion
-
         }
-
-        #region [ SEARCH ]
 
         private void f_search_draw_Media(List<long> ls)
         {
@@ -577,9 +704,9 @@ namespace appel
             {
                 m_search_PageTotal.Text = page.ToString();
             });
-            m_media_Total.crossThreadPerformSafely(() =>
+            m_search_TotalItems.crossThreadPerformSafely(() =>
             {
-                m_media_Total.Text = rs.CountResult.ToString();
+                m_search_TotalItems.Text = rs.CountResult.ToString();
             });
         }
 
@@ -759,5 +886,18 @@ namespace appel
         }
 
         #endregion
+        
+        public fMain()
+        {
+            this.Icon = Resources.favicon;
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.Shown += (se, ev) => f_main_Shown();
+
+            f_audio_initUI();
+            f_tab_initUI();
+
+            f_store_initUI();
+            f_search_initUI();
+        }
     }
 }

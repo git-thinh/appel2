@@ -78,23 +78,6 @@ namespace appel
                         oMedia mi = api_media.f_media_getInfo(mediaId);
                         if (mi != null)
                         {
-                            //var _client = new YoutubeClient();
-                            //string videoId = api_media.f_media_getYoutubeID(mediaId);
-                            //var cap = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
-                            //if (cap.Count > 0) {
-                            //    var tr = cap.Where(x => x.Language.Code == "en").Take(1).SingleOrDefault();
-                            //}
-
-                            //var lw1 = f_analytic_wordFileXml("demo1.xml");
-                            //var ls1 = f_render_Sentence(lw1);
-
-                            //var lw2 = f_analytic_wordFileXml("demo2.xml");
-                            //var ls2 = f_render_Sentence(lw2);
-
-                            //string text = string.Empty;
-                            //foreach (var se in ls2) text += se.TimeStart + ": " + se.Words + Environment.NewLine;
-
-
                             string content = mi.Title;
                             if (!string.IsNullOrEmpty(mi.Description))
                                 content += Environment.NewLine + mi.Description;
