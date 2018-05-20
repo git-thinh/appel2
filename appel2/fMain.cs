@@ -62,7 +62,7 @@ namespace appel
             btn_play.BringToFront();
 
             m_search_Input.Focus();
-            app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH, string.Empty);
+            app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH_STORE, string.Empty);
         }
 
         #region [ AUDIO ]
@@ -241,6 +241,8 @@ namespace appel
 
         #region [ STORE ] 
 
+        msg m_store_current_msg = null;
+
         Label m_store_Message;
         Panel m_store_Result;
         TextBox m_store_Input;
@@ -273,7 +275,7 @@ namespace appel
                 Dock = DockStyle.Left,
                 Width = 123,
             };
-            m_store_Input.KeyDown += (se, ev) => { };
+            m_store_Input.KeyDown += f_store_input_KeyDown;
             m_store_Header = new Panel()
             {
                 Height = 35,
@@ -327,8 +329,8 @@ namespace appel
                 Dock = DockStyle.Right,
                 Padding = new Padding(0, 3, 0, 0)
             };
-            btn_next.Click += f_search_goPageNextClick;
-            btn_prev.Click += f_search_goPagePrevClick;
+            btn_next.Click += f_store_goPageNextClick;
+            btn_prev.Click += f_store_goPagePrevClick;
 
 
             m_store_Message.MouseMove += f_form_move_MouseDown;
@@ -377,6 +379,173 @@ namespace appel
 
                 #endregion
             });
+        }
+
+        private void f_store_draw_Media(List<long> ls)
+        {
+            m_store_Result.crossThreadPerformSafely(() =>
+            {
+                m_store_Result.Controls.Clear();
+            });
+
+            if (ls.Count == 0) return;
+
+            const int margin_bottom = 5;
+            const int margin_left = 9;
+
+            int y = 0, x = 0, row = 0;
+            Control[] pics = new Control[30];
+            Control[] tits = new Control[30];
+
+            #region
+
+            for (int i = 0; i < ls.Count; i++)
+            {
+                if (i > 29) break;
+                if (i == 0 || i == 1)
+                {
+                    x = i == 0 ? margin_left : (app.m_box_width + margin_left * 2);
+                    y = 0;
+                }
+                else
+                {
+                    if (i % 2 == 0)
+                    {
+                        row = i / 2;
+                        x = margin_left;
+                        y = (app.m_item_height * row) + margin_bottom * row;
+                    }
+                    else
+                    {
+                        row = (int)(i / 2);
+                        x = app.m_box_width + margin_left * 2;
+                        y = (app.m_item_height * row) + margin_bottom * row;
+                    }
+                }
+
+                oMedia media = api_media.f_media_getInfo(ls[i]);
+                if (media == null) continue;
+
+                PictureBox pic = new PictureBox()
+                {
+                    //Text = i.ToString(),
+                    //TextAlign = ContentAlignment.MiddleCenter,
+                    BackColor = Color.LightGray,
+                    Width = app.m_item_width,
+                    Height = app.m_item_height,
+                    Location = new Point(x, y),
+                    Tag = media.Id
+                };
+                string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "photo");
+                file = Path.Combine(file, media.Id.ToString() + ".jpg");
+                if (File.Exists(file))
+                {
+                    var fs = File.OpenRead(file);
+                    pic.Image = new Bitmap(fs);
+                }
+
+                Label lbl = new Label()
+                {
+                    Name = media.Id.ToString(),
+                    Text = (i + 1).ToString() + ", " + media.Title,
+                    TextAlign = ContentAlignment.MiddleLeft,
+
+                    AutoSize = false,
+                    BackColor = Color.LightGray,
+                    //ForeColor = Color.Black,
+                    Width = app.m_box_width - app.m_item_width,
+                    Height = app.m_box_height - app.m_item_height,
+                    Location = new Point(pic.Location.X + app.m_item_width, pic.Location.Y),
+                    Padding = new Padding(9, 0, 0, 0),
+                    Font = font_Title,
+                };
+
+                pic.MouseDoubleClick += (se, ev) =>
+                {
+                    ((Control)se).BackColor = Color.Gray;
+                    string mid = ((Control)se).Tag.ToString();
+
+                    Control _lbl = m_store_Result.Controls.Find(mid, false).SingleOrDefault();
+                    if (_lbl != null)
+                        f_media_labelTitle_MouseClick(_lbl, null);
+
+                    f_video_openMp4_Request();
+                };
+                lbl.MouseClick += f_media_labelTitle_MouseClick;
+                lbl.MouseMove += f_form_move_MouseDown;
+                pic.MouseMove += f_form_move_MouseDown;
+
+                pics[i] = pic;
+                tits[i] = lbl;
+            }
+
+            #endregion
+
+            m_store_Result.crossThreadPerformSafely(() =>
+            {
+                m_store_Result.Controls.AddRange(tits);
+                m_store_Result.Controls.AddRange(pics);
+            });
+        }
+
+        void f_store_Result(oMediaSearchLocalResult rs)
+        {
+            f_store_draw_Media(rs.MediaIds);
+
+            int page = rs.CountResult / rs.PageSize;
+            if (rs.CountResult % rs.PageSize != 0) page++;
+
+            m_store_PageCurrent.crossThreadPerformSafely(() =>
+            {
+                m_store_PageCurrent.Text = rs.PageNumber.ToString();
+            });
+            m_store_PageTotal.crossThreadPerformSafely(() =>
+            {
+                m_store_PageTotal.Text = page.ToString();
+            });
+            m_store_TotalItems.crossThreadPerformSafely(() =>
+            {
+                m_store_TotalItems.Text = rs.CountResult.ToString();
+            });
+        }
+
+        private void f_store_goPagePrevClick(object sender, EventArgs e)
+        {
+            if (m_store_current_msg != null)
+            {
+                if ((m_store_current_msg.PageNumber - 1) * m_store_current_msg.PageSize < m_store_current_msg.Counter)
+                {
+                    m_store_current_msg.PageNumber = m_store_current_msg.PageNumber + 1;
+                    app.postToAPI(m_store_current_msg);
+                }
+            }
+        }
+
+        private void f_store_goPageNextClick(object sender, EventArgs e)
+        {
+            if (m_store_current_msg != null)
+            {
+                if (m_store_current_msg.PageNumber > 1)
+                {
+                    m_store_current_msg.PageNumber = m_store_current_msg.PageNumber - 1;
+                    app.postToAPI(m_store_current_msg);
+                }
+            }
+        }
+
+        private void f_store_input_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                string key = m_search_Input.Text.Trim();
+                if (key.Length > 1)
+                {
+                    m_store_Message.Text = "Finding [" + key + "] ...";
+                    app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH_STORE, key); 
+                }
+                else
+                    m_store_Message.Text = "Length of keywords must be greater than 1 characters.";
+            }
         }
 
         #endregion
@@ -634,6 +803,27 @@ namespace appel
             });
         }
 
+        void f_search_Result(oMediaSearchLocalResult rs)
+        {
+            f_search_draw_Media(rs.MediaIds);
+
+            int page = rs.CountResult / rs.PageSize;
+            if (rs.CountResult % rs.PageSize != 0) page++;
+
+            m_search_PageCurrent.crossThreadPerformSafely(() =>
+            {
+                m_search_PageCurrent.Text = rs.PageNumber.ToString();
+            });
+            m_search_PageTotal.crossThreadPerformSafely(() =>
+            {
+                m_search_PageTotal.Text = page.ToString();
+            });
+            m_search_TotalItems.crossThreadPerformSafely(() =>
+            {
+                m_search_TotalItems.Text = rs.CountResult.ToString();
+            });
+        }
+
         private void f_search_goPagePrevClick(object sender, EventArgs e)
         {
             if (m_search_current_msg != null)
@@ -666,7 +856,7 @@ namespace appel
                 if (key.Length > 1)
                 {
                     m_search_Message.Text = "Finding [" + key + "] ...";
-                    app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH, key);
+                    app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH_STORE, key);
 
                     //if (m_search_Online)
                     //{
@@ -687,27 +877,6 @@ namespace appel
                 else
                     m_search_Message.Text = "Length of keywords must be greater than 1 characters.";
             }
-        }
-
-        void f_search_Result(oMediaSearchLocalResult rs)
-        {
-            f_search_draw_Media(rs.MediaIds);
-
-            int page = rs.CountResult / rs.PageSize;
-            if (rs.CountResult % rs.PageSize != 0) page++;
-
-            m_search_PageCurrent.crossThreadPerformSafely(() =>
-            {
-                m_search_PageCurrent.Text = rs.PageNumber.ToString();
-            });
-            m_search_PageTotal.crossThreadPerformSafely(() =>
-            {
-                m_search_PageTotal.Text = page.ToString();
-            });
-            m_search_TotalItems.crossThreadPerformSafely(() =>
-            {
-                m_search_TotalItems.Text = rs.CountResult.ToString();
-            });
         }
 
         #endregion
@@ -856,12 +1025,12 @@ namespace appel
                         #region
                         switch (m.KEY)
                         {
-                            case _API.MEDIA_KEY_SEARCH:
+                            case _API.MEDIA_KEY_SEARCH_STORE:
                                 if (m.Output.Ok)
                                 {
                                     var rs = (oMediaSearchLocalResult)m.Output.Data;
-                                    f_search_Result(rs);
-                                    m_search_current_msg = m.clone();
+                                    f_store_Result(rs);
+                                    m_store_current_msg = m.clone();
                                 }
                                 else
                                     m_msg_api.Text = "Search error";

@@ -210,7 +210,7 @@ namespace appel
                         }
                         break;
                     #endregion
-                    case _API.MEDIA_KEY_SEARCH:
+                    case _API.MEDIA_KEY_SEARCH_STORE:
                         #region 
                         if (true)
                         {

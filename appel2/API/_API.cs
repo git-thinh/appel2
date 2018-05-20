@@ -17,7 +17,8 @@ namespace appel
 
         public const string MEDIA = "MEDIA";
         public const string MEDIA_KEY_INITED = "MEDIA_KEY_INITED";
-        public const string MEDIA_KEY_SEARCH         = "MEDIA_KEY_SEARCH";
+        public const string MEDIA_KEY_SEARCH_STORE = "MEDIA_KEY_SEARCH_LOCAL";
+        public const string MEDIA_KEY_SEARCH_ONLINE = "MEDIA_KEY_SEARCH_ONLINE";
         public const string MEDIA_KEY_PLAY_VIDEO = "MEDIA_KEY_PLAY_VIDEO";
         public const string MEDIA_KEY_PLAY_AUDIO = "MEDIA_KEY_PLAY_AUDIO";
 
