@@ -6,8 +6,7 @@ using System.Text;
 namespace appel
 {
     public class oWordCount
-    {
-        public bool analytic = false;
+    { 
         public string word { set; get; }
         public int count { set; get; }
     }
