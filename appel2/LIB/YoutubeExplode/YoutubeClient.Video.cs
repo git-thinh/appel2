@@ -468,7 +468,7 @@ namespace YoutubeExplode
         }
 
         /// <inheritdoc />
-        public IList<ClosedCaptionTrackInfo> GetVideoClosedCaptionTrackInfosAsync(string videoId)
+        public List<ClosedCaptionTrackInfo> GetVideoClosedCaptionTrackInfosAsync(string videoId)
         {
             videoId.GuardNotNull(nameof(videoId));
 

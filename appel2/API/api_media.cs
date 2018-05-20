@@ -23,36 +23,38 @@ namespace appel
         const string file_path = "mpath.bin";
 
         public bool Open { set; get; } = false;
-        
+
         static ConcurrentDictionary<long, oMedia> dicMedia = null;
         static ConcurrentDictionary<long, oMediaPath> dicPath = null;
 
 
         public void Init()
         {
-            dicMedia = new ConcurrentDictionary<long, oMedia>(); 
+            dicMedia = new ConcurrentDictionary<long, oMedia>();
             dicPath = new ConcurrentDictionary<long, oMediaPath>();
 
-            using (var file = File.OpenRead(file_media))
-                dicMedia = Serializer.Deserialize<ConcurrentDictionary<long, oMedia>>(file);
+            if (File.Exists(file_media))
+                using (var file = File.OpenRead(file_media))
+                    dicMedia = Serializer.Deserialize<ConcurrentDictionary<long, oMedia>>(file);
 
-            using (var file = File.OpenRead(file_path))
-                dicPath = Serializer.Deserialize<ConcurrentDictionary<long, oMediaPath>>(file);
+            if (File.Exists(file_path))
+                using (var file = File.OpenRead(file_path))
+                    dicPath = Serializer.Deserialize<ConcurrentDictionary<long, oMediaPath>>(file);
 
-            if (dicMedia.Count > 0)
-            {
-                foreach (var kv in dicMedia)
-                {
-                    string con = kv.Value.Title;
-                    if (!string.IsNullOrEmpty(kv.Value.Description))
-                        con += Environment.NewLine + kv.Value.Description;
+            //if (dicMedia.Count > 0)
+            //{
+            //    foreach (var kv in dicMedia)
+            //    {
+            //        string con = kv.Value.Title;
+            //        if (!string.IsNullOrEmpty(kv.Value.Description))
+            //            con += Environment.NewLine + kv.Value.Description;
 
-                    if (kv.Value.Keywords != null && kv.Value.Keywords.Count > 0)
-                        con += Environment.NewLine + string.Join(" ", kv.Value.Keywords);
+            //        if (kv.Value.Keywords != null && kv.Value.Keywords.Count > 0)
+            //            con += Environment.NewLine + string.Join(" ", kv.Value.Keywords);
 
-                    api_word.f_word_addContentAnaltic(kv.Key, con);
-                }
-            }
+            //        api_word.f_word_addContentAnaltic(kv.Key, con);
+            //    }
+            //}
             f_proxy_Start();
         }
 
@@ -72,6 +74,15 @@ namespace appel
             dicMedia.TryGetValue(mediaId, out m);
             if (m != null && !string.IsNullOrEmpty(m.Title)) title = m.Title;
             return title;
+        }
+
+        public static string f_media_getYoutubeID(long mediaId)
+        {
+            string url = string.Empty;
+            oMediaPath p = null;
+            if (dicPath.TryGetValue(mediaId, out p) && p != null)
+                return p.YoutubeID;
+            return string.Empty;
         }
 
         public static string f_media_fetchUriSource(long mediaId, MEDIA_TYPE type)
@@ -238,21 +249,61 @@ namespace appel
                             //    {
                             //        var m2 = m.clone();
                             //        m2.Input = input;
-                            //        m2.Output.Data = resultSearch.clone(); 
-                            //        f_responseToMain(m2);
+                            //        m2.Output.Data = resultSearch.clone();
+                            //        response_toMain(m2);
                             //    }
 
                             //    var _client = new YoutubeClient();
                             //    List<Video> rs = _client.SearchVideosAsync(input);
                             //    bool hasUpdate = false;
+                            //    int _cc = 1;
+                            //    List<long> lsMediaID = new List<long>();
                             //    foreach (var v in rs)
                             //    {
                             //        oMedia me = new oMedia(v);
                             //        if (!dicMedia.ContainsKey(me.Id))
                             //        {
-                            //            oMediaPath pe = new oMediaPath(me.Id, v.Id);
-                            //            dicMedia.TryAdd(me.Id, me);
-                            //            dicPath.TryAdd(me.Id, pe);
+                            //            string videoId = v.Id;
+                            //            oMediaPath pe = new oMediaPath(me.Id, videoId);
+
+                            //            var cap = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+                            //            if (cap.Count > 0)
+                            //            {
+                            //                var sub = cap.Where(x => x.Language.Code == "en").Take(1).SingleOrDefault();
+                            //                if (sub != null)
+                            //                {
+                            //                    me.SubtileEnglish = _client.GetStringAsync(sub.Url);
+
+                            //                    dicMedia.TryAdd(me.Id, me);
+                            //                    dicPath.TryAdd(me.Id, pe);
+
+                            //                    f_image_loadInit(me.Id);
+
+                            //                    if (_cc <= 10)
+                            //                        lsMediaID.Add(me.Id);
+
+                            //                    if (_cc == 10)
+                            //                    {
+                            //                        var m2 = m.clone();
+                            //                        m2.Input = input;
+                            //                        m2.Counter = _cc;
+                            //                        m2.Output.Data = new oMediaSearchLocalResult() {
+                            //                            CountResult = _cc,
+                            //                            MediaIds = lsMediaID,
+                            //                            TotalItem = _cc,
+                            //                        };
+                            //                        response_toMain(m2); 
+                            //                    }
+
+                            //                    if (hasUpdate == false) hasUpdate = true;
+                            //                    _cc++; 
+                            //                    notification_toMain(new appel.msg()
+                            //                    {
+                            //                        API = _API.MSG_MEDIA_SEARCH_RESULT,
+                            //                        Log = string.Format("{0} - {1}: {2}", _cc, rs.Count, me.Title),
+                            //                    });
+                            //                }
+                            //            }
 
                             //            //string con = me.Title;
                             //            //if (!string.IsNullOrEmpty(me.Description))
@@ -264,19 +315,22 @@ namespace appel
                             //            //api_word.f_word_addContentAnaltic(me.Id, con);
 
                             //            //f_image_loadInit(me.Id);
-
-                            //            if (hasUpdate == false) hasUpdate = true;
                             //        }
                             //    }
                             //    if (hasUpdate)
                             //    {
                             //        f_media_writeFile();
+                            //        notification_toMain(new appel.msg()
+                            //        {
+                            //            API = _API.MSG_MEDIA_SEARCH_RESULT,
+                            //            Log = string.Format("{0} - {1}: Complete search online", _cc, rs.Count),
+                            //        });
                             //        Execute(m);
                             //    }
                             //}
                             //else
                             //{
-                            //    f_responseToMain(m);
+                            //    response_toMain(m);
                             //}
                         }
                         break;
@@ -293,14 +347,14 @@ namespace appel
                         //case _API.MEDIA_YOUTUBE_INFO:
                         #region
 
-                //string videoId = "RQPSzkMNwcw";
-                //var _client = new YoutubeClient();
-                //// Get data
-                //var Video = _client.GetVideoAsync(videoId);
-                //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
-                //var MediaStreamInfos = _client.GetVideoMediaStreamInfosAsync(videoId);
-                //var ClosedCaptionTrackInfos = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
-                //List<Video> video_result = _client.SearchVideosAsync("learn english subtitle");
+                        //string videoId = "RQPSzkMNwcw";
+                        //var _client = new YoutubeClient();
+                        //// Get data
+                        //var Video = _client.GetVideoAsync(videoId);
+                        //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
+                        //var MediaStreamInfos = _client.GetVideoMediaStreamInfosAsync(videoId);
+                        //var ClosedCaptionTrackInfos = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+                        //List<Video> video_result = _client.SearchVideosAsync("learn english subtitle");
 
                         ////////videoId = (string)msg.Input;
                         ////////url = string.Format("https://www.youtube.com/get_video_info?video_id={0}&el=embedded&sts=&hl=en", videoId);
@@ -574,7 +628,7 @@ namespace appel
             if (Directory.Exists(dir) == false) Directory.CreateDirectory(dir);
 
             string filename = Path.Combine(dir, mediaId.ToString() + ".jpg");
-            if (!File.Exists(filename)) 
+            if (!File.Exists(filename))
             {
                 oMediaPath m;
                 if (dicPath.TryGetValue(mediaId, out m))
@@ -588,7 +642,7 @@ namespace appel
 
                         if (bitmap != null)
                             bitmap.Save(filename, ImageFormat.Jpeg);
-                        
+
                         stream.Flush();
                         stream.Close();
                         client.Dispose();

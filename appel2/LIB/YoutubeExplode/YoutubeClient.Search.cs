@@ -6,15 +6,23 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using YoutubeExplode.Internal;
 using YoutubeExplode.Models;
+using System.Web;
 
 namespace YoutubeExplode
 {
     public partial class YoutubeClient
     {
+        public string GetStringAsync(string url)
+        { 
+            return _httpClient.GetStringAsync(url, false);
+        }
+
         private string GetSearchResultsRawAsync(string query, int page = 1)
         {
             query = query.UrlEncode();
-            var url = $"https://www.youtube.com/search_ajax?style=json&search_query={query}&page={page}&hl=en";
+            // search_ajax?style=json&embeddable=1
+            //var url = $"https://www.youtube.com/search_ajax?style=json&search_query={query}&page={page}&hl=en";
+            var url = $"https://www.youtube.com/search_ajax?style=json&search_query={query}&page={page}&hl=en&sp=EgIoAQ%253D%253D"; 
             return _httpClient.GetStringAsync(url, false);
         }
 

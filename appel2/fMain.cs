@@ -37,6 +37,7 @@ namespace appel
         private FATabStripItem m_tab_Grammar;
         private FATabStripItem m_tab_Text;
 
+        private TextBox m_media_text;
         private long m_media_current_id = 0;
         private string m_media_current_title = string.Empty;
 
@@ -134,8 +135,8 @@ namespace appel
             {
                 if (m_media_current_id > 0)
                 {
-                    btn_play.Visible = false; 
-                    if (m_media.Visible) m_media.Ctlcontrols.play(); 
+                    btn_play.Visible = false;
+                    if (m_media.Visible) m_media.Ctlcontrols.play();
                 }
             };
             this.Controls.Add(btn_play);
@@ -226,6 +227,16 @@ namespace appel
                 m_tab,lbl_bgHeader
                 ,m_msg_api
             });
+
+            m_media_text = new TextBox()
+            {
+                Multiline = true,
+                Dock = DockStyle.Fill,
+                BorderStyle = BorderStyle.None,
+                ScrollBars = ScrollBars.Vertical, 
+                Font = font_Title
+            };
+            m_tab_Text.Controls.Add(m_media_text);
 
             #endregion
 
@@ -603,7 +614,8 @@ namespace appel
                 btn_play.InActiveColor = Color.DimGray;
                 btn_play.Visible = true;
                 f_video_openMp3_Request();
-            } 
+                app.postToAPI(new msg() { API = _API.WORD, KEY = _API.WORD_KEY_ANALYTIC, Input = m_media_current_id });
+            }
         }
 
 
@@ -690,14 +702,28 @@ namespace appel
             {
                 switch (m.API)
                 {
-                    case _API.MSG_ANALYTIC_WORD:
-                        break;
-                    case _API.MSG_ANALYTIC_CONTENT:
+                    case _API.MSG_MEDIA_SEARCH_RESULT:
                         m_msg_api.crossThreadPerformSafely(() =>
                         {
                             m_msg_api.Text = m.Log;
                         });
                         break;
+                    case _API.WORD:
+                        #region
+                        switch (m.KEY)
+                        {
+                            case _API.WORD_KEY_ANALYTIC:
+                                if (m.Output.Ok)
+                                {
+                                    m_media_text.crossThreadPerformSafely(() =>
+                                    {
+                                        m_media_text.Text = (string)m.Output.Data;
+                                    });
+                                }
+                                break;
+                        }
+                        break;
+                    #endregion
                     case _API.MEDIA:
                         #region
                         switch (m.KEY)

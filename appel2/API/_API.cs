@@ -7,6 +7,7 @@ namespace appel
 {
     public class _API
     {
+        public const string MSG_MEDIA_SEARCH_RESULT = "MSG_MEDIA_SEARCH_RESULT";
         public const string MSG_ANALYTIC_CONTENT = "MSG_ANALYTIC_CONTENT";
         public const string MSG_ANALYTIC_WORD = "MSG_ANALYTIC_WORD";
 
