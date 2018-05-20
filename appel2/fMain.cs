@@ -34,7 +34,8 @@ namespace appel
 
         #endregion
 
-        void f_main_Shown() { 
+        void f_main_Shown()
+        {
             m_search_Message.Text = string.Empty;
             m_media.Visible = false;
             lbl_title.Width = app.m_app_width * 2;// - (m_media_width + lbl_title.Location.X + 15);
@@ -72,7 +73,8 @@ namespace appel
         private const int m_media_width = 215;
         private Label lbl_hide_border_left;
 
-        void f_audio_initUI() {
+        void f_audio_initUI()
+        {
             m_msg_api = new Label()
             {
                 Dock = DockStyle.Bottom,
@@ -107,16 +109,26 @@ namespace appel
                 Width = m_media_width * 2 - 100,
                 Height = 43,
             };
-            btn_play.MouseMove += f_form_move_MouseDown;
-            btn_play.Click += (se, ev) =>
-            {
-                if (m_media_current_id > 0)
-                {
-                    btn_play.Visible = false;
-                    if (m_media.Visible) m_media.Ctlcontrols.play();
-                }
-            };
+            //btn_play.MouseMove += f_form_move_MouseDown;
+            btn_play.Click += f_audio_play_MouseClick;
             this.Controls.Add(btn_play);
+        }
+
+        private void f_audio_play_MouseClick(object sender, EventArgs e)
+        {
+            if (m_media_current_id > 0)
+            {
+                btn_play.Visible = false;
+                if (string.IsNullOrEmpty(m_media.URL))
+                {
+                    f_video_openMp3_Request();
+                }
+                else
+                {
+                    m_media.Visible = true;
+                    m_media.Ctlcontrols.play();
+                }
+            }
         }
 
         #endregion
@@ -133,7 +145,8 @@ namespace appel
         private FATabStripItem m_tab_Grammar;
         private FATabStripItem m_tab_Text;
 
-        void f_tab_initUI() {
+        void f_tab_initUI()
+        {
 
             lbl_title = new Label()
             {
@@ -252,7 +265,8 @@ namespace appel
         Label m_store_PageTotal;
         Label m_store_TotalItems;
 
-        void f_store_initUI() { 
+        void f_store_initUI()
+        {
             m_store_Message = new Label()
             {
                 AutoSize = false,
@@ -460,18 +474,8 @@ namespace appel
                     Font = font_Title,
                 };
 
-                pic.MouseDoubleClick += (se, ev) =>
-                {
-                    ((Control)se).BackColor = Color.Gray;
-                    string mid = ((Control)se).Tag.ToString();
-
-                    Control _lbl = m_store_Result.Controls.Find(mid, false).SingleOrDefault();
-                    if (_lbl != null)
-                        f_media_labelTitle_MouseClick(_lbl, null);
-
-                    f_video_openMp4_Request();
-                };
-                lbl.MouseClick += f_media_labelTitle_MouseClick;
+                pic.MouseDoubleClick += f_store_picVideo_MouseDoubleClick;
+                lbl.MouseClick += f_store_labelTitle_MouseClick;
                 lbl.MouseMove += f_form_move_MouseDown;
                 pic.MouseMove += f_form_move_MouseDown;
 
@@ -487,6 +491,7 @@ namespace appel
                 m_store_Result.Controls.AddRange(pics);
             });
         }
+
 
         void f_store_Result(oMediaSearchLocalResult rs)
         {
@@ -541,10 +546,64 @@ namespace appel
                 if (key.Length > 1)
                 {
                     m_store_Message.Text = "Finding [" + key + "] ...";
-                    app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH_STORE, key); 
+                    app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH_STORE, key);
                 }
                 else
                     m_store_Message.Text = "Length of keywords must be greater than 1 characters.";
+            }
+        }
+
+        private void f_store_picVideo_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            ((Control)sender).BackColor = Color.Gray;
+            string mid = ((Control)sender).Tag.ToString();
+
+            Control _lbl = m_store_Result.Controls.Find(mid, false).SingleOrDefault();
+            if (_lbl != null)
+                f_store_labelTitle_MouseClick(_lbl, null);
+        }
+
+        private void f_store_labelTitle_MouseClick(object sender, MouseEventArgs e)
+        {
+            Control it = ((Control)sender);
+            it.BackColor = Color.Orange;
+            long mid = long.Parse(it.Name);
+
+            if (mid == m_media_current_id && e != null) return;
+
+            if (m_media_current_id > 0)
+            {
+                Control itprev = m_store_Result.Controls.Find(m_media_current_id.ToString(), false).SingleOrDefault();
+                if (itprev != null)
+                    itprev.BackColor = Color.LightGray;
+            }
+
+            m_media_current_id = mid;
+            m_media_current_title = it.Text;
+
+            this.Text = m_media_current_title;
+            lbl_title.Text = m_media_current_title;
+
+            if (m_media.playState == WMPLib.WMPPlayState.wmppsPlaying) m_media.Ctlcontrols.stop();
+            if (e != null)
+            {
+                // Only click on label title
+                m_media.URL = string.Empty;
+                if (m_media.Visible) m_media.Visible = false;
+                btn_play.InActiveColor = Color.DimGray;
+                btn_play.Visible = true;
+                f_video_openMp3_Request();
+                app.postToAPI(new msg() { API = _API.WORD, KEY = _API.WORD_KEY_ANALYTIC, Input = m_media_current_id });
+            }
+            else
+            {
+                // From picture click -> call click to lable title
+                f_video_openMp4_Request();
+
+                m_media.URL = string.Empty;
+                if (m_media.Visible) m_media.Visible = false;
+                btn_play.InActiveColor = Color.DimGray;
+                btn_play.Visible = true;
             }
         }
 
@@ -553,7 +612,7 @@ namespace appel
         #region [ SEARCH ]
 
         private msg m_search_current_msg = null;
-        private TextBox m_search_Input; 
+        private TextBox m_search_Input;
         private Panel m_search_Result;
         private Label m_search_PageCurrent;
         private Label m_search_PageTotal;
@@ -562,7 +621,8 @@ namespace appel
         private IconButton m_search_saveResult;
         private Panel m_search_Header;
 
-        void f_search_initUI() {
+        void f_search_initUI()
+        {
 
             m_search_Message = new Label()
             {
@@ -594,13 +654,13 @@ namespace appel
                 Dock = DockStyle.Bottom,
                 BackColor = Color.White,
                 Padding = new Padding(9, 9, 9, 0),
-            }; 
+            };
             m_search_Header.MouseMove += f_form_move_MouseDown;
             m_tab_Search.Controls.AddRange(new Control[] {
                 m_search_Result,
                 m_search_Header,
                 new Label(){ AutoSize = false, Height = 9, Dock = DockStyle.Top }
-            }); 
+            });
 
             m_search_saveResult = new IconButton(24) { IconType = IconType.ios_cloud_download, Dock = DockStyle.Left };
             IconButton btn_tags = new IconButton(24) { IconType = IconType.pricetags, Dock = DockStyle.Left, ToolTipText = "Tags" };
@@ -655,7 +715,7 @@ namespace appel
                 btn_tags,
                 new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 m_search_saveResult,
-                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 }, 
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 m_search_Input,
 
                 btn_add_playlist,
@@ -879,10 +939,6 @@ namespace appel
             }
         }
 
-        #endregion
-
-        #region [ MEDIA ]
-
         private void f_media_labelTitle_MouseClick(object sender, MouseEventArgs e)
         {
             Control it = ((Control)sender);
@@ -914,6 +970,10 @@ namespace appel
                 app.postToAPI(new msg() { API = _API.WORD, KEY = _API.WORD_KEY_ANALYTIC, Input = m_media_current_id });
             }
         }
+        #endregion
+
+        #region [ MEDIA ]
+
 
 
         private void f_media_event_PlayStateChange(object sender, _WMPOCXEvents_PlayStateChangeEvent e)
@@ -1055,7 +1115,7 @@ namespace appel
         }
 
         #endregion
-        
+
         public fMain()
         {
             this.Icon = Resources.favicon;
