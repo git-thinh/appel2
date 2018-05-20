@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using ProtoBuf;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -19,7 +21,7 @@ namespace appel
     {
         public bool Ok = false;
         public int Total = 0;
-        public object Data { set; get; } 
+        public object Data { set; get; }
     }
 
     public class msg
@@ -30,15 +32,46 @@ namespace appel
 
         public string Log = string.Empty;
 
+        public int PageNumber = 1;
+
+        public int PageSize = 10;
+
+        public int Counter = 0;
+
         public object Input { set; get; }
+
         public msgOutput Output { set; get; }
-        public msg() {
+        public msg()
+        {
             Output = new msgOutput();
         }
 
-        public static msg create_Key(string key, object data)
+        public msg clone()
         {
-            return new msg() { Input = data, KEY = key };
+            msg m = new msg()
+            {
+                API = this.API,
+                KEY = this.KEY,
+                Log = this.Log,
+                Input = this.Input,
+                PageNumber = this.PageNumber,
+                PageSize = this.PageSize,
+                Counter = this.Counter,
+                Output = null,
+            };
+            //if (input != null)
+            //{
+            //    string json = JsonConvert.SerializeObject(input);
+            //    Type type = input.GetType();
+            //    m.Input = JsonConvert.DeserializeObject(json, type);
+            //}
+            //if (output != null)
+            //{
+            //    string json = JsonConvert.SerializeObject(output);
+            //    m.Output = JsonConvert.DeserializeObject<msgOutput>(json);
+            //    m.Output.Data = null;
+            //}
+            return m;
         }
     }
 

@@ -51,7 +51,7 @@ namespace appel
             {
                 api.Init();
                 api.Open = true;
-                app.f_postToAPI(_API.MEDIA, _API.MEDIA_KEY_INITED, null);
+                app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_INITED, null);
                 threadMsgPara tm = (threadMsgPara)evt;
                 while (_exit == false)
                 {

@@ -40,10 +40,11 @@ namespace appel
             f_proxy_Start();
         }
 
-        public msg Execute(msg msg)
+        public msg Execute(msg m)
         {
-            if (msg != null && Open)
+            if (m != null && Open)
             {
+                if (m.Output == null) m.Output = new msgOutput();
                 //string videoId = "RQPSzkMNwcw";
                 //var _client = new YoutubeClient();
                 //// Get data
@@ -53,7 +54,7 @@ namespace appel
                 //var ClosedCaptionTrackInfos = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
                 //List<Video> video_result = _client.SearchVideosAsync("learn english subtitle");
 
-                switch (msg.KEY)
+                switch (m.KEY)
                 {
                     case _API.MEDIA_KEY_INITED:
                         #region 
@@ -65,7 +66,7 @@ namespace appel
                         #region
                         if (true)
                         {
-                            long mediaId = (long)msg.Input;
+                            long mediaId = (long)m.Input;
                             oMediaPath p = null;
                             if (dicPath.TryGetValue(mediaId, out p))
                             {
@@ -73,9 +74,9 @@ namespace appel
                                 {
                                     if (!string.IsNullOrEmpty(p.PathMp4_Youtube))
                                     {
-                                        msg.Output.Ok = true;
-                                        msg.Output.Data = p.PathMp4_Youtube;
-                                        f_responseToMain(msg);
+                                        m.Output.Ok = true;
+                                        m.Output.Data = p.PathMp4_Youtube;
+                                        f_responseToMain(m);
                                     }
                                     else {
                                         var _client = new YoutubeClient();
@@ -91,9 +92,9 @@ namespace appel
                                         if (ms_video != null) {
                                             p.PathMp4_Youtube = ms_video.Url;
 
-                                            msg.Output.Ok = true;
-                                            msg.Output.Data = p.PathMp4_Youtube;
-                                            f_responseToMain(msg); 
+                                            m.Output.Ok = true;
+                                            m.Output.Data = p.PathMp4_Youtube;
+                                            f_responseToMain(m); 
                                         }
                                     }
                                 }
@@ -105,29 +106,34 @@ namespace appel
                         #region 
                         if (true)
                         {
-                            string input = (string)msg.Input;
+                            string input = (string)m.Input;
                             if (input == null) input = string.Empty;
                             oMediaSearchLocalResult resultSearch = new oMediaSearchLocalResult();
 
                             List<long> lsSearch = new List<long>();
-                            int min = 0, max = 6, count = 0;
+                            int min = (m.PageNumber - 1) * m.PageSize, 
+                                max = m.PageNumber * m.PageSize, 
+                                count = 0;
                             foreach (var kv in dicMedia)
                             {
                                 if (kv.Value.Title.ToLower().Contains(input))
                                 {
-                                    if (lsSearch.Count < resultSearch.PageSize)
+                                    if (count >= min && count < max)
                                         lsSearch.Add(kv.Key);
                                     count++;
                                 }
                             }
 
                             resultSearch.TotalItem = dicMedia.Count;
+                            resultSearch.PageSize = m.PageSize;
+                            resultSearch.PageNumber = m.PageNumber;
                             resultSearch.CountResult = count;
                             resultSearch.MediaIds = lsSearch;
 
-                            msg.Output.Ok = true;
-                            msg.Output.Data = resultSearch; 
-                            f_responseToMain(msg);
+                            m.Counter = count;
+                            m.Output.Ok = true;
+                            m.Output.Data = resultSearch; 
+                            f_responseToMain(m);
                         }
                         break;
 
@@ -392,7 +398,7 @@ namespace appel
                         break;
                 }
             }
-            return msg;
+            return m;
         }
 
         public static oMedia f_get_Media(long mediaId)

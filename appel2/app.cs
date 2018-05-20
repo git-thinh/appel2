@@ -21,10 +21,15 @@ namespace appel
     PermissionSet(SecurityAction.InheritanceDemand, Name = "FullTrust")]
     public class app
     {
+        public const int m_item_width = 120;
+        public const int m_item_height = 90;
+
         public const int m_box_width = 320;
         public const int m_box_height = 180; 
+
         public const int m_app_width = m_box_width * 2 + 45;
         public const int m_app_height = 590;
+
         public const int m_player_width = 640;
         public const int m_player_height = 360;
          
@@ -34,21 +39,26 @@ namespace appel
         static ConcurrentDictionary<string, IthreadMsg> dicService = null;
         static ConcurrentDictionary<string, msg> dicResponses = null;
 
-        public static void f_postToAPI(string api, string key, object data)
+        public static void postToAPI(msg m)
         {
-            if (dicService.ContainsKey(api))
+            if (dicService.ContainsKey(m.API))
             {
                 IthreadMsg sv;
-                if (dicService.TryGetValue(api, out sv))
+                if (dicService.TryGetValue(m.API, out sv))
                 {
                     new Thread(new ParameterizedThreadStart((object _sv) =>
                     {
                         IthreadMsg so = (IthreadMsg)_sv;
-                        so.Execute(new msg() { API = api, KEY = key, Input = data });
+                        so.Execute(m);
                     })).Start(sv);
                 }
 
             }
+        }
+
+        public static void postToAPI(string api, string key, object input)
+        {
+            postToAPI(new msg() { API = api, KEY = key, Input = input });
         }
 
         static app()
@@ -156,14 +166,7 @@ namespace appel
         {
             return main;
         }
-
-        public static void postMessageToService(msg m)
-        {
-
-        }
-
-
-
+        
         #endregion
     }
 

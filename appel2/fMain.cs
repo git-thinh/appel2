@@ -37,6 +37,7 @@ namespace appel
         private FATabStripItem m_tab_Grammar;
         private FATabStripItem m_tab_Text;
 
+        private msg m_search_current_msg = null;
         private TextBox m_search_Input;
         private bool m_search_Online = false;
         private Panel m_search_Result;
@@ -84,7 +85,7 @@ namespace appel
                 lbl_hide_border_left.BringToFront();
 
                 m_search_Input.Focus();
-                app.f_postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH, string.Empty);
+                app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH, string.Empty);
             };
 
             #region [ MEDIA ]
@@ -361,8 +362,6 @@ namespace appel
         }
 
 
-        public const int m_item_width = 120;
-        public const int m_item_height = 90;
 
         #region [ SEARCH ]
 
@@ -379,9 +378,7 @@ namespace appel
             const int margin_left = 9;
             const int tit_height = 45;
 
-            int distance_tit = m_item_height - tit_height;
-
-            int y = 0,  x = 0, row = 0;
+            int y = 0, x = 0, row = 0;
             string tit = string.Empty;
             Control[] pics = new Control[30];
             Control[] tits = new Control[30];
@@ -394,7 +391,7 @@ namespace appel
                 if (i == 0 || i == 1)
                 {
                     x = i == 0 ? margin_left : (app.m_box_width + margin_left * 2);
-                    y = 0; 
+                    y = 0;
                 }
                 else
                 {
@@ -402,14 +399,14 @@ namespace appel
                     {
                         row = i / 2;
                         x = margin_left;
-                        y = (m_item_height * row) + margin_bottom * row;
+                        y = (app.m_item_height * row) + margin_bottom * row;
                     }
                     else
                     {
                         row = (int)(i / 2);
                         x = app.m_box_width + margin_left * 2;
-                        y = (m_item_height * row) + margin_bottom * row;
-                    } 
+                        y = (app.m_item_height * row) + margin_bottom * row;
+                    }
                 }
 
                 oMedia media = api_media.f_get_Media(ls[i]);
@@ -420,8 +417,8 @@ namespace appel
                     //Text = i.ToString(),
                     //TextAlign = ContentAlignment.MiddleCenter,
                     BackColor = Color.WhiteSmoke,
-                    Width = m_item_width,
-                    Height = m_item_height,
+                    Width = app.m_item_width,
+                    Height = app.m_item_height,
                     Location = new Point(x, y),
                     //Tag = media.Id + "¦" + media.Title,
                     Tag = media.Id,
@@ -445,9 +442,9 @@ namespace appel
                     AutoSize = false,
                     BackColor = Color.LightGray,
                     //ForeColor = Color.Black,
-                    Width = app.m_box_width - m_item_width,
-                    Height = app.m_box_height - m_item_height,
-                    Location = new Point(pic.Location.X + m_item_width, pic.Location.Y),
+                    Width = app.m_box_width - app.m_item_width,
+                    Height = app.m_box_height - app.m_item_height,
+                    Location = new Point(pic.Location.X + app.m_item_width, pic.Location.Y),
                     Padding = new Padding(9, 0, 0, 0),
                     Font = font_Title,
                     Tag = media.Id + "¦" + media.Title,
@@ -483,10 +480,26 @@ namespace appel
 
         private void f_search_goPagePrevClick(object sender, EventArgs e)
         {
+            if (m_search_current_msg != null)
+            {
+                if ((m_search_current_msg.PageNumber - 1) * m_search_current_msg.PageSize < m_search_current_msg.Counter)
+                {
+                    m_search_current_msg.PageNumber = m_search_current_msg.PageNumber + 1;
+                    app.postToAPI(m_search_current_msg);
+                }
+            }
         }
 
         private void f_search_goPageNextClick(object sender, EventArgs e)
         {
+            if (m_search_current_msg != null)
+            {
+                if (m_search_current_msg.PageNumber > 1)
+                {
+                    m_search_current_msg.PageNumber = m_search_current_msg.PageNumber - 1;
+                    app.postToAPI(m_search_current_msg);
+                }
+            }
         }
 
         private void f_search_input_KeyDown(object sender, KeyEventArgs e)
@@ -509,7 +522,7 @@ namespace appel
                     else
                     {
                         m_search_Message.Text = "Search local [" + key + "] ...";
-                        app.f_postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH, key);
+                        app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH, key);
                     }
                 }
                 else
@@ -547,8 +560,8 @@ namespace appel
         }
 
         void f_video_openMp4_Request(long videoId)
-        { 
-            app.f_postToAPI(_API.MEDIA, _API.MEDIA_KEY_PLAY_VIDEO, videoId); 
+        {
+            app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_PLAY_VIDEO, videoId);
         }
 
         void f_video_openMp4_Callback(string url)
@@ -562,15 +575,16 @@ namespace appel
 
             if (url != string.Empty)
             {
-                this.Invoke((Action)(() => {
+                this.Invoke((Action)(() =>
+                {
 
-                var f = new fPlayer(url, title);
-                //f.crossThreadPerformSafely(() =>
-                //{
-                f.Show();
-                f.Left = this.Location.X + 9;
-                f.Top = this.Location.Y + 99;
-                //});
+                    var f = new fPlayer(url, title);
+                    //f.crossThreadPerformSafely(() =>
+                    //{
+                    f.Show();
+                    f.Left = this.Location.X + 9;
+                    f.Top = this.Location.Y + 99;
+                    //});
                 }));
 
             }
@@ -646,7 +660,11 @@ namespace appel
                         {
                             case _API.MEDIA_KEY_SEARCH:
                                 if (m.Output.Ok)
-                                    f_search_Result((oMediaSearchLocalResult)m.Output.Data);
+                                {
+                                    var rs = (oMediaSearchLocalResult)m.Output.Data;
+                                    f_search_Result(rs);
+                                    m_search_current_msg = m.clone();
+                                }
                                 else
                                     m_statu_api.Text = "Search error";
                                 break;
