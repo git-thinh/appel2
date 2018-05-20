@@ -40,6 +40,80 @@ namespace appel
             f_proxy_Start();
         }
 
+        public static string f_media_fetchUriSource(long mediaId, MEDIA_TYPE type)
+        {
+            string url = string.Empty;
+            oMediaPath p = null;
+            if (dicPath.TryGetValue(mediaId, out p))
+            {
+                if (!string.IsNullOrEmpty(p.YoutubeID))
+                {
+                    switch (type)
+                    {
+                        case MEDIA_TYPE.MP4:
+                            #region
+                            if (!string.IsNullOrEmpty(p.PathMp4_Youtube))
+                            {
+                                url = p.PathMp4_Youtube;
+                            }
+                            else
+                            {
+                                var _client = new YoutubeClient();
+                                //var Video = _client.GetVideoAsync(videoId);
+                                //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
+                                var ms = _client.GetVideoMediaStreamInfosAsync(p.YoutubeID);
+                                var ms_video = ms.Muxed.Where(x => x.Container == Container.Mp4).Take(1).SingleOrDefault();
+                                var ms_audio = ms.Audio.Where(x => x.Container == Container.M4A).Take(1).SingleOrDefault();
+
+                                if (ms_video != null)
+                                {
+                                    p.PathMp4_Youtube = ms_video.Url;
+                                    url = p.PathMp4_Youtube;
+                                }
+
+                                if (ms_audio != null)
+                                {
+                                    p.PathMp3_Youtube = ms_audio.Url;
+                                }
+                            }
+                            #endregion
+                            break;
+                        case MEDIA_TYPE.M4A:
+                            #region
+                            if (!string.IsNullOrEmpty(p.PathMp3_Youtube))
+                            {
+                                url = p.PathMp3_Youtube;
+                            }
+                            else
+                            {
+                                var _client = new YoutubeClient();
+                                //var Video = _client.GetVideoAsync(videoId);
+                                //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
+                                var ms = _client.GetVideoMediaStreamInfosAsync(p.YoutubeID);
+                                var ms_video = ms.Muxed.Where(x => x.Container == Container.Mp4).Take(1).SingleOrDefault();
+                                var ms_audio = ms.Audio.Where(x => x.Container == Container.M4A).Take(1).SingleOrDefault();
+
+                                if (ms_video != null)
+                                {
+                                    p.PathMp4_Youtube = ms_video.Url;
+                                }
+
+                                if (ms_audio != null)
+                                {
+                                    p.PathMp3_Youtube = ms_audio.Url;
+                                    url = p.PathMp3_Youtube;
+                                }
+                            }
+                            #endregion
+                            break;
+                        case MEDIA_TYPE.MP3:
+                            break;
+                    }
+                }
+            }
+            return url;
+        }
+
         public msg Execute(msg m)
         {
             if (m != null && Open)
@@ -62,42 +136,40 @@ namespace appel
                         break;
 
                     #endregion
+                    case _API.MEDIA_KEY_PLAY_AUDIO:
+                        #region
+                        if (true)
+                        {
+                            long mediaId = (long)m.Input;
+                            string urlSrc = f_media_fetchUriSource(mediaId, MEDIA_TYPE.M4A);
+                            if (!string.IsNullOrEmpty(urlSrc))
+                            {
+                                m.Output.Ok = true;
+                                m.Output.Data = f_proxy_getUriProxy(mediaId, MEDIA_TYPE.M4A);
+                                f_responseToMain(m);
+                            }
+                            else
+                            {
+                                // cannot fetch uri
+                            }
+                        }
+                        break;
+                    #endregion
                     case _API.MEDIA_KEY_PLAY_VIDEO:
                         #region
                         if (true)
                         {
                             long mediaId = (long)m.Input;
-                            oMediaPath p = null;
-                            if (dicPath.TryGetValue(mediaId, out p))
+                            string urlSrc = f_media_fetchUriSource(mediaId, MEDIA_TYPE.MP4);
+                            if (!string.IsNullOrEmpty(urlSrc))
                             {
-                                if (!string.IsNullOrEmpty(p.YoutubeID))
-                                {
-                                    if (!string.IsNullOrEmpty(p.PathMp4_Youtube))
-                                    {
-                                        m.Output.Ok = true;
-                                        m.Output.Data = p.PathMp4_Youtube;
-                                        f_responseToMain(m);
-                                    }
-                                    else {
-                                        var _client = new YoutubeClient();
-                                        //var Video = _client.GetVideoAsync(videoId);
-                                        //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
-                                        var ms = _client.GetVideoMediaStreamInfosAsync(p.YoutubeID);
-                                        var ms_video = ms.Muxed.Where(x => x.Container == Container.Mp4).Take(1).SingleOrDefault();
-                                        var ms_audio = ms.Audio.Where(x => x.Container == Container.M4A).Take(1).SingleOrDefault();
-
-                                        if (ms_audio != null) 
-                                            p.PathMp3_Youtube = ms_audio.Url; 
-
-                                        if (ms_video != null) {
-                                            p.PathMp4_Youtube = ms_video.Url;
-
-                                            m.Output.Ok = true;
-                                            m.Output.Data = p.PathMp4_Youtube;
-                                            f_responseToMain(m); 
-                                        }
-                                    }
-                                }
+                                m.Output.Ok = true;
+                                m.Output.Data = f_proxy_getUriProxy(mediaId, MEDIA_TYPE.MP4);
+                                f_responseToMain(m);
+                            }
+                            else
+                            {
+                                // cannot fetch uri
                             }
                         }
                         break;
@@ -111,12 +183,13 @@ namespace appel
                             oMediaSearchLocalResult resultSearch = new oMediaSearchLocalResult();
 
                             List<long> lsSearch = new List<long>();
-                            int min = (m.PageNumber - 1) * m.PageSize, 
-                                max = m.PageNumber * m.PageSize, 
+                            int min = (m.PageNumber - 1) * m.PageSize,
+                                max = m.PageNumber * m.PageSize,
                                 count = 0;
                             foreach (var kv in dicMedia)
                             {
-                                if (kv.Value.Title.ToLower().Contains(input))
+                                if (kv.Value.Title.ToLower().Contains(input)
+                                    || kv.Value.Description.ToLower().Contains(input))
                                 {
                                     if (count >= min && count < max)
                                         lsSearch.Add(kv.Key);
@@ -132,7 +205,7 @@ namespace appel
 
                             m.Counter = count;
                             m.Output.Ok = true;
-                            m.Output.Data = resultSearch; 
+                            m.Output.Data = resultSearch;
                             f_responseToMain(m);
                         }
                         break;
@@ -469,9 +542,9 @@ namespace appel
                         else
                         {
                             string key = ctx.Request.QueryString["key"];
-                            if (!m_dicProxy.ContainsKey(key))
+                            if (string.IsNullOrEmpty(key))
                             {
-                                byte[] bytes = Encoding.UTF8.GetBytes(string.Format("Cannot find key: ", key));
+                                byte[] bytes = Encoding.UTF8.GetBytes(string.Format("Cannot find key: /?key=???"));
                                 ctx.Response.OutputStream.Write(bytes, 0, bytes.Length);
                                 ctx.Response.OutputStream.Flush();
                                 ctx.Response.OutputStream.Close();
@@ -486,12 +559,10 @@ namespace appel
             })).Start(m_listener);
         }
 
-        public static string f_get_uriProxy(string mediaId, MEDIA_TYPE type)
+        string f_proxy_getUriProxy(long mediaId, MEDIA_TYPE type)
         {
             string key = string.Format("{0}{1}", type, mediaId);
-            if (m_dicProxy.ContainsKey(key))
-                return string.Format("http://localhost:{0}/?key={1}", m_port, key);
-            return string.Empty;
+            return string.Format("http://localhost:{0}/?key={1}", m_port, key);
         }
 
         public static string f_get_uriSrcByKey(string key)
@@ -739,15 +810,22 @@ namespace appel
             string uri = string.Empty, key = string.Empty, type = "mp3";
 
             key = originalContext.Request.QueryString["key"];
-            if (key.Length > 3) type = key.Substring(0, 3).ToLower();
+            if (key.Length > 3)
+            {
+                type = key.Substring(0, 3).ToLower();
+                key = key.Substring(3);
+            }
+
+            long mediaId = 0;
+            long.TryParse(key, out mediaId);
 
             switch (type)
             {
                 case "m4a":
-                    uri = api_media.f_get_uriSrcByKey(key);
+                    uri = api_media.f_media_fetchUriSource(mediaId, MEDIA_TYPE.M4A);
                     break;
                 case "mp4":
-                    uri = api_media.f_get_uriSrcByKey(key);
+                    uri = api_media.f_media_fetchUriSource(mediaId, MEDIA_TYPE.MP4);
                     break;
                 case "web": // webm
                     uri = api_media.f_get_uriSrcByKey(key);

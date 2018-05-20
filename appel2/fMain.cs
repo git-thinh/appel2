@@ -18,10 +18,10 @@ namespace appel
     {
         #region [ VARIABLE ] 
 
-        private const int m_media_width = 215;
         private readonly Font font_Title = new Font("Arial", 11f, FontStyle.Regular);
 
         private AxWindowsMediaPlayer m_media;
+        private const int m_media_width = 215;
 
         private IconButton btn_exit;
         private IconButton btn_mini;
@@ -49,7 +49,6 @@ namespace appel
         private Panel m_search_Header;
 
         private Label lbl_hide_border_left;
-
         private Label m_statu_api;
 
         #endregion
@@ -361,8 +360,6 @@ namespace appel
 
         }
 
-
-
         #region [ SEARCH ]
 
         private void f_search_draw_Media(List<long> ls)
@@ -376,10 +373,8 @@ namespace appel
 
             const int margin_bottom = 5;
             const int margin_left = 9;
-            const int tit_height = 45;
 
             int y = 0, x = 0, row = 0;
-            string tit = string.Empty;
             Control[] pics = new Control[30];
             Control[] tits = new Control[30];
 
@@ -420,8 +415,7 @@ namespace appel
                     Width = app.m_item_width,
                     Height = app.m_item_height,
                     Location = new Point(x, y),
-                    //Tag = media.Id + "¦" + media.Title,
-                    Tag = media.Id,
+                    Tag = media.Id + "¦" + media.Title,
                 };
                 string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "photo");
                 file = Path.Combine(file, media.Id.ToString() + ".jpg");
@@ -430,9 +424,6 @@ namespace appel
                     var fs = File.OpenRead(file);
                     pic.Image = new Bitmap(fs);
                 }
-
-                tit = media.Title.ToLower();
-                if (tit.Length > 78) tit = tit.Substring(0, 75) + "...";
 
                 Label lbl = new Label()
                 {
@@ -453,14 +444,13 @@ namespace appel
                 pic.Click += (se, ev) =>
                 {
                     ((Control)se).BackColor = Color.Gray;
-                    //string[] a = ((Control)se).Tag.ToString().Split('¦');
-                    f_video_openMp4_Request((long)((Control)se).Tag);
+                    string[] a = ((Control)se).Tag.ToString().Split('¦');
+                    f_video_openMp4_Request(long.Parse(a[0]), a[1]);
                 };
                 lbl.Click += (se, ev) =>
                 {
                     string[] a = ((Control)se).Tag.ToString().Split('¦');
-                    //f_video_openMp3(a[0], a[1]);
-                    //((Control)se).BackColor = Color.Orange;
+                    f_video_openMp3_Request(long.Parse(a[0]), a[1]);
                 };
                 lbl.MouseMove += f_form_move_MouseDown;
                 pic.MouseMove += f_form_move_MouseDown;
@@ -534,8 +524,8 @@ namespace appel
         {
             f_search_draw_Media(rs.MediaIds);
 
-            int page = rs.TotalItem / rs.PageSize;
-            if (rs.TotalItem % rs.PageSize != 0) page++;
+            int page = rs.CountResult / rs.PageSize;
+            if (rs.CountResult % rs.PageSize != 0) page++;
 
             m_search_PageCurrent.crossThreadPerformSafely(() =>
             {
@@ -547,19 +537,19 @@ namespace appel
             });
             m_media_Total.crossThreadPerformSafely(() =>
             {
-                m_media_Total.Text = rs.TotalItem.ToString();
+                m_media_Total.Text = rs.CountResult.ToString();
             });
         }
 
         #endregion
 
-        #region [ MEDIA PLAY ]
+        #region [ MEDIA ]
 
         private void f_media_event_PlayStateChange(object sender, _WMPOCXEvents_PlayStateChangeEvent e)
         {
         }
 
-        void f_video_openMp4_Request(long videoId)
+        void f_video_openMp4_Request(long videoId, string title)
         {
             app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_PLAY_VIDEO, videoId);
         }
@@ -567,59 +557,62 @@ namespace appel
         void f_video_openMp4_Callback(string url)
         {
             string title = string.Empty;
-
-            //this.Cursor = Cursors.WaitCursor;
-
-            this.Text = title;
             //string url = api_media.f_get_uriProxy(videoId, MEDIA_TYPE.MP4);
 
             if (url != string.Empty)
             {
                 this.Invoke((Action)(() =>
                 {
-
+                    this.Text = title;
+                    this.Cursor = Cursors.WaitCursor;
                     var f = new fPlayer(url, title);
-                    //f.crossThreadPerformSafely(() =>
-                    //{
                     f.Show();
                     f.Left = this.Location.X + 9;
                     f.Top = this.Location.Y + 99;
-                    //});
+                    this.Cursor = Cursors.Default;
+                }));
+            }
+            else
+                MessageBox.Show("Cannot open videoId: " + title);
+        }
+
+        void f_video_openMp3_Request(long videoId, string title)
+        {
+            app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_PLAY_AUDIO, videoId);
+        }
+
+        void f_video_openMp3_Callback(string url)
+        {
+            string title = string.Empty;
+            //string url = api_media.f_get_uriProxy(videoId, MEDIA_TYPE.M4A);
+            if (url != string.Empty)
+            {
+
+
+                this.Invoke((Action)(() =>
+                {
+                    this.Cursor = Cursors.WaitCursor;
+                    this.Text = title;
+                    m_media.Visible = true;
+
+                    for (int i = 0; i < m_search_Result.Controls.Count; i++)
+                    {
+                        if (m_search_Result.Controls[i] is Label)
+                            m_search_Result.Controls[i].BackColor = Color.LightGray;
+                    }
+
+                    string tit = title;
+                    if (title.Length > 69) tit = title.Substring(0, 65) + "...";
+                    lbl_title.Text = title;
+
+                    m_media.URL = url;
+                    this.Cursor = Cursors.Default;
                 }));
 
             }
             else
                 MessageBox.Show("Cannot open videoId: " + title);
 
-            //this.Cursor = Cursors.Default;
-        }
-
-        void f_video_openMp3(long videoId)
-        {
-            //this.Cursor = Cursors.WaitCursor;
-            //this.Text = title;
-            //m_media.Visible = true;
-
-            //for (int i = 0; i < m_search_Result.Controls.Count; i++)
-            //{
-            //    if (m_search_Result.Controls[i] is Label)
-            //        m_search_Result.Controls[i].BackColor = Color.LightGray;
-            //}
-
-            //string tit = title;
-            //if (title.Length > 69) tit = title.Substring(0, 65) + "...";
-            //lbl_title.Text = title;
-
-            //string url = api_media.f_get_uriProxy(videoId, MEDIA_TYPE.M4A);
-
-            //if (url != string.Empty)
-            //{
-            //    m_media.URL = url;
-            //}
-            //else
-            //    MessageBox.Show("Cannot open videoId: " + title);
-
-            //this.Cursor = Cursors.Default;
         }
 
         #endregion
@@ -645,7 +638,6 @@ namespace appel
 
         #endregion
 
-
         #region [ RESPONSE MESSAGE ]
 
         public void api_responseMsg(object sender, threadMsgEventArgs e)
@@ -667,6 +659,10 @@ namespace appel
                                 }
                                 else
                                     m_statu_api.Text = "Search error";
+                                break;
+                            case _API.MEDIA_KEY_PLAY_AUDIO:
+                                if (m.Output.Ok)
+                                    f_video_openMp3_Callback((string)m.Output.Data);
                                 break;
                             case _API.MEDIA_KEY_PLAY_VIDEO:
                                 if (m.Output.Ok)
