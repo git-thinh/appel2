@@ -40,6 +40,24 @@ namespace appel
             f_proxy_Start();
         }
 
+        #region [ MEDIA ]
+
+        public static oMedia f_media_getInfo(long mediaId)
+        {
+            oMedia m = null;
+            dicMedia.TryGetValue(mediaId, out m);
+            return m;
+        }
+
+        public static string f_media_getTitle(long mediaId)
+        {
+            string title = string.Empty;
+            oMedia m = null;
+            dicMedia.TryGetValue(mediaId, out m);
+            if (m != null && !string.IsNullOrEmpty(m.Title)) title = m.Title;
+            return title;
+        }
+
         public static string f_media_fetchUriSource(long mediaId, MEDIA_TYPE type)
         {
             string url = string.Empty;
@@ -113,6 +131,8 @@ namespace appel
             }
             return url;
         }
+        
+        #endregion
 
         public msg Execute(msg m)
         {
@@ -473,130 +493,11 @@ namespace appel
             }
             return m;
         }
-
-        public static oMedia f_get_Media(long mediaId)
+        public void Close()
         {
-            oMedia m = null;
-            dicMedia.TryGetValue(mediaId, out m);
-            return m;
+            proxy_Close();
         }
 
-        public static oMediaPath f_get_MediaPath(long mediaId)
-        {
-            oMediaPath m = null;
-            dicPath.TryGetValue(mediaId, out m);
-            return m;
-        }
-
-
-        #region [ PROXY ]
-
-        static ConcurrentDictionary<string, string> m_dicProxy = null;
-        static int m_port = 0;
-        static HttpListener m_listener;
-        static bool m_running = true;
-
-        void f_proxy_Start()
-        {
-            m_dicProxy = new ConcurrentDictionary<string, string>();
-
-            TcpListener l = new TcpListener(IPAddress.Loopback, 0);
-            l.Start();
-            m_port = ((IPEndPoint)l.LocalEndpoint).Port;
-            l.Stop();
-
-            m_listener = new HttpListener();
-            m_listener.Prefixes.Add("http://*:" + m_port + "/");
-            m_listener.Start();
-            //Console.WriteLine("Listening...");
-
-            new Thread(new ParameterizedThreadStart((object lis) =>
-            {
-                HttpListener listener = (HttpListener)lis;
-                while (m_running)
-                {
-                    try
-                    {
-                        var ctx = listener.GetContext();
-                        if (ctx.Request.RawUrl == "/crossdomain.xml")
-                        {
-                            ctx.Response.ContentType = "text/xml";
-                            string xml =
-        @"<cross-domain-policy>
-    <allow-access-from domain=""*.*"" headers=""SOAPAction""/>
-    <allow-http-request-headers-from domain=""*.*"" headers=""SOAPAction""/> 
-    <site-control permitted-cross-domain-policies=""master-only""/>
-</cross-domain-policy>";
-                            xml =
-        @"<?xml version=""1.0""?>
-<!DOCTYPE cross-domain-policy SYSTEM ""http://www.macromedia.com/xml/dtds/cross-domain-policy.dtd"">
-<cross-domain-policy>
-  <allow-access-from domain=""*"" />
-</cross-domain-policy>";
-                            byte[] bytes = Encoding.UTF8.GetBytes(xml);
-                            ctx.Response.OutputStream.Write(bytes, 0, bytes.Length);
-                            ctx.Response.OutputStream.Flush();
-                            ctx.Response.OutputStream.Close();
-                            ctx.Response.Close();
-                        }
-                        else
-                        {
-                            string key = ctx.Request.QueryString["key"];
-                            if (string.IsNullOrEmpty(key))
-                            {
-                                byte[] bytes = Encoding.UTF8.GetBytes(string.Format("Cannot find key: /?key=???"));
-                                ctx.Response.OutputStream.Write(bytes, 0, bytes.Length);
-                                ctx.Response.OutputStream.Flush();
-                                ctx.Response.OutputStream.Close();
-                                ctx.Response.Close();
-                            }
-                            else
-                                new Thread(new Relay(ctx).ProcessRequest).Start();
-                        }
-                    }
-                    catch { }
-                }
-            })).Start(m_listener);
-        }
-
-        string f_proxy_getUriProxy(long mediaId, MEDIA_TYPE type)
-        {
-            string key = string.Format("{0}{1}", type, mediaId);
-            return string.Format("http://localhost:{0}/?key={1}", m_port, key);
-        }
-
-        public static string f_get_uriSrcByKey(string key)
-        {
-            string uri = string.Empty;
-            if (m_dicProxy.ContainsKey(key))
-                m_dicProxy.TryGetValue(key, out uri);
-            return uri;
-        }
-
-        public static void f_add_URL(string mediaId, MediaStreamInfoSet media)
-        {
-            string key_audio = "M4A" + mediaId;
-            string key_video = "MP4" + mediaId;
-
-            var au = media.Audio.Where(x => x.Container == Container.M4A).Take(1).SingleOrDefault();
-            if (au != null)
-                m_dicProxy.TryAdd(key_audio, au.Url);
-
-            var vi = media.Muxed.Where(x => x.Container == Container.Mp4).Take(1).SingleOrDefault();
-            if (vi != null)
-                m_dicProxy.TryAdd(key_video, vi.Url);
-        }
-
-
-        void proxy_Close()
-        {
-            m_listener.Stop();
-            m_running = false;
-
-            Thread.Sleep(10);
-        }
-
-        #endregion
 
         private void f_image_loadInit(long mediaId)
         {
@@ -685,10 +586,6 @@ namespace appel
 
         //}
 
-        public void Close()
-        {
-            proxy_Close();
-        }
 
         //public static string f_get_uriProxy(string videoId, MEDIA_TYPE type)
         //{
@@ -782,6 +679,90 @@ namespace appel
 
             return listSen;
         }
+
+
+
+        #region [ PROXY ]
+        
+        static int m_port = 0;
+        static HttpListener m_listener;
+        static bool m_running = true;
+
+        void f_proxy_Start()
+        {
+            TcpListener l = new TcpListener(IPAddress.Loopback, 0);
+            l.Start();
+            m_port = ((IPEndPoint)l.LocalEndpoint).Port;
+            l.Stop();
+
+            m_listener = new HttpListener();
+            m_listener.Prefixes.Add("http://*:" + m_port + "/");
+            m_listener.Start();
+            //Console.WriteLine("Listening...");
+
+            new Thread(new ParameterizedThreadStart((object lis) =>
+            {
+                HttpListener listener = (HttpListener)lis;
+                while (m_running)
+                {
+                    try
+                    {
+                        var ctx = listener.GetContext();
+                        if (ctx.Request.RawUrl == "/crossdomain.xml")
+                        {
+                            ctx.Response.ContentType = "text/xml";
+                            string xml =
+        @"<cross-domain-policy>
+    <allow-access-from domain=""*.*"" headers=""SOAPAction""/>
+    <allow-http-request-headers-from domain=""*.*"" headers=""SOAPAction""/> 
+    <site-control permitted-cross-domain-policies=""master-only""/>
+</cross-domain-policy>";
+                            xml =
+        @"<?xml version=""1.0""?>
+<!DOCTYPE cross-domain-policy SYSTEM ""http://www.macromedia.com/xml/dtds/cross-domain-policy.dtd"">
+<cross-domain-policy>
+  <allow-access-from domain=""*"" />
+</cross-domain-policy>";
+                            byte[] bytes = Encoding.UTF8.GetBytes(xml);
+                            ctx.Response.OutputStream.Write(bytes, 0, bytes.Length);
+                            ctx.Response.OutputStream.Flush();
+                            ctx.Response.OutputStream.Close();
+                            ctx.Response.Close();
+                        }
+                        else
+                        {
+                            string key = ctx.Request.QueryString["key"];
+                            if (string.IsNullOrEmpty(key))
+                            {
+                                byte[] bytes = Encoding.UTF8.GetBytes(string.Format("Cannot find key: /?key=???"));
+                                ctx.Response.OutputStream.Write(bytes, 0, bytes.Length);
+                                ctx.Response.OutputStream.Flush();
+                                ctx.Response.OutputStream.Close();
+                                ctx.Response.Close();
+                            }
+                            else
+                                new Thread(new Relay(ctx).ProcessRequest).Start();
+                        }
+                    }
+                    catch { }
+                }
+            })).Start(m_listener);
+        }
+
+        string f_proxy_getUriProxy(long mediaId, MEDIA_TYPE type)
+        {
+            string key = string.Format("{0}{1}", type, mediaId);
+            return string.Format("http://localhost:{0}/?key={1}", m_port, key);
+        }
+
+        void proxy_Close()
+        {
+            m_listener.Stop();
+            m_running = false;
+            Thread.Sleep(10);
+        }
+
+        #endregion
     }
 
     #region [ PROXY ]
@@ -828,10 +809,10 @@ namespace appel
                     uri = api_media.f_media_fetchUriSource(mediaId, MEDIA_TYPE.MP4);
                     break;
                 case "web": // webm
-                    uri = api_media.f_get_uriSrcByKey(key);
+                    uri = api_media.f_media_fetchUriSource(mediaId, MEDIA_TYPE.WEB);
                     break;
                 case "mp3":
-                    uri = api_media.f_get_uriSrcByKey(key);
+                    uri = api_media.f_media_fetchUriSource(mediaId, MEDIA_TYPE.MP3);
                     break;
             }
 

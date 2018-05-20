@@ -404,7 +404,7 @@ namespace appel
                     }
                 }
 
-                oMedia media = api_media.f_get_Media(ls[i]);
+                oMedia media = api_media.f_media_getInfo(ls[i]);
                 if (media == null) continue;
 
                 PictureBox pic = new PictureBox()
@@ -551,12 +551,12 @@ namespace appel
 
         void f_video_openMp4_Request(long videoId, string title)
         {
-            app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_PLAY_VIDEO, videoId);
+            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_PLAY_VIDEO, Log = title, Input = videoId });
         }
 
-        void f_video_openMp4_Callback(string url)
+        void f_video_openMp4_Callback(string url, string title)
         {
-            string title = string.Empty;
+            //string title = string.Empty;
             //string url = api_media.f_get_uriProxy(videoId, MEDIA_TYPE.MP4);
 
             if (url != string.Empty)
@@ -578,12 +578,12 @@ namespace appel
 
         void f_video_openMp3_Request(long videoId, string title)
         {
-            app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_PLAY_AUDIO, videoId);
+            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_PLAY_AUDIO, Log = title, Input = videoId });
         }
 
-        void f_video_openMp3_Callback(string url)
+        void f_video_openMp3_Callback(string url, string title)
         {
-            string title = string.Empty;
+            //string title = string.Empty;
             //string url = api_media.f_get_uriProxy(videoId, MEDIA_TYPE.M4A);
             if (url != string.Empty)
             {
@@ -662,11 +662,11 @@ namespace appel
                                 break;
                             case _API.MEDIA_KEY_PLAY_AUDIO:
                                 if (m.Output.Ok)
-                                    f_video_openMp3_Callback((string)m.Output.Data);
+                                    f_video_openMp3_Callback((string)m.Output.Data, m.Log);
                                 break;
                             case _API.MEDIA_KEY_PLAY_VIDEO:
                                 if (m.Output.Ok)
-                                    f_video_openMp4_Callback((string)m.Output.Data);
+                                    f_video_openMp4_Callback((string)m.Output.Data, m.Log);
                                 break;
                         }
                         break;
