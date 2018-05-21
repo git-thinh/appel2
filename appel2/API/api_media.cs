@@ -505,6 +505,18 @@ namespace appel
                                     //        Log = string.Format("Page {0} -> Total items: {1}: Search online [ {2} ] ...", page_query, lsSearch.Count, input),
                                     //    });
                                     //}
+
+                                    if (page_query == 2) { 
+                                        new Thread(new ParameterizedThreadStart((object so) =>
+                                        {
+                                            Execute(new msg()
+                                            {
+                                                API = _API.MEDIA,
+                                                KEY = _API.MEDIA_KEY_SEARCH_ONLINE_CACHE, 
+                                                Input = so
+                                            });
+                                        })).Start(input);
+                                    }
                                 }
                                 while (aIDs.Length != 0);
 
