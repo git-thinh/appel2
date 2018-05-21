@@ -487,12 +487,11 @@ namespace appel
                                 long[] aIDs = f_media_searchYoutubeOnline(_client, input, page_query, hasCC_Subtitle);
                                 lsSearch.AddRange(aIDs);
 
-                                while (lsSearch.Count < 10 || page_query == int.MaxValue || aIDs.Length == 0)
+                                while (lsSearch.Count < 10)
                                 {
                                     page_query++;
                                     aIDs = f_media_searchYoutubeOnline(_client, input, page_query, hasCC_Subtitle);
                                     lsSearch.AddRange(aIDs);
-
                                 }
 
                                 var m_first = m.clone(m.Input);
@@ -508,22 +507,22 @@ namespace appel
                                     TotalItem = lsSearch.Count,
                                 };
                                 response_toMain(m_first);
+                                do
+                                {
+                                    page_query++;
+                                    aIDs = f_media_searchYoutubeOnline(_client, input, page_query, hasCC_Subtitle);
+                                    lsSearch.AddRange(aIDs);
 
-                                //while (aIDs.Length == 0)
-                                //{
-                                //    page_query++;
-                                //    aIDs = f_media_searchYoutubeOnline(_client, input, page_query, hasCC_Subtitle);
-                                //    lsSearch.AddRange(aIDs);
-
-                                //    if (aIDs.Length > 0)
-                                //    {
-                                //        notification_toMain(new appel.msg()
-                                //        {
-                                //            API = _API.MSG_MEDIA_SEARCH_RESULT,
-                                //            Log = string.Format("Page {0} -> Total items: {1}: Search online [ {2} ] ...", page_query, lsSearch.Count, input),
-                                //        });
-                                //    }
-                                //}
+                                    if (aIDs.Length > 0)
+                                    {
+                                        notification_toMain(new appel.msg()
+                                        {
+                                            API = _API.MSG_MEDIA_SEARCH_RESULT,
+                                            Log = string.Format("Page {0} -> Total items: {1}: Search online [ {2} ] ...", page_query, lsSearch.Count, input),
+                                        });
+                                    }
+                                }
+                                while (aIDs.Length != 0);
 
                                 //f_media_writeFile();
                                 notification_toMain(new appel.msg()
