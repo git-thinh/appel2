@@ -102,6 +102,15 @@ namespace appel
             return title;
         }
 
+        public static string f_search_getYoutubeID(long mediaId)
+        {
+            string url = string.Empty;
+            oMediaPath p = null;
+            if (dicPathOnline.TryGetValue(mediaId, out p) && p != null)
+                return p.YoutubeID;
+            return string.Empty;
+        }
+
         public static string f_media_getYoutubeID(long mediaId)
         {
             string url = string.Empty;
@@ -376,7 +385,19 @@ namespace appel
 
                                 if (mi.Keywords != null && mi.Keywords.Count > 0)
                                     content += Environment.NewLine + string.Join(" ", mi.Keywords);
-                                 
+
+                                if (string.IsNullOrEmpty(mi.SubtileEnglish)) {
+                                    string videoId = f_search_getYoutubeID(mi.Id);
+                                    var _client = new YoutubeClient();
+                                    var cap = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+                                    if (cap.Count > 0) {
+                                        var cen = cap.Where(x => x.Language.Code == "en").Take(1).SingleOrDefault();
+                                        if (cen != null) { 
+                                            mi.SubtileEnglish = _client.GetStringAsync(cen.Url);
+                                        }
+                                    }
+                                }
+
                                 string text = mi.SubtileEnglish;
                                 if (!string.IsNullOrEmpty(text))
                                 {
@@ -407,6 +428,8 @@ namespace appel
                                 m.Output.Ok = true;
                                 m.Output.Data = content;
                                 response_toMain(m);
+
+                                Execute(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_PLAY_VIDEO_ONLINE, Input = mediaId });
                             }
                         }
                         break;

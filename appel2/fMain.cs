@@ -992,7 +992,7 @@ namespace appel
             if (m_media.playState == WMPLib.WMPPlayState.wmppsPlaying) m_media.Ctlcontrols.stop();
 
             app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_TEXT_VIDEO_ONLINE, Input = mediaId_sel });
-            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_PLAY_VIDEO_ONLINE, Input = mediaId_sel , Log = it.Text });
+            //app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_PLAY_VIDEO_ONLINE, Input = mediaId_sel , Log = it.Text });
         }
 
         #endregion
