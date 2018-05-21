@@ -375,10 +375,12 @@ namespace appel
                     #endregion
                     case _API.MEDIA_KEY_TEXT_VIDEO_ONLINE:
                         #region
-                        if (true) {
+                        if (true)
+                        {
                             long mediaId = (long)m.Input;
                             oMedia mi = null;
-                            if (dicMediaOnline.TryGetValue(mediaId, out mi) && mi != null) { 
+                            if (dicMediaOnline.TryGetValue(mediaId, out mi) && mi != null)
+                            {
                                 string content = mi.Title;
                                 if (!string.IsNullOrEmpty(mi.Description))
                                     content += Environment.NewLine + mi.Description;
@@ -386,17 +388,20 @@ namespace appel
                                 if (mi.Keywords != null && mi.Keywords.Count > 0)
                                     content += Environment.NewLine + string.Join(" ", mi.Keywords);
 
-                                if (string.IsNullOrEmpty(mi.SubtileEnglish)) {
-                                    string videoId = f_search_getYoutubeID(mi.Id);
-                                    var _client = new YoutubeClient();
-                                    var cap = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
-                                    if (cap.Count > 0) {
-                                        var cen = cap.Where(x => x.Language.Code == "en").Take(1).SingleOrDefault();
-                                        if (cen != null) { 
-                                            mi.SubtileEnglish = _client.GetStringAsync(cen.Url);
-                                        }
-                                    }
-                                }
+                                //if (string.IsNullOrEmpty(mi.SubtileEnglish))
+                                //{
+                                //    string videoId = f_search_getYoutubeID(mi.Id);
+                                //    var _client = new YoutubeClient();
+                                //    var cap = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+                                //    if (cap.Count > 0)
+                                //    {
+                                //        var cen = cap.Where(x => x.Language.Code == "en").Take(1).SingleOrDefault();
+                                //        if (cen != null)
+                                //        {
+                                //            mi.SubtileEnglish = _client.GetStringAsync(cen.Url);
+                                //        }
+                                //    }
+                                //}
 
                                 string text = mi.SubtileEnglish;
                                 if (!string.IsNullOrEmpty(text))
@@ -420,10 +425,10 @@ namespace appel
                                         else text += ti + "." + Environment.NewLine;
                                 }
 
-                                content += Environment.NewLine +  
-                                    "------------------------------------------------------------------" 
+                                content += Environment.NewLine +
+                                    "------------------------------------------------------------------"
                                     + Environment.NewLine + Environment.NewLine +
-                                    text; 
+                                    text;
 
                                 m.Output.Ok = true;
                                 m.Output.Data = content;
@@ -433,7 +438,7 @@ namespace appel
                             }
                         }
                         break;
-                        #endregion
+                    #endregion
                     case _API.MEDIA_KEY_SEARCH_ONLINE_CACHE:
                         #region
 
@@ -471,6 +476,62 @@ namespace appel
 
                         break;
                     #endregion
+                    case _API.MEDIA_KEY_SEARCH_ONLINE_NEXT:
+                        #region
+                        if (true)
+                        {
+                            string input = (string)m.Input;
+                            if (input == null) input = string.Empty;
+                            List<long> lsSearch = new List<long>();
+
+                            if (!string.IsNullOrEmpty(input))
+                            {
+                                var _client = new YoutubeClient();
+                                bool hasCC_Subtitle = true;
+                                int page_query = m.PageNumber;
+                                long[] aIDs = new long[] { };
+
+                                do
+                                {
+                                    page_query++;
+                                    aIDs = f_media_searchYoutubeOnline(_client, input, page_query, hasCC_Subtitle);
+                                    lsSearch.AddRange(aIDs);
+
+                                    //if (aIDs.Length > 0)
+                                    //{
+                                    //    notification_toMain(new appel.msg()
+                                    //    {
+                                    //        API = _API.MSG_MEDIA_SEARCH_RESULT,
+                                    //        Log = string.Format("Page {0} -> Total items: {1}: Search online [ {2} ] ...", page_query, lsSearch.Count, input),
+                                    //    });
+                                    //}
+                                }
+                                while (aIDs.Length != 0);
+
+                                //f_media_writeFile();
+                                notification_toMain(new appel.msg()
+                                {
+                                    API = _API.MSG_MEDIA_SEARCH_RESULT,
+                                    Log = string.Format("Total {0} items: Search online [ {1} ] completed", dicMediaOnline.Count, input),
+                                });
+                                //Execute(m);
+
+                                m.KEY = _API.MEDIA_KEY_SEARCH_ONLINE_CACHE;
+                                //m_first.Input = input;
+                                m.Input = string.Empty;
+                                m.Counter = lsSearch.Count;
+                                m.Output.Ok = true;
+                                m.Output.Data = new oMediaSearchLocalResult()
+                                {
+                                    CountResult = lsSearch.Count,
+                                    MediaIds = lsSearch.Take(m.PageSize).ToList(),
+                                    TotalItem = lsSearch.Count,
+                                };
+                                response_toMain(m);
+                            }
+                        }
+                        break;
+                    #endregion
                     case _API.MEDIA_KEY_SEARCH_ONLINE:
                         #region 
                         if (true)
@@ -487,12 +548,12 @@ namespace appel
                                 long[] aIDs = f_media_searchYoutubeOnline(_client, input, page_query, hasCC_Subtitle);
                                 lsSearch.AddRange(aIDs);
 
-                                while (lsSearch.Count < 10)
-                                {
-                                    page_query++;
-                                    aIDs = f_media_searchYoutubeOnline(_client, input, page_query, hasCC_Subtitle);
-                                    lsSearch.AddRange(aIDs);
-                                }
+                                //while (lsSearch.Count < 10)
+                                //{
+                                //    page_query++;
+                                //    aIDs = f_media_searchYoutubeOnline(_client, input, page_query, hasCC_Subtitle);
+                                //    lsSearch.AddRange(aIDs);
+                                //}
 
                                 var m_first = m.clone(m.Input);
                                 m_first.KEY = _API.MEDIA_KEY_SEARCH_ONLINE_CACHE;
@@ -507,30 +568,17 @@ namespace appel
                                     TotalItem = lsSearch.Count,
                                 };
                                 response_toMain(m_first);
-                                do
-                                {
-                                    page_query++;
-                                    aIDs = f_media_searchYoutubeOnline(_client, input, page_query, hasCC_Subtitle);
-                                    lsSearch.AddRange(aIDs);
 
-                                    if (aIDs.Length > 0)
+                                new Thread(new ParameterizedThreadStart((object so) =>
+                                {
+                                    Execute(new msg()
                                     {
-                                        notification_toMain(new appel.msg()
-                                        {
-                                            API = _API.MSG_MEDIA_SEARCH_RESULT,
-                                            Log = string.Format("Page {0} -> Total items: {1}: Search online [ {2} ] ...", page_query, lsSearch.Count, input),
-                                        });
-                                    }
-                                }
-                                while (aIDs.Length != 0);
-
-                                //f_media_writeFile();
-                                notification_toMain(new appel.msg()
-                                {
-                                    API = _API.MSG_MEDIA_SEARCH_RESULT,
-                                    Log = string.Format("Page {0} -> Total items: {1}: Search online [ {2} ] completed", page_query, lsSearch.Count, input),
-                                });
-                                //Execute(m);                                                               
+                                        API = _API.MEDIA,
+                                        KEY = _API.MEDIA_KEY_SEARCH_ONLINE_NEXT,
+                                        PageNumber = page_query,
+                                        Input = so
+                                    });
+                                })).Start(input);
                             }
                         }
                         break;
@@ -883,48 +931,59 @@ namespace appel
                 oMedia mi = new oMedia(videoId);
                 if (!dicMediaLocal.ContainsKey(mi.Id) && !dicMediaOnline.ContainsKey(mi.Id))
                 {
-                    var videoAuthor = videoJson["author"].Value<string>();
-                    var videoUploadDate = videoJson["added"].Value<string>().ParseDateTimeOffset("M/d/yy");
-                    var videoTitle = videoJson["title"].Value<string>();
-                    var videoDuration = TimeSpan.FromSeconds(videoJson["length_seconds"].Value<double>());
-                    var videoDescription = videoJson["description"].Value<string>().HtmlDecode();
-
-                    // Keywords
-                    var videoKeywordsJoined = videoJson["keywords"].Value<string>();
-                    var videoKeywords = Regex
-                        .Matches(videoKeywordsJoined, @"(?<=(^|\s)(?<q>""?))([^""]|(""""))*?(?=\<q>(?=\s|$))")
-                        .Cast<Match>()
-                        .Select(m => m.Value)
-                        .Where(s => s.IsNotBlank())
-                        .ToList();
-
-                    //// Statistics
-                    //var videoViewCount = videoJson["views"].Value<string>().StripNonDigit().ParseLong();
-                    //var videoLikeCount = videoJson["likes"].Value<long>();
-                    //var videoDislikeCount = videoJson["dislikes"].Value<long>();
-                    //var videoStatistics = new Statistics(videoViewCount, videoLikeCount, videoDislikeCount);
-
-                    mi.DurationSecond = (int)videoDuration.TotalSeconds;
-                    mi.Title = videoTitle;
-                    mi.Description = videoDescription;
-                    mi.Keywords = videoKeywords;
-                    mi.Author = videoAuthor;
-                    mi.UploadDate = int.Parse(videoUploadDate.ToString("yyMMdd"));
-
-                    if (!dicImageOnline.ContainsKey(mi.Id))
+                    var cap = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+                    if (cap.Count > 0)
                     {
-                        using (Stream stream = client_img.OpenRead(string.Format("https://img.youtube.com/vi/{0}/default.jpg", videoId)))
+                        var cen = cap.Where(x => x.Language.Code == "en").Take(1).SingleOrDefault();
+                        if (cen != null)
                         {
-                            Bitmap bitmap = new Bitmap(stream);
-                            dicImageOnline.TryAdd(mi.Id, bitmap);
+                            mi.SubtileEnglish = _client.GetStringAsync(cen.Url);
+
+                            var videoAuthor = videoJson["author"].Value<string>();
+                            var videoUploadDate = videoJson["added"].Value<string>().ParseDateTimeOffset("M/d/yy");
+                            var videoTitle = videoJson["title"].Value<string>();
+                            var videoDuration = TimeSpan.FromSeconds(videoJson["length_seconds"].Value<double>());
+                            var videoDescription = videoJson["description"].Value<string>().HtmlDecode();
+
+                            // Keywords
+                            var videoKeywordsJoined = videoJson["keywords"].Value<string>();
+                            var videoKeywords = Regex
+                                .Matches(videoKeywordsJoined, @"(?<=(^|\s)(?<q>""?))([^""]|(""""))*?(?=\<q>(?=\s|$))")
+                                .Cast<Match>()
+                                .Select(m => m.Value)
+                                .Where(s => s.IsNotBlank())
+                                .ToList();
+
+                            //// Statistics
+                            //var videoViewCount = videoJson["views"].Value<string>().StripNonDigit().ParseLong();
+                            //var videoLikeCount = videoJson["likes"].Value<long>();
+                            //var videoDislikeCount = videoJson["dislikes"].Value<long>();
+                            //var videoStatistics = new Statistics(videoViewCount, videoLikeCount, videoDislikeCount);
+
+                            mi.DurationSecond = (int)videoDuration.TotalSeconds;
+                            mi.Title = videoTitle;
+                            mi.Description = videoDescription;
+                            mi.Keywords = videoKeywords;
+                            mi.Author = videoAuthor;
+                            mi.UploadDate = int.Parse(videoUploadDate.ToString("yyMMdd"));
+
+
+                            if (!dicImageOnline.ContainsKey(mi.Id))
+                            {
+                                using (Stream stream = client_img.OpenRead(string.Format("https://img.youtube.com/vi/{0}/default.jpg", videoId)))
+                                {
+                                    Bitmap bitmap = new Bitmap(stream);
+                                    dicImageOnline.TryAdd(mi.Id, bitmap);
+                                }
+                            }
+
+                            videos.Add(mi.Id);
+
+                            dicMediaOnline.TryAdd(mi.Id, mi);
+                            oMediaPath pi = new oMediaPath(mi.Id, videoId);
+                            dicPathOnline.TryAdd(mi.Id, pi);
                         }
                     }
-
-                    videos.Add(mi.Id);
-
-                    dicMediaOnline.TryAdd(mi.Id, mi);
-                    oMediaPath pi = new oMediaPath(mi.Id, videoId);
-                    dicPathOnline.TryAdd(mi.Id, pi);
                 }
             }
 

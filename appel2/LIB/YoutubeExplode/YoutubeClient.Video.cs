@@ -86,7 +86,8 @@ namespace YoutubeExplode
                 var errorCode = videoInfo["errorcode"].ParseInt();
                 var errorReason = videoInfo["reason"];
 
-                throw new VideoUnavailableException(videoId, errorCode, errorReason);
+                //throw new VideoUnavailableException(videoId, errorCode, errorReason);
+                return null;
             }
 
             return videoInfo;
@@ -477,6 +478,7 @@ namespace YoutubeExplode
 
             // Get video info
             var videoInfo = GetVideoInfoAsync(videoId); //.ConfigureAwait(false);
+            if (videoInfo == null) return new List<ClosedCaptionTrackInfo>() { };
 
             // Extract captions metadata
             var playerResponseRaw = videoInfo["player_response"];
