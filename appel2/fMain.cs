@@ -38,6 +38,7 @@ namespace appel
 
         void f_main_Shown()
         {
+            this.Text = "English";
             m_search_Message.Text = string.Empty;
             m_media.Visible = false;
             lbl_title.Width = app.m_app_width * 2;// - (m_media_width + lbl_title.Location.X + 15);
@@ -411,7 +412,8 @@ namespace appel
 
             int y = 0, x = 0, row = 0;
             Control[] pics = new Control[30];
-            Control[] tits = new Control[30];
+            Control[] tits = new Control[30]; 
+            Control[] stars = new Control[30];
 
             #region
 
@@ -483,12 +485,26 @@ namespace appel
 
                 pics[i] = pic;
                 tits[i] = lbl;
+                 
+
+                IconButton star = new IconButton(19)
+                {
+                    Name = "star-" + media.Id.ToString(),
+                    IconType = IconType.ios_heart_outline,
+                    Location = new Point(pic.Location.X + (app.m_box_width - 19), pic.Location.Y + 3),
+                    BackColor = Color.LightGray,
+                    ActiveColor = Color.Black,
+                    Tag = media.Id.ToString() + "|" + media.Title,
+                };
+                star.MouseClick += f_store_bookmark_MouseClick;
+                stars[i] = star;
             }
 
             #endregion
 
             m_store_Result.crossThreadPerformSafely(() =>
             {
+                m_store_Result.Controls.AddRange(stars); 
                 m_store_Result.Controls.AddRange(tits);
                 m_store_Result.Controls.AddRange(pics);
             });
@@ -567,25 +583,24 @@ namespace appel
         private void f_store_labelTitle_MouseClick(object sender, MouseEventArgs e)
         {
             Control it = ((Control)sender);
-            it.BackColor = Color.Orange;
             long mid = long.Parse(it.Name);
-
             if (mid == m_media_current_id && e != null) return;
+
+            it.BackColor = Color.Orange;
+            Control star_sel = m_store_Result.Controls.Find("star-" + it.Name, false).SingleOrDefault();
+            if (star_sel != null)
+                star_sel.BackColor = Color.Orange;
 
             if (m_media_current_id > 0)
             {
                 Control itprev = m_store_Result.Controls.Find(m_media_current_id.ToString(), false).SingleOrDefault();
                 if (itprev != null)
                     itprev.BackColor = Color.LightGray;
+                Control star_prev = m_store_Result.Controls.Find("star-" + m_media_current_id.ToString(), false).SingleOrDefault();
+                if (star_prev != null)
+                    star_prev.BackColor = Color.LightGray;
             }
-
-            if (e == null) // click picture -> select label title
-            {
-                Control it_sel = m_store_Result.Controls.Find(it.Name, false).SingleOrDefault();
-                if (it_sel != null)
-                    it_sel.BackColor = Color.Orange;
-            }
-
+            
             m_media_current_id = mid;
             m_media_current_title = it.Text;
 
@@ -619,6 +634,14 @@ namespace appel
                 f_video_openMp3_Request();
                 app.postToAPI(new msg() { API = _API.WORD, KEY = _API.WORD_KEY_ANALYTIC, Input = m_media_current_id });
             }
+        }
+
+        private void f_store_bookmark_MouseClick(object sender, MouseEventArgs e)
+        {
+            string tag = ((Control)sender).Tag.ToString(),
+                mid = tag.Split('|')[0], title = mid.Length < tag.Length ? tag.Substring(mid.Length + 1) : string.Empty;
+            m_msg_api.Text = "You saved item to bookmark: " + title;
+            ((IconButton)sender).InActiveColor = Color.Red;
         }
 
         #endregion
