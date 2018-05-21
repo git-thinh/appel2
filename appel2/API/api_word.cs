@@ -75,7 +75,7 @@ namespace appel
                     if (true)
                     {
                         long mediaId = (long)m.Input;
-                        oMedia mi = api_media.f_media_getInfo(mediaId);
+                        oMedia mi = api_media.f_media_local_getInfo(mediaId);
                         if (mi != null)
                         {
                             string content = mi.Title;

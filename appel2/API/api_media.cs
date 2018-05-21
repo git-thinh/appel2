@@ -18,6 +18,7 @@ using YoutubeExplode.Models;
 using YoutubeExplode.Models.MediaStreams;
 using YoutubeExplode.Internal;
 using System.Text.RegularExpressions;
+using System.Web;
 
 namespace appel
 {
@@ -33,6 +34,7 @@ namespace appel
 
         static ConcurrentDictionary<long, oMedia> dicMediaOnline = null;
         static ConcurrentDictionary<long, oMediaPath> dicPathOnline = null;
+        static ConcurrentDictionary<long, Bitmap> dicImageOnline = null;
 
         public void Init()
         {
@@ -41,6 +43,7 @@ namespace appel
 
             dicMediaOnline = new ConcurrentDictionary<long, oMedia>();
             dicPathOnline = new ConcurrentDictionary<long, oMediaPath>();
+            dicImageOnline = new ConcurrentDictionary<long, Bitmap>();
 
             if (File.Exists(file_media))
                 using (var file = File.OpenRead(file_media))
@@ -69,10 +72,24 @@ namespace appel
 
         #region [ MEDIA ]
 
-        public static oMedia f_media_getInfo(long mediaId)
+        public static oMedia f_media_local_getInfo(long mediaId)
         {
             oMedia m = null;
             dicMediaLocal.TryGetValue(mediaId, out m);
+            return m;
+        }
+
+        public static oMedia f_media_search_getInfo(long mediaId)
+        {
+            oMedia m = null;
+            dicMediaOnline.TryGetValue(mediaId, out m);
+            return m;
+        }
+
+        public static Bitmap f_media_search_getPhoto(long mediaId)
+        {
+            Bitmap m = null;
+            dicImageOnline.TryGetValue(mediaId, out m);
             return m;
         }
 
@@ -99,6 +116,80 @@ namespace appel
             string url = string.Empty;
             oMediaPath p = null;
             if (dicPathLocal.TryGetValue(mediaId, out p))
+            {
+                if (!string.IsNullOrEmpty(p.YoutubeID))
+                {
+                    switch (type)
+                    {
+                        case MEDIA_TYPE.MP4:
+                            #region
+                            if (!string.IsNullOrEmpty(p.PathMp4_Youtube))
+                            {
+                                url = p.PathMp4_Youtube;
+                            }
+                            else
+                            {
+                                var _client = new YoutubeClient();
+                                //var Video = _client.GetVideoAsync(videoId);
+                                //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
+                                var ms = _client.GetVideoMediaStreamInfosAsync(p.YoutubeID);
+                                var ms_video = ms.Muxed.Where(x => x.Container == Container.Mp4).Take(1).SingleOrDefault();
+                                var ms_audio = ms.Audio.Where(x => x.Container == Container.M4A).Take(1).SingleOrDefault();
+
+                                if (ms_video != null)
+                                {
+                                    p.PathMp4_Youtube = ms_video.Url;
+                                    url = p.PathMp4_Youtube;
+                                }
+
+                                if (ms_audio != null)
+                                {
+                                    p.PathMp3_Youtube = ms_audio.Url;
+                                }
+                            }
+                            #endregion
+                            break;
+                        case MEDIA_TYPE.M4A:
+                            #region
+                            if (!string.IsNullOrEmpty(p.PathMp3_Youtube))
+                            {
+                                url = p.PathMp3_Youtube;
+                            }
+                            else
+                            {
+                                var _client = new YoutubeClient();
+                                //var Video = _client.GetVideoAsync(videoId);
+                                //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
+                                var ms = _client.GetVideoMediaStreamInfosAsync(p.YoutubeID);
+                                var ms_video = ms.Muxed.Where(x => x.Container == Container.Mp4).Take(1).SingleOrDefault();
+                                var ms_audio = ms.Audio.Where(x => x.Container == Container.M4A).Take(1).SingleOrDefault();
+
+                                if (ms_video != null)
+                                {
+                                    p.PathMp4_Youtube = ms_video.Url;
+                                }
+
+                                if (ms_audio != null)
+                                {
+                                    p.PathMp3_Youtube = ms_audio.Url;
+                                    url = p.PathMp3_Youtube;
+                                }
+                            }
+                            #endregion
+                            break;
+                        case MEDIA_TYPE.MP3:
+                            break;
+                    }
+                }
+            }
+            return url;
+        }
+
+        public static string f_search_fetchUriSource(long mediaId, MEDIA_TYPE type)
+        {
+            string url = string.Empty;
+            oMediaPath p = null;
+            if (dicPathOnline.TryGetValue(mediaId, out p))
             {
                 if (!string.IsNullOrEmpty(p.YoutubeID))
                 {
@@ -219,6 +310,25 @@ namespace appel
                         }
                         break;
                     #endregion
+                    case _API.MEDIA_KEY_PLAY_VIDEO_ONLINE:
+                        #region
+                        if (true)
+                        {
+                            long mediaId = (long)m.Input;
+                            string urlSrc = f_search_fetchUriSource(mediaId, MEDIA_TYPE.MP4);
+                            if (!string.IsNullOrEmpty(urlSrc))
+                            {
+                                m.Output.Ok = true;
+                                m.Output.Data = f_proxy_getUriProxy(mediaId, MEDIA_TYPE.MP4) + "&online=true";
+                                response_toMain(m);
+                            }
+                            else
+                            {
+                                // cannot fetch uri
+                            }
+                        }
+                        break;
+                    #endregion
                     case _API.MEDIA_KEY_SEARCH_STORE:
                         #region 
                         if (true)
@@ -251,99 +361,92 @@ namespace appel
                             m.Output.Ok = true;
                             m.Output.Data = resultSearch;
                             response_toMain(m);
-
-                            //if (m.PageNumber == 1 && !string.IsNullOrEmpty(input))
-                            //{
-                            //    if (count > 0)
-                            //    {
-                            //        var m2 = m.clone();
-                            //        m2.Input = input;
-                            //        m2.Output.Data = resultSearch.clone();
-                            //        response_toMain(m2);
-                            //    }
-
-                            //    var _client = new YoutubeClient();
-                            //    List<Video> rs = _client.SearchVideosAsync(input);
-                            //    bool hasUpdate = false;
-                            //    int _cc = 1;
-                            //    List<long> lsMediaID = new List<long>();
-                            //    foreach (var v in rs)
-                            //    {
-                            //        oMedia me = new oMedia(v);
-                            //        if (!dicMedia.ContainsKey(me.Id))
-                            //        {
-                            //            string videoId = v.Id;
-                            //            oMediaPath pe = new oMediaPath(me.Id, videoId);
-
-                            //            var cap = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
-                            //            if (cap.Count > 0)
-                            //            {
-                            //                var sub = cap.Where(x => x.Language.Code == "en").Take(1).SingleOrDefault();
-                            //                if (sub != null)
-                            //                {
-                            //                    me.SubtileEnglish = _client.GetStringAsync(sub.Url);
-
-                            //                    dicMedia.TryAdd(me.Id, me);
-                            //                    dicPath.TryAdd(me.Id, pe);
-
-                            //                    f_image_loadInit(me.Id);
-
-                            //                    if (_cc <= 10)
-                            //                        lsMediaID.Add(me.Id);
-
-                            //                    if (_cc == 10)
-                            //                    {
-                            //                        var m2 = m.clone();
-                            //                        m2.Input = input;
-                            //                        m2.Counter = _cc;
-                            //                        m2.Output.Data = new oMediaSearchLocalResult() {
-                            //                            CountResult = _cc,
-                            //                            MediaIds = lsMediaID,
-                            //                            TotalItem = _cc,
-                            //                        };
-                            //                        response_toMain(m2); 
-                            //                    }
-
-                            //                    if (hasUpdate == false) hasUpdate = true;
-                            //                    _cc++; 
-                            //                    notification_toMain(new appel.msg()
-                            //                    {
-                            //                        API = _API.MSG_MEDIA_SEARCH_RESULT,
-                            //                        Log = string.Format("{0} - {1}: {2}", _cc, rs.Count, me.Title),
-                            //                    });
-                            //                }
-                            //            }
-
-                            //            //string con = me.Title;
-                            //            //if (!string.IsNullOrEmpty(me.Description))
-                            //            //    con += Environment.NewLine + me.Description;
-
-                            //            //if (me.Keywords != null && me.Keywords.Count > 0)
-                            //            //    con += Environment.NewLine + string.Join(" ", me.Keywords);
-
-                            //            //api_word.f_word_addContentAnaltic(me.Id, con);
-
-                            //            //f_image_loadInit(me.Id);
-                            //        }
-                            //    }
-                            //    if (hasUpdate)
-                            //    {
-                            //        f_media_writeFile();
-                            //        notification_toMain(new appel.msg()
-                            //        {
-                            //            API = _API.MSG_MEDIA_SEARCH_RESULT,
-                            //            Log = string.Format("{0} - {1}: Complete search online", _cc, rs.Count),
-                            //        });
-                            //        Execute(m);
-                            //    }
-                            //}
-                            //else
-                            //{
-                            //    response_toMain(m);
-                            //}
                         }
                         break;
+                    #endregion
+                    case _API.MEDIA_KEY_TEXT_VIDEO_ONLINE:
+                        #region
+                        if (true) {
+                            long mediaId = (long)m.Input;
+                            oMedia mi = null;
+                            if (dicMediaOnline.TryGetValue(mediaId, out mi) && mi != null) { 
+                                string content = mi.Title;
+                                if (!string.IsNullOrEmpty(mi.Description))
+                                    content += Environment.NewLine + mi.Description;
 
+                                if (mi.Keywords != null && mi.Keywords.Count > 0)
+                                    content += Environment.NewLine + string.Join(" ", mi.Keywords);
+                                 
+                                string text = mi.SubtileEnglish;
+                                if (!string.IsNullOrEmpty(text))
+                                {
+                                    text = Regex.Replace(text, @"<[^>]*>", String.Empty);
+                                    text = HttpUtility.HtmlDecode(text);
+                                    text = text.Replace('\r', ' ').Replace('\n', ' ');
+                                    string[] a = text.Split(new char[] { '.' })
+                                        .Select(x => x.Trim())
+                                        .Where(x => x != string.Empty)
+                                        .ToArray();
+                                    text = string.Join(Environment.NewLine, a);
+                                    text = text.Replace("?", "?" + Environment.NewLine);
+                                    a = text.Split(new char[] { '\r', '\n' })
+                                       .Select(x => x.Trim())
+                                       .Where(x => x != string.Empty)
+                                       .ToArray();
+                                    text = string.Empty;
+                                    foreach (string ti in a)
+                                        if (ti[ti.Length - 1] == '?') text += ti + Environment.NewLine;
+                                        else text += ti + "." + Environment.NewLine;
+                                }
+
+                                content += Environment.NewLine +  
+                                    "------------------------------------------------------------------" 
+                                    + Environment.NewLine + Environment.NewLine +
+                                    text; 
+
+                                m.Output.Ok = true;
+                                m.Output.Data = content;
+                                response_toMain(m);
+                            }
+                        }
+                        break;
+                        #endregion
+                    case _API.MEDIA_KEY_SEARCH_ONLINE_CACHE:
+                        #region
+
+                        if (true)
+                        {
+                            string input = (string)m.Input;
+                            if (input == null) input = string.Empty;
+                            oMediaSearchLocalResult resultSearch = new oMediaSearchLocalResult();
+
+                            List<long> lsSearch = new List<long>();
+                            int min = (m.PageNumber - 1) * m.PageSize,
+                                max = m.PageNumber * m.PageSize,
+                                count = 0;
+                            foreach (var kv in dicMediaOnline)
+                            {
+                                if (kv.Value.Title.ToLower().Contains(input)
+                                    || kv.Value.Description.ToLower().Contains(input))
+                                {
+                                    if (count >= min && count < max)
+                                        lsSearch.Add(kv.Key);
+                                    count++;
+                                }
+                            }
+                            resultSearch.TotalItem = dicMediaLocal.Count;
+                            resultSearch.PageSize = m.PageSize;
+                            resultSearch.PageNumber = m.PageNumber;
+                            resultSearch.CountResult = count;
+                            resultSearch.MediaIds = lsSearch;
+
+                            m.Counter = count;
+                            m.Output.Ok = true;
+                            m.Output.Data = resultSearch;
+                            response_toMain(m);
+                        }
+
+                        break;
                     #endregion
                     case _API.MEDIA_KEY_SEARCH_ONLINE:
                         #region 
@@ -366,11 +469,13 @@ namespace appel
                                     page_query++;
                                     aIDs = f_media_searchYoutubeOnline(_client, input, page_query, hasCC_Subtitle);
                                     lsSearch.AddRange(aIDs);
+
                                 }
 
                                 var m_first = m.clone(m.Input);
                                 m_first.KEY = _API.MEDIA_KEY_SEARCH_ONLINE_CACHE;
-                                m_first.Input = input;
+                                //m_first.Input = input;
+                                m_first.Input = string.Empty;
                                 m_first.Counter = lsSearch.Count;
                                 m_first.Output.Ok = true;
                                 m_first.Output.Data = new oMediaSearchLocalResult()
@@ -380,23 +485,23 @@ namespace appel
                                     TotalItem = lsSearch.Count,
                                 };
                                 response_toMain(m_first);
-                                
-                                while (aIDs.Length == 0)
-                                {
-                                    page_query++;
-                                    aIDs = f_media_searchYoutubeOnline(_client, input, page_query, hasCC_Subtitle);
-                                    lsSearch.AddRange(aIDs);
 
-                                    if (aIDs.Length > 0)
-                                    {
-                                        notification_toMain(new appel.msg()
-                                        {
-                                            API = _API.MSG_MEDIA_SEARCH_RESULT,
-                                            Log = string.Format("Page {0} -> Total items: {1}: Search online [ {2} ] ...", page_query, lsSearch.Count, input),
-                                        });
-                                    }
-                                }
-                                
+                                //while (aIDs.Length == 0)
+                                //{
+                                //    page_query++;
+                                //    aIDs = f_media_searchYoutubeOnline(_client, input, page_query, hasCC_Subtitle);
+                                //    lsSearch.AddRange(aIDs);
+
+                                //    if (aIDs.Length > 0)
+                                //    {
+                                //        notification_toMain(new appel.msg()
+                                //        {
+                                //            API = _API.MSG_MEDIA_SEARCH_RESULT,
+                                //            Log = string.Format("Page {0} -> Total items: {1}: Search online [ {2} ] ...", page_query, lsSearch.Count, input),
+                                //        });
+                                //    }
+                                //}
+
                                 //f_media_writeFile();
                                 notification_toMain(new appel.msg()
                                 {
@@ -728,9 +833,10 @@ namespace appel
 
         #region [ SEARCH ]
 
+        static WebClient client_img = new WebClient();
         long[] f_media_searchYoutubeOnline(YoutubeClient _client, string query, int page, bool hasCC_Subtitle = true)
         {
-            string url = string.Format($"https://www.youtube.com/search_ajax?style=json&search_query={0}&page={1}&hl=en", query, page);
+            string url = string.Format("https://www.youtube.com/search_ajax?style=json&search_query={0}&page={1}&hl=en", query, page);
             if (hasCC_Subtitle) url += "&sp=EgIoAQ%253D%253D";
 
             string raw = _client.GetStringAsync(url, false);
@@ -783,6 +889,15 @@ namespace appel
                     mi.Author = videoAuthor;
                     mi.UploadDate = int.Parse(videoUploadDate.ToString("yyMMdd"));
 
+                    if (!dicImageOnline.ContainsKey(mi.Id))
+                    {
+                        using (Stream stream = client_img.OpenRead(string.Format("https://img.youtube.com/vi/{0}/default.jpg", videoId)))
+                        {
+                            Bitmap bitmap = new Bitmap(stream);
+                            dicImageOnline.TryAdd(mi.Id, bitmap);
+                        }
+                    }
+
                     videos.Add(mi.Id);
 
                     dicMediaOnline.TryAdd(mi.Id, mi);
@@ -795,77 +910,6 @@ namespace appel
         }
 
         #endregion
-
-        ///////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        //var lw1 = api_youtube.f_analytic_wordFileXml("demo1.xml");
-        //var ls1 = api_youtube.f_render_Sentence(lw1);
-
-        //var lw2 = api_youtube.f_analytic_wordFileXml("demo2.xml");
-        //var ls2 = api_youtube.f_render_Sentence(lw2);
-
-        //string text = string.Empty;
-        //foreach (var se in ls2) text += se.TimeStart + ": " + se.Words + Environment.NewLine;
-
-        //string videoId = "RQPSzkMNwcw";
-        //var _client = new YoutubeClient();
-        //// Get data
-        //var Video = _client.GetVideoAsync(videoId);
-        //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
-        //var MediaStreamInfos = _client.GetVideoMediaStreamInfosAsync(videoId);
-        //var ClosedCaptionTrackInfos = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
-        //List<Video> video_result = _client.SearchVideosAsync("learn english subtitle");
-        //string json = Newtonsoft.Json.JsonConvert.SerializeObject(video_result);
-
-        //List<Video> video_result = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Video>>(File.ReadAllText("videos.json"));
-
-        //using (var file = File.Create("videos.bin"))
-        //{
-        //    Serializer.Serialize<List<Video>>(file, video_result);
-        //} 
-        //using (var file = File.OpenRead("videos.bin"))
-        //{
-        //    var lvs = Serializer.Deserialize<List<Video>>(file);
-
-        //}
-
-
-        //public static string f_get_uriProxy(string videoId, MEDIA_TYPE type)
-        //{
-
-        //    string uri = string.Empty;
-        //    uri = api_media_Proxy.f_get_uriProxy(videoId, type);
-        //    if (string.IsNullOrEmpty(uri))
-        //    {
-        //        var _client = new YoutubeClient();
-        //        // Get data
-        //        //var video = _client.GetVideoAsync(videoId);
-        //        //var chanel = _client.GetVideoAuthorChannelAsync(videoId);
-        //        var media = _client.GetVideoMediaStreamInfosAsync(videoId);
-        //        //var caption = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
-
-        //        api_media_Proxy.f_add_URL(videoId, media);
-
-        //        uri = api_media_Proxy.f_get_uriProxy(videoId, type);
-        //    }
-
-        //    return uri;
-        //}
 
         public static List<oCaptionWord> f_analytic_wordFileXml(string file_xml)
         {
@@ -1064,7 +1108,11 @@ namespace appel
                     uri = api_media.f_media_fetchUriSource(mediaId, MEDIA_TYPE.M4A);
                     break;
                 case "mp4":
-                    uri = api_media.f_media_fetchUriSource(mediaId, MEDIA_TYPE.MP4);
+                    string online = originalContext.Request.QueryString["online"];
+                    if (online == "true")
+                        uri = api_media.f_search_fetchUriSource(mediaId, MEDIA_TYPE.MP4);
+                    else
+                        uri = api_media.f_media_fetchUriSource(mediaId, MEDIA_TYPE.MP4);
                     break;
                 case "web": // webm
                     uri = api_media.f_media_fetchUriSource(mediaId, MEDIA_TYPE.WEB);
