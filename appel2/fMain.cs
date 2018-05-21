@@ -277,6 +277,8 @@ namespace appel
         #region [ STORE ] 
 
         msg m_store_current_msg = null;
+        long m_store_item_current_id = 0;
+        string m_store_item_current_text = string.Empty;
 
         Label m_store_Message;
         Panel m_store_Result;
@@ -620,6 +622,9 @@ namespace appel
                     star_prev.BackColor = Color.LightGray;
             }
 
+            m_store_item_current_id = mid;
+            m_store_item_current_text = it.Text;
+
             m_media_current_id = mid;
             m_media_current_title = it.Text;
 
@@ -667,6 +672,9 @@ namespace appel
 
         #region [ SEARCH ]
 
+        long m_search_item_current_id = 0;
+        string m_search_item_current_text = string.Empty;
+
         private msg m_search_current_msg = null;
         private TextBox m_search_Input;
         private Panel m_search_Result;
@@ -674,7 +682,6 @@ namespace appel
         private Label m_search_PageTotal;
         private Label m_search_TotalItems;
         private Label m_search_Message;
-        private IconButton m_search_saveResult;
         private Panel m_search_Header;
 
         void f_search_initUI()
@@ -718,7 +725,7 @@ namespace appel
                 new Label(){ AutoSize = false, Height = 9, Dock = DockStyle.Top }
             });
 
-            m_search_saveResult = new IconButton(24) { IconType = IconType.ios_cloud_download, Dock = DockStyle.Left };
+            IconButton btn_save = new IconButton(24) { IconType = IconType.ios_cloud_download, Dock = DockStyle.Left };
             IconButton btn_tags = new IconButton(24) { IconType = IconType.pricetags, Dock = DockStyle.Left, ToolTipText = "Tags" };
             IconButton btn_user = new IconButton(22) { IconType = IconType.person, Dock = DockStyle.Left, ToolTipText = "User" };
             IconButton btn_channel = new IconButton(22) { IconType = IconType.android_desktop, Dock = DockStyle.Left, ToolTipText = "Channel" };
@@ -770,7 +777,7 @@ namespace appel
                 new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 btn_tags,
                 new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
-                m_search_saveResult,
+                btn_save,
                 new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 m_search_Input,
 
@@ -809,7 +816,22 @@ namespace appel
 
                 #endregion
             });
+            btn_save.MouseClick += f_search_saveItemSelected;
+        }
 
+        private void f_search_saveItemSelected(object sender, MouseEventArgs e)
+        {
+            if (m_search_item_current_id == 0 || string.IsNullOrEmpty(m_search_item_current_text))
+            {
+                MessageBox.Show("Please select item from tab search result to save!");
+            }
+            else
+            {
+                if (api_media.f_media_local_exist(m_search_item_current_id))
+                    MessageBox.Show(string.Format("The [{0}] saved", m_search_item_current_text));
+                else
+                    app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_ONLINE_SAVE_TO_STORE, Input = m_search_item_current_id });
+            }
         }
 
         private void f_search_draw_Media(List<long> ls)
@@ -991,8 +1013,10 @@ namespace appel
 
             if (m_media.playState == WMPLib.WMPPlayState.wmppsPlaying) m_media.Ctlcontrols.stop();
 
+            m_search_item_current_id = mediaId_sel;
+            m_search_item_current_text = it.Text;
+
             app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_TEXT_VIDEO_ONLINE, Input = mediaId_sel });
-            //app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_PLAY_VIDEO_ONLINE, Input = mediaId_sel , Log = it.Text });
         }
 
         #endregion
@@ -1113,6 +1137,7 @@ namespace appel
                 switch (m.API)
                 {
                     case _API.MSG_MEDIA_SEARCH_RESULT:
+                    case _API.MSG_MEDIA_SEARCH_SAVE_TO_STORE:
                         log.Append(m.Log + Environment.NewLine);
                         m_msg_api.crossThreadPerformSafely(() =>
                         {
@@ -1151,7 +1176,7 @@ namespace appel
                             case _API.MEDIA_KEY_PLAY_VIDEO_ONLINE:
                                 if (m.Output.Ok)
                                 {
-                                    f_video_openMp4_Callback((string)m.Output.Data, m.Log); 
+                                    f_video_openMp4_Callback((string)m.Output.Data, m.Log);
                                     this.Invoke((Action)(() =>
                                     {
                                         btn_play.Visible = false;

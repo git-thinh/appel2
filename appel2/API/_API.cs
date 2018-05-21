@@ -10,6 +10,8 @@ namespace appel
         public const string MSG_MEDIA_SEARCH_RESULT = "MSG_MEDIA_SEARCH_RESULT";
         public const string MSG_ANALYTIC_CONTENT = "MSG_ANALYTIC_CONTENT";
         public const string MSG_ANALYTIC_WORD = "MSG_ANALYTIC_WORD";
+        public const string MSG_MEDIA_SEARCH_REMOVE = "MSG_MEDIA_SEARCH_REMOVE";
+        public const string MSG_MEDIA_SEARCH_SAVE_TO_STORE = "MSG_MEDIA_SEARCH_SAVE_TO_STORE";
 
         public const string WORD = "WORD";
         public const string WORD_KEY_INITED = "WORD_KEY_INITED"; 
@@ -21,6 +23,7 @@ namespace appel
         public const string MEDIA_KEY_SEARCH_ONLINE = "MEDIA_KEY_SEARCH_ONLINE";
         public const string MEDIA_KEY_SEARCH_ONLINE_NEXT = "MEDIA_KEY_SEARCH_ONLINE_NEXT";
         public const string MEDIA_KEY_SEARCH_ONLINE_CACHE = "MEDIA_KEY_SEARCH_ONLINE_CACHE";
+        public const string MEDIA_KEY_SEARCH_ONLINE_SAVE_TO_STORE = "MEDIA_KEY_SEARCH_ONLINE_SAVE_TO_STORE";
         public const string MEDIA_KEY_PLAY_VIDEO_ONLINE = "MEDIA_KEY_PLAY_VIDEO_ONLINE";
         public const string MEDIA_KEY_TEXT_VIDEO_ONLINE = "MEDIA_KEY_TEXT_VIDEO_ONLINE";
         public const string MEDIA_KEY_PLAY_VIDEO = "MEDIA_KEY_PLAY_VIDEO";

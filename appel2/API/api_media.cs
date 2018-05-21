@@ -79,6 +79,11 @@ namespace appel
             return m;
         }
 
+        public static bool f_media_local_exist(long mediaId)
+        {
+            return dicMediaLocal.ContainsKey(mediaId);
+        }
+
         public static oMedia f_media_search_getInfo(long mediaId)
         {
             oMedia m = null;
@@ -373,6 +378,54 @@ namespace appel
                         }
                         break;
                     #endregion
+                    case _API.MEDIA_KEY_SEARCH_ONLINE_SAVE_TO_STORE:
+                        #region
+                        if (true)
+                        {
+                            long mediaId = (long)m.Input;
+                            oMedia mi = null;
+                            if (dicMediaOnline.TryGetValue(mediaId, out mi) && mi != null)
+                            {
+                                if (!dicMediaLocal.ContainsKey(mediaId))
+                                {
+                                    oMediaPath pi = null;
+                                    dicPathOnline.TryGetValue(mediaId, out pi);
+
+                                    dicMediaLocal.TryAdd(mediaId, mi);
+                                    if (!dicPathLocal.ContainsKey(mediaId))
+                                        dicPathLocal.TryAdd(mediaId, pi);
+
+                                    oMedia del_mi;
+                                    dicMediaLocal.TryRemove(mediaId, out del_mi);
+                                    oMediaPath del_path;
+                                    dicPathOnline.TryRemove(mediaId, out del_path);
+
+                                    f_media_writeFile();
+
+                                    if (dicImageOnline.ContainsKey(mediaId))
+                                    {
+                                        string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "photo");
+                                        if (Directory.Exists(dir) == false) Directory.CreateDirectory(dir);
+                                        string filename = Path.Combine(dir, mediaId.ToString() + ".jpg");
+                                        if (!File.Exists(filename))
+                                        {
+                                            Bitmap bitmap = null;
+                                            if (dicImageOnline.TryGetValue(mediaId, out bitmap) && bitmap != null)
+                                                bitmap.Save(filename, ImageFormat.Jpeg);
+                                            dicImageOnline.TryRemove(mediaId, out bitmap);
+                                        }
+                                    }
+
+                                    notification_toMain(new appel.msg()
+                                    {
+                                        API = _API.MSG_MEDIA_SEARCH_SAVE_TO_STORE,
+                                        Log = string.Format("{0} save successfully!", mi.Title),
+                                    });
+                                }
+                            }
+                        }
+                        break;
+                    #endregion
                     case _API.MEDIA_KEY_TEXT_VIDEO_ONLINE:
                         #region
                         if (true)
@@ -506,13 +559,14 @@ namespace appel
                                     //    });
                                     //}
 
-                                    if (page_query == 2) { 
+                                    if (page_query == 2)
+                                    {
                                         new Thread(new ParameterizedThreadStart((object so) =>
                                         {
                                             Execute(new msg()
                                             {
                                                 API = _API.MEDIA,
-                                                KEY = _API.MEDIA_KEY_SEARCH_ONLINE_CACHE, 
+                                                KEY = _API.MEDIA_KEY_SEARCH_ONLINE_CACHE,
                                                 Input = so
                                             });
                                         })).Start(input);
