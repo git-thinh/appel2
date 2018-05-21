@@ -38,8 +38,11 @@ namespace appel
         public List<Tuple<string,string>> Vocabulary { get; set; }
 
         public oMedia() { } 
+        public oMedia(string videoId) {
+            Id = convert_id_bit_shifting(videoId);  
+        } 
+
         public oMedia(Video v) {
-            Id = convert_id_bit_shifting(v.Id);  
             DurationSecond = (int)v.Duration.TotalSeconds;
             Title = v.Title;
             Description = v.Description;

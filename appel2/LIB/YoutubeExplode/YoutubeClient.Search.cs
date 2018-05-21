@@ -12,9 +12,9 @@ namespace YoutubeExplode
 {
     public partial class YoutubeClient
     {
-        public string GetStringAsync(string url)
+        public string GetStringAsync(string url, bool ensureSuccess = false)
         { 
-            return _httpClient.GetStringAsync(url, false);
+            return _httpClient.GetStringAsync(url, ensureSuccess);
         }
 
         private string GetSearchResultsRawAsync(string query, int page = 1)

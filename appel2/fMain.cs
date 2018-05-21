@@ -34,6 +34,8 @@ namespace appel
 
         private fPlayer m_player;
 
+        private StringBuilder log;
+
         #endregion
 
         void f_main_Shown()
@@ -147,6 +149,8 @@ namespace appel
         private FATabStripItem m_tab_Word;
         private FATabStripItem m_tab_Grammar;
         private FATabStripItem m_tab_Text;
+        private FATabStripItem m_tab_Writer;
+        private FATabStripItem m_tab_Book;
 
         void f_tab_initUI()
         {
@@ -174,6 +178,9 @@ namespace appel
             //////////////////////////////////////////////////////////
             // TAB
 
+            //☆★☐☑⧉✉⦿⦾⚠⚿⛑✕✓⥀✖↭☊⦧▷◻◼⟲≔☰⚒❯►❚❚❮⟳⚑⚐✎✛
+            //🕮🖎✍⦦☊🕭🔔🗣🗢🖳🎚🏷🖈🎗🏱🏲🗀🗁🕷🖒🖓👍👎♥♡♫♪♬♫🎙🎖🗝●◯⬤⚲☰⚒🕩🕪❯►❮⟳⚐🗑✎✛🗋🖫⛉ ⛊ ⛨⚏★☆
+
             m_tab = new FATabStrip()
             {
                 Dock = DockStyle.Fill,
@@ -184,22 +191,32 @@ namespace appel
             m_tab_Store = new FATabStripItem()
             {
                 CanClose = false,
-                Title = "Store",
+                Title = "☰",
             };
             m_tab_Search = new FATabStripItem()
             {
                 CanClose = false,
-                Title = "Search",
-            };
-            m_tab_Listen = new FATabStripItem()
-            {
-                CanClose = false,
-                Title = "Listen",
+                Title = "⚲",
             };
             m_tab_Tag = new FATabStripItem()
             {
                 CanClose = false,
-                Title = "Tag",
+                Title = "⛉",
+            };
+            m_tab_Speaking = new FATabStripItem()
+            {
+                CanClose = false,
+                Title = "►",
+            };
+            m_tab_Listen = new FATabStripItem()
+            {
+                CanClose = false,
+                Title = "☊", //☊
+            };
+            m_tab_Writer = new FATabStripItem()
+            {
+                CanClose = false,
+                Title = "✍",
             };
             m_tab_Grammar = new FATabStripItem()
             {
@@ -211,15 +228,15 @@ namespace appel
                 CanClose = false,
                 Title = "Word",
             };
-            m_tab_Speaking = new FATabStripItem()
-            {
-                CanClose = false,
-                Title = "Speak",
-            };
             m_tab_Text = new FATabStripItem()
             {
                 CanClose = false,
                 Title = "Text",
+            };
+            m_tab_Book = new FATabStripItem()
+            {
+                CanClose = false,
+                Title = "Book",
             };
 
             m_tab.Items.AddRange(new FATabStripItem[] {
@@ -228,6 +245,8 @@ namespace appel
                 m_tab_Tag,
                 m_tab_Listen,
                 m_tab_Speaking,
+                m_tab_Writer,
+                m_tab_Book,
                 m_tab_Grammar,
                 m_tab_Word,
                 m_tab_Text,
@@ -1109,6 +1128,8 @@ namespace appel
                 switch (m.API)
                 {
                     case _API.MSG_MEDIA_SEARCH_RESULT:
+                        log.Append(m.Log + Environment.NewLine);
+
                         m_msg_api.crossThreadPerformSafely(() =>
                         {
                             m_msg_api.Text = m.Log;
@@ -1134,7 +1155,7 @@ namespace appel
                         #region
                         switch (m.KEY)
                         {
-                            case _API.MEDIA_KEY_SEARCH_ONLINE:
+                            case _API.MEDIA_KEY_SEARCH_ONLINE_CACHE:
                                 if (m.Output.Ok)
                                 {
                                     var rs = (oMediaSearchLocalResult)m.Output.Data;
@@ -1142,7 +1163,9 @@ namespace appel
                                     m_search_current_msg = m.clone(m.Input);
                                 }
                                 else
-                                    m_msg_api.Text = "Search error";
+                                {
+                                    MessageBox.Show("Search online error");
+                                }
                                 break;
                             case _API.MEDIA_KEY_SEARCH_STORE:
                                 if (m.Output.Ok)
@@ -1152,7 +1175,9 @@ namespace appel
                                     m_store_current_msg = m.clone(m.Input);
                                 }
                                 else
-                                    m_msg_api.Text = "Search error";
+                                {
+                                    MessageBox.Show("Search store error");
+                                }
                                 break;
                             case _API.MEDIA_KEY_PLAY_AUDIO:
                                 if (m.Output.Ok && (long)m.Input == m_media_current_id)
@@ -1177,6 +1202,7 @@ namespace appel
 
         public fMain()
         {
+            log = new StringBuilder();
             this.Icon = Resources.favicon;
             this.FormBorderStyle = FormBorderStyle.None;
             this.Shown += (se, ev) => f_main_Shown();
