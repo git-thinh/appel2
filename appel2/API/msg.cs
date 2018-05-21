@@ -64,9 +64,11 @@ namespace appel
             Output = new msgOutput();
         }
 
-        public msg clone()
+        public msg clone(object input)
         {
-            return Serializer.DeepClone<msg>(this);
+            msg m = Serializer.DeepClone<msg>(this);
+            m.Input = input;
+            return m;
         }
     }
 

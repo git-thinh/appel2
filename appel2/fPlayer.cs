@@ -21,6 +21,8 @@ namespace appel
         private bool m_resizing = false;
         private IconButton btn_exit;
 
+        public bool isOpening { set; get; } = false;
+
         public void f_form_freeResource()
         {
         }
@@ -53,6 +55,7 @@ namespace appel
                 m_resize.BringToFront();
 
                 f_play(url, title);
+                isOpening = true;
             };
 
             // MEDIA

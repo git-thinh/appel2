@@ -32,6 +32,8 @@ namespace appel
 
         private Label m_msg_api;
 
+        private fPlayer m_player;
+
         #endregion
 
         void f_main_Shown()
@@ -309,8 +311,8 @@ namespace appel
             IconButton btn_user = new IconButton(22) { IconType = IconType.person, Dock = DockStyle.Left, ToolTipText = "User" };
             IconButton btn_channel = new IconButton(22) { IconType = IconType.android_desktop, Dock = DockStyle.Left, ToolTipText = "Channel" };
 
-            IconButton btn_next = new IconButton(16) { IconType = IconType.ios_arrow_back, Dock = DockStyle.Right };
-            IconButton btn_prev = new IconButton(16) { IconType = IconType.ios_arrow_next, Dock = DockStyle.Right };
+            IconButton btn_next = new IconButton(16) { IconType = IconType.ios_arrow_next, Dock = DockStyle.Right };
+            IconButton btn_prev = new IconButton(16) { IconType = IconType.ios_arrow_back, Dock = DockStyle.Right };
             IconButton btn_remove = new IconButton(22) { IconType = IconType.trash_a, Dock = DockStyle.Right };
             IconButton btn_add_playlist = new IconButton(22) { IconType = IconType.android_add, Dock = DockStyle.Right, ToolTipText = "Add to Playlist" };
 
@@ -366,7 +368,7 @@ namespace appel
                 new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
                 btn_remove,
                 new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
-                btn_next,
+                btn_prev,
                 m_store_PageCurrent,
                 new Label()
                 {
@@ -389,7 +391,7 @@ namespace appel
                 },
                 m_store_TotalItems,
                 new Label(){ Dock = DockStyle.Right, Padding = new Padding(0,3,0,0), Text = " items ", TextAlign = ContentAlignment.BottomLeft, AutoSize = true, },
-                btn_prev,
+                btn_next,
 
                 #endregion
             });
@@ -492,7 +494,6 @@ namespace appel
             });
         }
 
-
         void f_store_Result(oMediaSearchLocalResult rs)
         {
             f_store_draw_Media(rs.MediaIds);
@@ -518,9 +519,9 @@ namespace appel
         {
             if (m_store_current_msg != null)
             {
-                if ((m_store_current_msg.PageNumber - 1) * m_store_current_msg.PageSize < m_store_current_msg.Counter)
+                if (m_store_current_msg.PageNumber > 1)
                 {
-                    m_store_current_msg.PageNumber = m_store_current_msg.PageNumber + 1;
+                    m_store_current_msg.PageNumber = m_store_current_msg.PageNumber - 1;
                     app.postToAPI(m_store_current_msg);
                 }
             }
@@ -530,9 +531,9 @@ namespace appel
         {
             if (m_store_current_msg != null)
             {
-                if (m_store_current_msg.PageNumber > 1)
+                if ((m_store_current_msg.PageNumber - 1) * m_store_current_msg.PageSize < m_store_current_msg.Counter)
                 {
-                    m_store_current_msg.PageNumber = m_store_current_msg.PageNumber - 1;
+                    m_store_current_msg.PageNumber = m_store_current_msg.PageNumber + 1;
                     app.postToAPI(m_store_current_msg);
                 }
             }
@@ -542,7 +543,7 @@ namespace appel
         {
             if (e.KeyCode == Keys.Enter)
             {
-                string key = m_search_Input.Text.Trim();
+                string key = m_store_Input.Text.Trim();
                 if (key.Length > 1)
                 {
                     m_store_Message.Text = "Finding [" + key + "] ...";
@@ -578,6 +579,13 @@ namespace appel
                     itprev.BackColor = Color.LightGray;
             }
 
+            if (e == null) // click picture -> select label title
+            {
+                Control it_sel = m_store_Result.Controls.Find(it.Name, false).SingleOrDefault();
+                if (it_sel != null)
+                    it_sel.BackColor = Color.Orange;
+            }
+
             m_media_current_id = mid;
             m_media_current_title = it.Text;
 
@@ -585,9 +593,11 @@ namespace appel
             lbl_title.Text = m_media_current_title;
 
             if (m_media.playState == WMPLib.WMPPlayState.wmppsPlaying) m_media.Ctlcontrols.stop();
+
             if (e != null)
             {
                 // Only click on label title
+
                 m_media.URL = string.Empty;
                 if (m_media.Visible) m_media.Visible = false;
                 btn_play.InActiveColor = Color.DimGray;
@@ -598,12 +608,16 @@ namespace appel
             else
             {
                 // From picture click -> call click to lable title
+
                 f_video_openMp4_Request();
 
                 m_media.URL = string.Empty;
                 if (m_media.Visible) m_media.Visible = false;
                 btn_play.InActiveColor = Color.DimGray;
                 btn_play.Visible = true;
+
+                f_video_openMp3_Request();
+                app.postToAPI(new msg() { API = _API.WORD, KEY = _API.WORD_KEY_ANALYTIC, Input = m_media_current_id });
             }
         }
 
@@ -974,8 +988,6 @@ namespace appel
 
         #region [ MEDIA ]
 
-
-
         private void f_media_event_PlayStateChange(object sender, _WMPOCXEvents_PlayStateChangeEvent e)
         {
         }
@@ -989,14 +1001,44 @@ namespace appel
         {
             if (url != string.Empty)
             {
+                //this.Invoke((Action)(() =>
+                //{
+                //    this.Cursor = Cursors.WaitCursor;
+                //    //var f = new fPlayer(url, title);
+                //    //f.Show();
+                //    //f.Left = this.Location.X + 9;
+                //    //f.Top = this.Location.Y + 99;
+
+                //    this.Cursor = Cursors.Default;
+                //}));
+
                 this.Invoke((Action)(() =>
                 {
-                    this.Cursor = Cursors.WaitCursor;
-                    var f = new fPlayer(url, title);
-                    f.Show();
-                    f.Left = this.Location.X + 9;
-                    f.Top = this.Location.Y + 99;
-                    this.Cursor = Cursors.Default;
+                    int left = this.Location.X + 9,
+                    top = this.Location.Y + 99,
+                    width = app.m_player_width,
+                    height = app.m_player_height;
+
+                    if (m_player != null)
+                    {
+                        left = m_player.Left;
+                        top = m_player.Top;
+                        width = m_player.Width;
+                        height = m_player.Height;
+
+                        m_player.Close();
+                        m_player = null;
+                    }
+
+                    m_player = new fPlayer(url, title);
+                    m_player.Shown += (se, ev) =>
+                    {
+                        m_player.Height = height;
+                        m_player.Width = width;
+                        m_player.Left = left;
+                        m_player.Top = top;
+                    };
+                    m_player.Show();
                 }));
             }
             else
@@ -1090,7 +1132,7 @@ namespace appel
                                 {
                                     var rs = (oMediaSearchLocalResult)m.Output.Data;
                                     f_store_Result(rs);
-                                    m_store_current_msg = m.clone();
+                                    m_store_current_msg = m.clone(m.Input);
                                 }
                                 else
                                     m_msg_api.Text = "Search error";
