@@ -336,6 +336,105 @@ namespace appel
                         break;
 
                     #endregion
+                    case _API.MEDIA_KEY_SEARCH_ONLINE:
+                        #region 
+                        if (true)
+                        {
+                            string input = (string)m.Input;
+                            if (input == null) input = string.Empty;
+                            oMediaSearchLocalResult resultSearch = new oMediaSearchLocalResult();
+
+                            List<long> lsSearch = new List<long>();
+                            int min = (m.PageNumber - 1) * m.PageSize,
+                                max = m.PageNumber * m.PageSize,
+                                count = 0;
+
+                            if (!string.IsNullOrEmpty(input))
+                            {
+                                var _client = new YoutubeClient();
+                                List<Video> rs = _client.SearchVideosAsync(input);
+                                bool hasUpdate = false;
+                                int _cc = 1;
+                                List<long> lsMediaID = new List<long>();
+                                foreach (var v in rs)
+                                {
+                                    oMedia me = new oMedia(v);
+                                    if (!dicMedia.ContainsKey(me.Id))
+                                    {
+                                        string videoId = v.Id;
+                                        oMediaPath pe = new oMediaPath(me.Id, videoId);
+
+                                        ////var cap = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+                                        ////if (cap.Count > 0)
+                                        ////{
+                                        ////    var sub = cap.Where(x => x.Language.Code == "en").Take(1).SingleOrDefault();
+                                        ////    if (sub != null)
+                                        ////    {
+                                        //?????????????????????????????????
+                                        //me.SubtileEnglish = _client.GetStringAsync(sub.Url);
+
+                                        dicMedia.TryAdd(me.Id, me);
+                                        dicPath.TryAdd(me.Id, pe);
+
+                                        //////f_image_loadInit(me.Id);
+
+                                        if (_cc <= 10)
+                                            lsMediaID.Add(me.Id);
+
+                                        if (_cc == 10)
+                                        {
+                                            var m2 = m.clone(m.Input);
+                                            m2.KEY = _API.MEDIA_KEY_SEARCH_STORE;
+                                            m2.Input = input;
+                                            m2.Counter = _cc;
+                                            m2.Output.Ok = true;
+                                            m2.Output.Data = new oMediaSearchLocalResult()
+                                            {
+                                                CountResult = _cc,
+                                                MediaIds = lsMediaID,
+                                                TotalItem = _cc,
+                                            };
+                                            response_toMain(m2);
+                                        }
+
+                                        if (hasUpdate == false) hasUpdate = true;
+                                        _cc++;
+                                        notification_toMain(new appel.msg()
+                                        {
+                                            API = _API.MSG_MEDIA_SEARCH_RESULT,
+                                            Log = string.Format("{0} - {1}: {2}", _cc, rs.Count, me.Title),
+                                        });
+
+                                        ////    }
+                                        ////}
+
+                                        //string con = me.Title;
+                                        //if (!string.IsNullOrEmpty(me.Description))
+                                        //    con += Environment.NewLine + me.Description;
+
+                                        //if (me.Keywords != null && me.Keywords.Count > 0)
+                                        //    con += Environment.NewLine + string.Join(" ", me.Keywords);
+
+                                        //api_word.f_word_addContentAnaltic(me.Id, con);
+
+                                        //f_image_loadInit(me.Id);
+                                    }
+                                }
+                                if (hasUpdate)
+                                {
+                                    //f_media_writeFile();
+                                    notification_toMain(new appel.msg()
+                                    {
+                                        API = _API.MSG_MEDIA_SEARCH_RESULT,
+                                        Log = string.Format("{0} - {1}: Complete search online", _cc, rs.Count),
+                                    });
+                                    //Execute(m);
+                                }
+                            }
+                        }
+                        break;
+
+                    #endregion
                     case _API.MEDIA_KEY_DOWNLOAD_PHOTO:
                         break;
                     case _API.MEDIA_KEY_UPDATE_LENGTH:

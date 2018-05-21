@@ -953,23 +953,7 @@ namespace appel
                 if (key.Length > 1)
                 {
                     m_search_Message.Text = "Finding [" + key + "] ...";
-                    app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH_STORE, key);
-
-                    //if (m_search_Online)
-                    //{
-                    //    Cursor = Cursors.WaitCursor;
-                    //    m_search_Message.Text = "SEARCH: " + key + "...";
-                    //    var _client = new YoutubeClient();
-                    //    List<Video> rs = _client.SearchVideosAsync(key);
-                    //    //f_search_draw_Media(rs);
-                    //    m_search_Message.Text = "SEARCH: " + key + " found " + rs.Count + " videos online.";
-                    //    Cursor = Cursors.Default;
-                    //}
-                    //else
-                    //{
-                    //    m_search_Message.Text = "Search local [" + key + "] ...";
-                    //    app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH, key);
-                    //}
+                    app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH_ONLINE, key); 
                 }
                 else
                     m_search_Message.Text = "Length of keywords must be greater than 1 characters.";
@@ -1150,6 +1134,16 @@ namespace appel
                         #region
                         switch (m.KEY)
                         {
+                            case _API.MEDIA_KEY_SEARCH_ONLINE:
+                                if (m.Output.Ok)
+                                {
+                                    var rs = (oMediaSearchLocalResult)m.Output.Data;
+                                    f_search_Result(rs);
+                                    m_search_current_msg = m.clone(m.Input);
+                                }
+                                else
+                                    m_msg_api.Text = "Search error";
+                                break;
                             case _API.MEDIA_KEY_SEARCH_STORE:
                                 if (m.Output.Ok)
                                 {
