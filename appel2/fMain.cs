@@ -152,9 +152,21 @@ namespace appel
         private FATabStripItem m_tab_Writer;
         private FATabStripItem m_tab_Book;
 
+        //☆★☐☑⧉✉⦿⦾⚠⚿⛑✕✓⥀✖↭☊⦧▷◻◼⟲≔☰⚒❯►❚❚❮⟳⚑⚐✎✛
+        //🕮🖎✍⦦☊🕭🔔🗣🗢🖳🎚🏷🖈🎗🏱🏲🗀🗁🕷🖒🖓👍👎♥♡♫♪♬♫🎙🎖🗝●◯⬤⚲☰⚒🕩🕪❯►❮⟳⚐🗑✎✛🗋🖫⛉ ⛊ ⛨⚏★☆
+        const string tab_caption_store = "☰";
+        const string tab_caption_search = "⚲";
+        const string tab_caption_tags = "⛉";
+        const string tab_caption_listen = "►";
+        const string tab_caption_speak = "☊";
+        const string tab_caption_writer = "✍";
+        const string tab_caption_grammar = "Grammar";
+        const string tab_caption_word = "Word";
+        const string tab_caption_text = "Text";
+        const string tab_caption_book = "Book";
+
         void f_tab_initUI()
         {
-
             lbl_title = new Label()
             {
                 AutoSize = false,
@@ -178,8 +190,6 @@ namespace appel
             //////////////////////////////////////////////////////////
             // TAB
 
-            //☆★☐☑⧉✉⦿⦾⚠⚿⛑✕✓⥀✖↭☊⦧▷◻◼⟲≔☰⚒❯►❚❚❮⟳⚑⚐✎✛
-            //🕮🖎✍⦦☊🕭🔔🗣🗢🖳🎚🏷🖈🎗🏱🏲🗀🗁🕷🖒🖓👍👎♥♡♫♪♬♫🎙🎖🗝●◯⬤⚲☰⚒🕩🕪❯►❮⟳⚐🗑✎✛🗋🖫⛉ ⛊ ⛨⚏★☆
 
             m_tab = new FATabStrip()
             {
@@ -188,57 +198,18 @@ namespace appel
                 AlwaysShowMenuGlyph = false,
                 Margin = new Padding(0, 45, 0, 0),
             };
-            m_tab_Store = new FATabStripItem()
-            {
-                CanClose = false,
-                Title = "☰",
-            };
-            m_tab_Search = new FATabStripItem()
-            {
-                CanClose = false,
-                Title = "⚲",
-            };
-            m_tab_Tag = new FATabStripItem()
-            {
-                CanClose = false,
-                Title = "⛉",
-            };
-            m_tab_Speaking = new FATabStripItem()
-            {
-                CanClose = false,
-                Title = "►",
-            };
-            m_tab_Listen = new FATabStripItem()
-            {
-                CanClose = false,
-                Title = "☊", //☊
-            };
-            m_tab_Writer = new FATabStripItem()
-            {
-                CanClose = false,
-                Title = "✍",
-            };
-            m_tab_Grammar = new FATabStripItem()
-            {
-                CanClose = false,
-                Title = "Grammar",
-            };
-            m_tab_Word = new FATabStripItem()
-            {
-                CanClose = false,
-                Title = "Word",
-            };
-            m_tab_Text = new FATabStripItem()
-            {
-                CanClose = false,
-                Title = "Text",
-            };
-            m_tab_Book = new FATabStripItem()
-            {
-                CanClose = false,
-                Title = "Book",
-            };
 
+            m_tab_Store = new FATabStripItem(tab_caption_store, false);
+            m_tab_Search = new FATabStripItem(tab_caption_search, false);
+            m_tab_Tag = new FATabStripItem(tab_caption_tags, false);
+            m_tab_Speaking = new FATabStripItem(tab_caption_listen, false);
+            m_tab_Listen = new FATabStripItem(tab_caption_speak, false);
+            m_tab_Writer = new FATabStripItem(tab_caption_writer, false);
+            m_tab_Grammar = new FATabStripItem(tab_caption_grammar, false);
+            m_tab_Word = new FATabStripItem(tab_caption_word, false);
+            m_tab_Text = new FATabStripItem(tab_caption_text, false);
+            m_tab_Book = new FATabStripItem(tab_caption_book, false);
+            m_tab.TabStripItemSelectionChanged += f_tab_selectChanged;
             m_tab.Items.AddRange(new FATabStripItem[] {
                 m_tab_Store,
                 m_tab_Search,
@@ -270,6 +241,44 @@ namespace appel
             m_tab_Text.Padding = new Padding(9, 0, 0, 0);
             m_tab_Text.Controls.Add(m_media_text);
 
+        }
+
+        private void f_tab_selectChanged(TabStripItemChangedEventArgs e)
+        {
+            if (e.Item == null) return;
+            switch (e.Item.Caption)
+            {
+                case tab_caption_store: // "☰"
+                    break;
+                case tab_caption_search: // "⚲"
+                    break;
+                case tab_caption_tags: // "⛉"
+                    break;
+                case tab_caption_listen: // "►"
+                    break;
+                case tab_caption_speak: // "☊"
+                    break;
+                case tab_caption_writer: // "✍"
+                    break;
+                case tab_caption_grammar: // "Grammar"
+                    break;
+                case tab_caption_word: // "Word"
+                    if (m_tab_Text.Tag != null && (long)m_tab_Word.Tag != m_media_current_id)
+                    {
+                        f_media_loadWord();
+                        m_tab_Word.Tag = m_media_current_id;
+                    }
+                    break;
+                case tab_caption_text: // "Text"
+                    if (m_tab_Text.Tag != null && (long)m_tab_Text.Tag != m_media_current_id)
+                    {
+                        f_media_loadText();
+                        m_tab_Text.Tag = m_media_current_id;
+                    }
+                    break;
+                case tab_caption_book: // "Book"
+                    break;
+            }
         }
 
         #endregion
@@ -477,8 +486,8 @@ namespace appel
                 };
 
                 Bitmap img = api_media.f_image_getCache(media.Id);
-                if (img != null) 
-                    pic.Image = img; 
+                if (img != null)
+                    pic.Image = img;
 
                 Label lbl = new Label()
                 {
@@ -1031,6 +1040,15 @@ namespace appel
 
         #region [ MEDIA ]
 
+        private void f_media_loadText()
+        {
+        }
+
+        private void f_media_loadWord()
+        {
+        }
+
+
         private void f_media_event_PlayStateChange(object sender, _WMPOCXEvents_PlayStateChangeEvent e)
         {
         }
@@ -1144,13 +1162,13 @@ namespace appel
             {
                 switch (m.API)
                 {
-                    case _API.MSG_MEDIA_SEARCH_RESULT: 
+                    case _API.MSG_MEDIA_SEARCH_RESULT:
                         log.Append(m.Log + Environment.NewLine);
                         m_msg_api.crossThreadPerformSafely(() =>
                         {
                             m_msg_api.Text = m.Log;
                         });
-                        break; 
+                        break;
                     case _API.MSG_MEDIA_SEARCH_SAVE_TO_STORE:
                         log.Append(m.Log + Environment.NewLine);
                         m_msg_api.crossThreadPerformSafely(() =>
@@ -1184,7 +1202,7 @@ namespace appel
                                 m_msg_api.crossThreadPerformSafely(() =>
                                 {
                                     m_msg_api.Text = m.Log;
-                                }); 
+                                });
                                 break;
                             case _API.MEDIA_KEY_TEXT_VIDEO_ONLINE:
                                 if (m.Output.Ok)

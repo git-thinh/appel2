@@ -141,6 +141,10 @@ namespace FarsiLibrary.Win
         public FATabStripItem() : this(string.Empty, null)
         {
         }
+        public FATabStripItem(string caption, bool canClose = true) : this(caption, null)
+        {
+            this.CanClose = canClose;
+        }
 
         public FATabStripItem(Control displayControl) : this(string.Empty, displayControl)
         {
