@@ -13,19 +13,19 @@ namespace appel
     {
         [ProtoMember(1)]
         public long Id { get; set; }
-        
+
         [ProtoMember(2)]
         public string Author { get; set; }
-        
+
         [ProtoMember(3)]
         public int UploadDate { get; set; }
-        
+
         [ProtoMember(4)]
         public string Title { get; set; }
-        
+
         [ProtoMember(5)]
         public string Description { get; set; }
-        
+
         [ProtoMember(6)]
         public int DurationSecond { get; set; }
 
@@ -34,15 +34,43 @@ namespace appel
 
         [ProtoMember(8)]
         public string SubtileEnglish { get; set; }
-        
-        public List<Tuple<string,string>> Vocabulary { get; set; }
 
-        public oMedia() { } 
-        public oMedia(string videoId) {
-            Id = convert_id_bit_shifting(videoId);  
-        } 
+        [ProtoMember(9)]
+        public bool Star { get; set; }
 
-        public oMedia(Video v) {
+        [ProtoMember(10)]
+        public List<string> Tags { get; set; }
+
+        [ProtoMember(11)]
+        public List<string> Folder { get; set; }
+
+        [ProtoMember(12)]
+        public long ViewCount { get; set; }
+
+        public List<Tuple<string, string>> Vocabulary { get; set; }
+
+        public oMedia clone()
+        {
+            oMedia m = Serializer.DeepClone<oMedia>(this);
+            return m;
+        }
+
+        public oMedia()
+        {
+            Keywords = new List<string>() { };
+            Tags = new List<string>() { };
+            Folder = new List<string>() { };
+            Vocabulary = new List<Tuple<string, string>>() { };
+        }
+
+
+        public oMedia(string videoId)
+        {
+            Id = convert_id_bit_shifting(videoId);
+        }
+
+        public oMedia(Video v)
+        {
             DurationSecond = (int)v.Duration.TotalSeconds;
             Title = v.Title;
             Description = v.Description;

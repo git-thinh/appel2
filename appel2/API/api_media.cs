@@ -390,13 +390,13 @@ namespace appel
                                 {
                                     oMediaPath pi = null;
                                     dicPathOnline.TryGetValue(mediaId, out pi);
-
+                                    
                                     dicMediaLocal.TryAdd(mediaId, mi);
                                     if (!dicPathLocal.ContainsKey(mediaId))
                                         dicPathLocal.TryAdd(mediaId, pi);
 
                                     oMedia del_mi;
-                                    dicMediaLocal.TryRemove(mediaId, out del_mi);
+                                    dicMediaOnline.TryRemove(mediaId, out del_mi);
                                     oMediaPath del_path;
                                     dicPathOnline.TryRemove(mediaId, out del_path);
 
@@ -559,18 +559,18 @@ namespace appel
                                     //    });
                                     //}
 
-                                    if (page_query == 2)
-                                    {
-                                        new Thread(new ParameterizedThreadStart((object so) =>
-                                        {
-                                            Execute(new msg()
-                                            {
-                                                API = _API.MEDIA,
-                                                KEY = _API.MEDIA_KEY_SEARCH_ONLINE_CACHE,
-                                                Input = so
-                                            });
-                                        })).Start(input);
-                                    }
+                                    //if (page_query == 2)
+                                    //{
+                                    //    new Thread(new ParameterizedThreadStart((object so) =>
+                                    //    {
+                                    //        Execute(new msg()
+                                    //        {
+                                    //            API = _API.MEDIA,
+                                    //            KEY = _API.MEDIA_KEY_SEARCH_ONLINE_CACHE,
+                                    //            Input = so
+                                    //        });
+                                    //    })).Start(input);
+                                    //}
                                 }
                                 while (aIDs.Length != 0);
 
@@ -578,7 +578,7 @@ namespace appel
                                 notification_toMain(new appel.msg()
                                 {
                                     API = _API.MSG_MEDIA_SEARCH_RESULT,
-                                    Log = string.Format("Total {0} items: Search online [ {1} ] completed", dicMediaOnline.Count, input),
+                                    Log = string.Format(">>> Total {0} items: Search online [ {1} ] completed", dicMediaOnline.Count, input),
                                 });
                                 //Execute(m);
 
@@ -1025,6 +1025,8 @@ namespace appel
                             //var videoLikeCount = videoJson["likes"].Value<long>();
                             //var videoDislikeCount = videoJson["dislikes"].Value<long>();
                             //var videoStatistics = new Statistics(videoViewCount, videoLikeCount, videoDislikeCount);
+
+                            mi.ViewCount = videoJson["views"].Value<string>().StripNonDigit().ParseLong();
 
                             mi.DurationSecond = (int)videoDuration.TotalSeconds;
                             mi.Title = videoTitle;

@@ -587,7 +587,8 @@ namespace appel
                     app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH_STORE, key);
                 }
                 else
-                    m_store_Message.Text = "Length of keywords must be greater than 1 characters.";
+                    app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH_STORE, string.Empty);
+                //m_store_Message.Text = "Length of keywords must be greater than 1 characters.";
             }
         }
 
@@ -1136,13 +1137,20 @@ namespace appel
             {
                 switch (m.API)
                 {
-                    case _API.MSG_MEDIA_SEARCH_RESULT:
+                    case _API.MSG_MEDIA_SEARCH_RESULT: 
+                        log.Append(m.Log + Environment.NewLine);
+                        m_msg_api.crossThreadPerformSafely(() =>
+                        {
+                            m_msg_api.Text = m.Log;
+                        });
+                        break; 
                     case _API.MSG_MEDIA_SEARCH_SAVE_TO_STORE:
                         log.Append(m.Log + Environment.NewLine);
                         m_msg_api.crossThreadPerformSafely(() =>
                         {
                             m_msg_api.Text = m.Log;
                         });
+                        app.postToAPI(m_search_current_msg);
                         break;
                     case _API.WORD:
                         #region

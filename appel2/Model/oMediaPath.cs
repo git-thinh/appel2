@@ -34,6 +34,12 @@ namespace appel
         public string PathMp3_Youtube { get; set; }
         public string PathMp4_Youtube { get; set; }
 
+        public oMediaPath clone()
+        {
+            oMediaPath m = Serializer.DeepClone<oMediaPath>(this);
+            return m;
+        }
+
         public oMediaPath() { }
         public oMediaPath(long mediaId, string youtubeId) {
             Id = mediaId;
