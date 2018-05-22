@@ -30,7 +30,7 @@ namespace appel
         public int DurationSecond { get; set; }
 
         [ProtoMember(7)]
-        public List<string> Keywords { get; set; }
+        public List<string> Keywords = new List<string>();
 
         [ProtoMember(8)]
         public string SubtileEnglish { get; set; }
@@ -39,15 +39,15 @@ namespace appel
         public bool Star { get; set; }
 
         [ProtoMember(10)]
-        public List<string> Tags { get; set; }
+        public List<string> Tags = new List<string>();
 
         [ProtoMember(11)]
-        public List<string> Folder { get; set; }
+        public List<string> Folder = new List<string>();
 
         [ProtoMember(12)]
-        public long ViewCount { get; set; }
+        public long ViewCount = 1;
 
-        public List<Tuple<string, string>> Vocabulary { get; set; }
+        public List<Tuple<string, string>> Vocabulary = new List<Tuple<string, string>>();
 
         public oMedia clone()
         {
@@ -56,11 +56,7 @@ namespace appel
         }
 
         public oMedia()
-        {
-            Keywords = new List<string>() { };
-            Tags = new List<string>() { };
-            Folder = new List<string>() { };
-            Vocabulary = new List<Tuple<string, string>>() { };
+        { 
         }
 
 

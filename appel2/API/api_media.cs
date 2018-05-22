@@ -378,6 +378,18 @@ namespace appel
                         }
                         break;
                     #endregion
+                    case _API.MEDIA_KEY_SEARCH_ONLINE_CACHE_CLEAR:
+                        #region
+
+                        dicMediaOnline.Clear();
+                        dicPathOnline.Clear();
+                        dicImageOnline.Clear();
+
+                        notification_toMain(new msg() { API = m.API, KEY = m.KEY, Log = "Clear all cache of result search successfully!" });
+                        Execute(new msg() { API = m.API, KEY = _API.MEDIA_KEY_SEARCH_ONLINE_CACHE, Input = string.Empty });
+
+                        break;
+                        #endregion
                     case _API.MEDIA_KEY_SEARCH_ONLINE_SAVE_TO_STORE:
                         #region
                         if (true)

@@ -296,7 +296,7 @@ namespace appel
                 AutoSize = false,
                 Dock = DockStyle.Fill,
                 //BackColor = Color.Gray,
-                Text = "Message here ...",
+                Text = "",
                 TextAlign = ContentAlignment.MiddleCenter,
             };
 
@@ -382,8 +382,8 @@ namespace appel
                 new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 btn_tags,
                 new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
-                btn_saveResult,
-                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
+                //btn_saveResult,
+                //new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 m_store_Input,
 
                 btn_add_playlist,
@@ -772,18 +772,18 @@ namespace appel
                 #region
 
                 m_search_Message,
-                btn_channel,
-                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
-                btn_user,
-                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
-                btn_tags,
+                //btn_channel,
+                //new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
+                //btn_user,
+                //new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
+                //btn_tags,
                 new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 btn_save,
                 new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 m_search_Input,
 
-                btn_add_playlist,
-                new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
+                //btn_add_playlist,
+                //new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
                 //btn_folder,
                 //new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
                 //btn_tags_filter,
@@ -818,6 +818,16 @@ namespace appel
                 #endregion
             });
             btn_save.MouseClick += f_search_saveItemSelected;
+            btn_remove.MouseClick += f_search_removeCacheAll;
+        }
+
+        private void f_search_removeCacheAll(object sender, MouseEventArgs e)
+        {
+            var confirmResult = MessageBox.Show("Are you sure to clear all result search?", "Confirm clear cache search!", MessageBoxButtons.YesNo);
+            if (confirmResult == DialogResult.Yes)
+            {
+                app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_ONLINE_CACHE_CLEAR });
+            }
         }
 
         private void f_search_saveItemSelected(object sender, MouseEventArgs e)
@@ -919,7 +929,7 @@ namespace appel
                     if (_lbl != null)
                         f_search_labelTitle_MouseClick(_lbl, null);
                 };
-                lbl.MouseClick += f_search_labelTitle_MouseClick;
+                lbl.MouseDoubleClick += f_search_labelTitle_MouseClick;
                 lbl.MouseMove += f_form_move_MouseDown;
                 pic.MouseMove += f_form_move_MouseDown;
 
@@ -1172,6 +1182,13 @@ namespace appel
                         #region
                         switch (m.KEY)
                         {
+                            case _API.MEDIA_KEY_SEARCH_ONLINE_CACHE_CLEAR:
+                                log.Append(m.Log + Environment.NewLine);
+                                m_msg_api.crossThreadPerformSafely(() =>
+                                {
+                                    m_msg_api.Text = m.Log;
+                                }); 
+                                break;
                             case _API.MEDIA_KEY_TEXT_VIDEO_ONLINE:
                                 if (m.Output.Ok)
                                 {
