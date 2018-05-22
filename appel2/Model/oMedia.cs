@@ -58,8 +58,7 @@ namespace appel
         public oMedia()
         { 
         }
-
-
+        
         public oMedia(string videoId)
         {
             Id = convert_id_bit_shifting(videoId);
@@ -97,9 +96,4 @@ namespace appel
             return string.Format("{0} - {1}", Id, Title);
         }
     }
-
-
-
-
-
 }
