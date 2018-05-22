@@ -419,7 +419,7 @@ namespace appel
             });
         }
 
-        private void f_store_draw_Media(List<long> ls)
+        void f_store_draw_Media(List<long> ls)
         {
             m_store_Result.crossThreadPerformSafely(() =>
             {
@@ -462,7 +462,7 @@ namespace appel
                     }
                 }
 
-                oMedia media = api_media.f_media_local_getInfo(ls[i]);
+                oMedia media = api_media.f_media_getInfo(ls[i]);
                 if (media == null) continue;
 
                 PictureBox pic = new PictureBox()
@@ -475,13 +475,10 @@ namespace appel
                     Location = new Point(x, y),
                     Tag = media.Id
                 };
-                string file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "photo");
-                file = Path.Combine(file, media.Id.ToString() + ".jpg");
-                if (File.Exists(file))
-                {
-                    var fs = File.OpenRead(file);
-                    pic.Image = new Bitmap(fs);
-                }
+
+                Bitmap img = api_media.f_image_getCache(media.Id);
+                if (img != null) 
+                    pic.Image = img; 
 
                 Label lbl = new Label()
                 {
@@ -838,7 +835,7 @@ namespace appel
             }
             else
             {
-                if (api_media.f_media_local_exist(m_search_item_current_id))
+                if (api_media.f_media_Exist(m_search_item_current_id))
                     MessageBox.Show(string.Format("The [{0}] saved", m_search_item_current_text));
                 else
                     app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_ONLINE_SAVE_TO_STORE, Input = m_search_item_current_id });
@@ -887,7 +884,7 @@ namespace appel
                     }
                 }
 
-                oMedia media = api_media.f_media_search_getInfo(ls[i]);
+                oMedia media = api_media.f_search_getInfo(ls[i]);
                 if (media == null) continue;
 
                 PictureBox pic = new PictureBox()
@@ -901,7 +898,7 @@ namespace appel
                     Tag = media.Id
                 };
 
-                Bitmap img = api_media.f_media_search_getPhoto(media.Id);
+                Bitmap img = api_media.f_search_getPhoto(media.Id);
                 if (img != null) pic.Image = img;
 
                 Label lbl = new Label()

@@ -52,6 +52,7 @@ namespace appel
         public oMediaPath Paths { get; set; }
 
         public List<Tuple<string, string>> Vocabulary = new List<Tuple<string, string>>();
+        public bool hasImage = false;
 
         public oMedia clone()
         {
