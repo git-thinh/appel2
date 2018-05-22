@@ -24,34 +24,37 @@ namespace appel
 {
     public class api_media : api_base, IAPI
     {
-        const string file_media = "minfo.bin";
-        const string file_path = "mpath.bin";
+        static readonly string path_data = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
+        static readonly string file_media = Path.Combine(path_data, "media.bin"); 
 
         public bool Open { set; get; } = false;
 
         static ConcurrentDictionary<long, oMedia> dicMediaLocal = null;
-        static ConcurrentDictionary<long, oMediaPath> dicPathLocal = null;
+        static ConcurrentDictionary<long, Bitmap> dicImageLocal = null;
 
         static ConcurrentDictionary<long, oMedia> dicMediaOnline = null;
-        static ConcurrentDictionary<long, oMediaPath> dicPathOnline = null;
         static ConcurrentDictionary<long, Bitmap> dicImageOnline = null;
 
         public void Init()
         {
+            if (!Directory.Exists(path_data)) Directory.CreateDirectory(path_data);
+
             dicMediaLocal = new ConcurrentDictionary<long, oMedia>();
-            dicPathLocal = new ConcurrentDictionary<long, oMediaPath>();
+            dicImageLocal = new ConcurrentDictionary<long, Bitmap>();
 
             dicMediaOnline = new ConcurrentDictionary<long, oMedia>();
-            dicPathOnline = new ConcurrentDictionary<long, oMediaPath>();
             dicImageOnline = new ConcurrentDictionary<long, Bitmap>();
 
             if (File.Exists(file_media))
                 using (var file = File.OpenRead(file_media))
+                {
                     dicMediaLocal = Serializer.Deserialize<ConcurrentDictionary<long, oMedia>>(file);
+                    file.Close();
+                }
 
-            if (File.Exists(file_path))
-                using (var file = File.OpenRead(file_path))
-                    dicPathLocal = Serializer.Deserialize<ConcurrentDictionary<long, oMediaPath>>(file);
+            //if (File.Exists(file_path))
+            //    using (var file = File.OpenRead(file_path))
+            //        dicPathLocal = Serializer.Deserialize<ConcurrentDictionary<long, oMediaPath>>(file);
 
             //if (dicMedia.Count > 0)
             //{
@@ -67,6 +70,15 @@ namespace appel
             //        api_word.f_word_addContentAnaltic(kv.Key, con);
             //    }
             //}
+
+            //foreach (var kv in dicMediaLocal) {
+            //    oMediaPath pi;
+            //    if (dicPathLocal.TryGetValue(kv.Key, out pi)) kv.Value.Paths = pi;
+            //}
+
+            //using (var file = File.OpenWrite(file_media))
+            //    Serializer.Serialize<ConcurrentDictionary<long, oMedia>>(file, dicMediaLocal);
+
             f_proxy_Start();
         }
 
@@ -110,83 +122,83 @@ namespace appel
         public static string f_search_getYoutubeID(long mediaId)
         {
             string url = string.Empty;
-            oMediaPath p = null;
-            if (dicPathOnline.TryGetValue(mediaId, out p) && p != null)
-                return p.YoutubeID;
+            oMedia p = null;
+            if (dicMediaOnline.TryGetValue(mediaId, out p) && p != null)
+                return p.Paths.YoutubeID;
             return string.Empty;
         }
 
         public static string f_media_getYoutubeID(long mediaId)
         {
             string url = string.Empty;
-            oMediaPath p = null;
-            if (dicPathLocal.TryGetValue(mediaId, out p) && p != null)
-                return p.YoutubeID;
+            oMedia p = null;
+            if (dicMediaLocal.TryGetValue(mediaId, out p) && p != null && p.Paths != null)
+                return p.Paths.YoutubeID;
             return string.Empty;
         }
 
         public static string f_media_fetchUriSource(long mediaId, MEDIA_TYPE type)
         {
             string url = string.Empty;
-            oMediaPath p = null;
-            if (dicPathLocal.TryGetValue(mediaId, out p))
+            oMedia p = null;
+            if (dicMediaLocal.TryGetValue(mediaId, out p) && p != null && p.Paths != null)
             {
-                if (!string.IsNullOrEmpty(p.YoutubeID))
+                if (!string.IsNullOrEmpty(p.Paths.YoutubeID))
                 {
                     switch (type)
                     {
                         case MEDIA_TYPE.MP4:
                             #region
-                            if (!string.IsNullOrEmpty(p.PathMp4_Youtube))
+                            if (!string.IsNullOrEmpty(p.Paths.PathMp4_Youtube))
                             {
-                                url = p.PathMp4_Youtube;
+                                url = p.Paths.PathMp4_Youtube;
                             }
                             else
                             {
                                 var _client = new YoutubeClient();
                                 //var Video = _client.GetVideoAsync(videoId);
                                 //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
-                                var ms = _client.GetVideoMediaStreamInfosAsync(p.YoutubeID);
+                                var ms = _client.GetVideoMediaStreamInfosAsync(p.Paths.YoutubeID);
                                 var ms_video = ms.Muxed.Where(x => x.Container == Container.Mp4).Take(1).SingleOrDefault();
                                 var ms_audio = ms.Audio.Where(x => x.Container == Container.M4A).Take(1).SingleOrDefault();
 
                                 if (ms_video != null)
                                 {
-                                    p.PathMp4_Youtube = ms_video.Url;
-                                    url = p.PathMp4_Youtube;
+                                    p.Paths.PathMp4_Youtube = ms_video.Url;
+                                    url = p.Paths.PathMp4_Youtube;
                                 }
 
                                 if (ms_audio != null)
                                 {
-                                    p.PathMp3_Youtube = ms_audio.Url;
+                                    p.Paths.PathMp3_Youtube = ms_audio.Url;
                                 }
                             }
                             #endregion
                             break;
                         case MEDIA_TYPE.M4A:
                             #region
-                            if (!string.IsNullOrEmpty(p.PathMp3_Youtube))
+                            if (!string.IsNullOrEmpty(p.Paths.PathMp3_Youtube))
                             {
-                                url = p.PathMp3_Youtube;
+                                url = p.Paths.PathMp3_Youtube;
                             }
                             else
                             {
                                 var _client = new YoutubeClient();
                                 //var Video = _client.GetVideoAsync(videoId);
                                 //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
-                                var ms = _client.GetVideoMediaStreamInfosAsync(p.YoutubeID);
+                                var ms = _client.GetVideoMediaStreamInfosAsync(p.Paths.YoutubeID);
                                 var ms_video = ms.Muxed.Where(x => x.Container == Container.Mp4).Take(1).SingleOrDefault();
                                 var ms_audio = ms.Audio.Where(x => x.Container == Container.M4A).Take(1).SingleOrDefault();
 
                                 if (ms_video != null)
                                 {
-                                    p.PathMp4_Youtube = ms_video.Url;
+                                    p.Paths.PathMp4_Youtube = ms_video.Url;
                                 }
 
                                 if (ms_audio != null)
                                 {
-                                    p.PathMp3_Youtube = ms_audio.Url;
-                                    url = p.PathMp3_Youtube;
+                                    p.Paths.PathMp3_Youtube = ms_audio.Url;
+                                    url = p.Paths.PathMp3_Youtube;
                                 }
                             }
                             #endregion
@@ -202,65 +214,65 @@ namespace appel
         public static string f_search_fetchUriSource(long mediaId, MEDIA_TYPE type)
         {
             string url = string.Empty;
-            oMediaPath p = null;
-            if (dicPathOnline.TryGetValue(mediaId, out p))
+            oMedia p = null;
+            if (dicMediaOnline.TryGetValue(mediaId, out p) && p != null && p.Paths != null)
             {
-                if (!string.IsNullOrEmpty(p.YoutubeID))
+                if (!string.IsNullOrEmpty(p.Paths.YoutubeID))
                 {
                     switch (type)
                     {
                         case MEDIA_TYPE.MP4:
                             #region
-                            if (!string.IsNullOrEmpty(p.PathMp4_Youtube))
+                            if (!string.IsNullOrEmpty(p.Paths.PathMp4_Youtube))
                             {
-                                url = p.PathMp4_Youtube;
+                                url = p.Paths.PathMp4_Youtube;
                             }
                             else
                             {
                                 var _client = new YoutubeClient();
                                 //var Video = _client.GetVideoAsync(videoId);
                                 //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
-                                var ms = _client.GetVideoMediaStreamInfosAsync(p.YoutubeID);
+                                var ms = _client.GetVideoMediaStreamInfosAsync(p.Paths.YoutubeID);
                                 var ms_video = ms.Muxed.Where(x => x.Container == Container.Mp4).Take(1).SingleOrDefault();
                                 var ms_audio = ms.Audio.Where(x => x.Container == Container.M4A).Take(1).SingleOrDefault();
 
                                 if (ms_video != null)
                                 {
-                                    p.PathMp4_Youtube = ms_video.Url;
-                                    url = p.PathMp4_Youtube;
+                                    p.Paths.PathMp4_Youtube = ms_video.Url;
+                                    url = p.Paths.PathMp4_Youtube;
                                 }
 
                                 if (ms_audio != null)
                                 {
-                                    p.PathMp3_Youtube = ms_audio.Url;
+                                    p.Paths.PathMp3_Youtube = ms_audio.Url;
                                 }
                             }
                             #endregion
                             break;
                         case MEDIA_TYPE.M4A:
                             #region
-                            if (!string.IsNullOrEmpty(p.PathMp3_Youtube))
+                            if (!string.IsNullOrEmpty(p.Paths.PathMp3_Youtube))
                             {
-                                url = p.PathMp3_Youtube;
+                                url = p.Paths.PathMp3_Youtube;
                             }
                             else
                             {
                                 var _client = new YoutubeClient();
                                 //var Video = _client.GetVideoAsync(videoId);
                                 //var Channel = _client.GetVideoAuthorChannelAsync(videoId);
-                                var ms = _client.GetVideoMediaStreamInfosAsync(p.YoutubeID);
+                                var ms = _client.GetVideoMediaStreamInfosAsync(p.Paths.YoutubeID);
                                 var ms_video = ms.Muxed.Where(x => x.Container == Container.Mp4).Take(1).SingleOrDefault();
                                 var ms_audio = ms.Audio.Where(x => x.Container == Container.M4A).Take(1).SingleOrDefault();
 
                                 if (ms_video != null)
                                 {
-                                    p.PathMp4_Youtube = ms_video.Url;
+                                    p.Paths.PathMp4_Youtube = ms_video.Url;
                                 }
 
                                 if (ms_audio != null)
                                 {
-                                    p.PathMp3_Youtube = ms_audio.Url;
-                                    url = p.PathMp3_Youtube;
+                                    p.Paths.PathMp3_Youtube = ms_audio.Url;
+                                    url = p.Paths.PathMp3_Youtube;
                                 }
                             }
                             #endregion
@@ -381,8 +393,7 @@ namespace appel
                     case _API.MEDIA_KEY_SEARCH_ONLINE_CACHE_CLEAR:
                         #region
 
-                        dicMediaOnline.Clear();
-                        dicPathOnline.Clear();
+                        dicMediaOnline.Clear(); 
                         dicImageOnline.Clear();
 
                         notification_toMain(new msg() { API = m.API, KEY = m.KEY, Log = "Clear all cache of result search successfully!" });
@@ -399,18 +410,11 @@ namespace appel
                             if (dicMediaOnline.TryGetValue(mediaId, out mi) && mi != null)
                             {
                                 if (!dicMediaLocal.ContainsKey(mediaId))
-                                {
-                                    oMediaPath pi = null;
-                                    dicPathOnline.TryGetValue(mediaId, out pi);
-                                    
-                                    dicMediaLocal.TryAdd(mediaId, mi);
-                                    if (!dicPathLocal.ContainsKey(mediaId))
-                                        dicPathLocal.TryAdd(mediaId, pi);
+                                { 
+                                    dicMediaLocal.TryAdd(mediaId, mi); 
 
                                     oMedia del_mi;
-                                    dicMediaOnline.TryRemove(mediaId, out del_mi);
-                                    oMediaPath del_path;
-                                    dicPathOnline.TryRemove(mediaId, out del_path);
+                                    dicMediaOnline.TryRemove(mediaId, out del_mi); 
 
                                     f_media_writeFile();
 
@@ -943,10 +947,7 @@ namespace appel
         private void f_media_writeFile()
         {
             using (var file = File.Create(file_media))
-                Serializer.Serialize<ConcurrentDictionary<long, oMedia>>(file, dicMediaLocal);
-
-            using (var file = File.Create(file_path))
-                Serializer.Serialize<ConcurrentDictionary<long, oMediaPath>>(file, dicPathLocal);
+                Serializer.Serialize<ConcurrentDictionary<long, oMedia>>(file, dicMediaLocal); 
         }
 
         private void f_image_loadInit(long mediaId)
@@ -957,10 +958,10 @@ namespace appel
             string filename = Path.Combine(dir, mediaId.ToString() + ".jpg");
             if (!File.Exists(filename))
             {
-                oMediaPath m;
-                if (dicPathLocal.TryGetValue(mediaId, out m))
+                oMedia m;
+                if (dicMediaLocal.TryGetValue(mediaId, out m) && m != null && m.Paths != null)
                 {
-                    string imageUrl = string.Format("https://img.youtube.com/vi/{0}/default.jpg", m.YoutubeID);
+                    string imageUrl = string.Format("https://img.youtube.com/vi/{0}/default.jpg", m.Paths.YoutubeID);
                     try
                     {
                         WebClient client = new WebClient();
@@ -1007,6 +1008,8 @@ namespace appel
                 // Basic info
                 string videoId = videoJson["encrypted_id"].Value<string>();
                 oMedia mi = new oMedia(videoId);
+                mi.Paths.YoutubeID = videoId;
+
                 if (!dicMediaLocal.ContainsKey(mi.Id) && !dicMediaOnline.ContainsKey(mi.Id))
                 {
                     var cap = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
@@ -1059,9 +1062,7 @@ namespace appel
 
                             videos.Add(mi.Id);
 
-                            dicMediaOnline.TryAdd(mi.Id, mi);
-                            oMediaPath pi = new oMediaPath(mi.Id, videoId);
-                            dicPathOnline.TryAdd(mi.Id, pi);
+                            dicMediaOnline.TryAdd(mi.Id, mi); 
                         }
                     }
                 }
@@ -1142,9 +1143,7 @@ namespace appel
 
             return listSen;
         }
-
-
-
+        
         #region [ PROXY ]
 
         static int m_port = 0;

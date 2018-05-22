@@ -9,6 +9,7 @@ using YoutubeExplode.Models;
 namespace appel
 {
     [ProtoContract]
+    [ProtoInclude(13, typeof(oMediaPath))]
     public class oMedia
     {
         [ProtoMember(1)]
@@ -47,6 +48,9 @@ namespace appel
         [ProtoMember(12)]
         public long ViewCount = 1;
 
+        [ProtoMember(13)]
+        public oMediaPath Paths { get; set; }
+
         public List<Tuple<string, string>> Vocabulary = new List<Tuple<string, string>>();
 
         public oMedia clone()
@@ -56,7 +60,8 @@ namespace appel
         }
 
         public oMedia()
-        { 
+        {
+            Paths = new oMediaPath();
         }
         
         public oMedia(string videoId)
