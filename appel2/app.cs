@@ -36,6 +36,7 @@ namespace appel
         public const int m_player_height = 360;
 
         static fMain main;
+        static fPlayer media;
 
         #endregion
 
@@ -57,9 +58,10 @@ namespace appel
             postToAPI(new msg() { API = api, KEY = key, Input = input });
         }
 
-        private static void f_api_init() {
+        private static void f_api_init()
+        {
             api_msg_queue = new ConcurrentQueue<msg>();
-            if (api_msg_timer == null) 
+            if (api_msg_timer == null)
                 api_msg_timer = new System.Threading.Timer(new System.Threading.TimerCallback((obj) =>
                 {
                     if (api_msg_queue.Count > 0)
@@ -86,19 +88,61 @@ namespace appel
 
             dicResponses = new ConcurrentDictionary<string, msg>();
             dicService = new ConcurrentDictionary<string, IthreadMsg>();
-            
+
             //dicService.TryAdd(_API.WORD, new threadMsg(new api_word()));
             dicService.TryAdd(_API.MEDIA, new threadMsg(new api_media()));
         }
 
         #endregion
 
+        #region [ MEDIA ]
+
+        public static void player_Open(string url, string title)
+        {
+            //if (media == null)
+            //{
+            //    media = new fPlayer();
+            //    media.FormClosing += (se, ev) => {
+            //        ev.Cancel = true;
+            //        media.Hide();
+            //    };
+            //}
+
+
+            //media.Invoke((Action)(() =>
+            //{
+            //    media.open(url, title);
+            //    media.Show();
+            //}));
+        }
+
+        #endregion
+
         #region [ MAIN ]
 
-        private static void f_main_init() {
+        private static void f_main_init()
+        {
             main = new fMain();
+            main.StartPosition = FormStartPosition.CenterScreen;
+            main.Width = m_app_width;
+            main.Height = m_app_height;
             main.Shown += main_Shown;
             main.FormClosing += main_Closing;
+
+            media = new fPlayer();
+            media.FormBorderStyle = FormBorderStyle.None;
+            media.ShowInTaskbar = false;
+            media.StartPosition = FormStartPosition.Manual;
+            media.Location = new System.Drawing.Point(-2000, -2000);
+            media.Size = new System.Drawing.Size(1, 1);
+            media.FormClosing += (se, ev) =>
+            {
+                ev.Cancel = true;
+                media.Hide();
+            };
+            media.Show();
+            media.Hide();
+
             Application.EnableVisualStyles();
             Application.Run(main);
         }
@@ -113,14 +157,15 @@ namespace appel
                 foreach (var kv in dicService)
                     if (kv.Value != null)
                         kv.Value.Stop();
-
+                 
+                media.f_form_freeResource();
+                media.Close();
                 main.f_form_freeResource();
 
+                Application.ExitThread();
                 // wait for complete threads, free resource
-                Thread.Sleep(200);
-
-                //Application.ExitThread();
-                //Application.Exit();
+                //Thread.Sleep(30);
+                Application.Exit();
             }
             else
                 e.Cancel = true;
@@ -128,10 +173,10 @@ namespace appel
 
         private static void main_Shown(object sender, EventArgs e)
         {
-            main.Width = m_app_width;
-            main.Height = m_app_height;
-            main.Top = (Screen.PrimaryScreen.WorkingArea.Height - main.Height) / 2;
-            main.Left = (Screen.PrimaryScreen.WorkingArea.Width - main.Width) / 2;
+            //main.Width = m_app_width;
+            //main.Height = m_app_height;
+            //main.Top = (Screen.PrimaryScreen.WorkingArea.Height - main.Height) / 2;
+            //main.Left = (Screen.PrimaryScreen.WorkingArea.Width - main.Width) / 2;
         }
 
         public static IFORM get_Main()
@@ -189,10 +234,9 @@ namespace appel
 
         public static void Exit()
         {
-            //main.f_free_Resource();
-            Application.Exit();
+            main.Close();
         }
-        
+
         #endregion
     }
 

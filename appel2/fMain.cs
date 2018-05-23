@@ -31,9 +31,7 @@ namespace appel
         private string m_media_current_title = string.Empty;
 
         private Label m_msg_api;
-
-        private fPlayer m_player;
-
+        
         private StringBuilder log;
 
         #endregion
@@ -242,6 +240,7 @@ namespace appel
             m_tab_Text.Controls.Add(m_media_text);
 
         }
+
 
         private void f_tab_selectChanged(TabStripItemChangedEventArgs e)
         {
@@ -505,7 +504,7 @@ namespace appel
                     Font = font_Title,
                 };
 
-                pic.MouseDoubleClick += f_store_picVideo_MouseDoubleClick;
+                pic.MouseClick += f_store_picVideo_MouseDoubleClick;
                 lbl.MouseClick += f_store_labelTitle_MouseClick;
                 lbl.MouseMove += f_form_move_MouseDown;
                 pic.MouseMove += f_form_move_MouseDown;
@@ -926,7 +925,7 @@ namespace appel
                     Font = font_Title,
                 };
 
-                pic.MouseDoubleClick += (se, ev) =>
+                pic.MouseClick += (se, ev) =>
                 {
                     ((Control)se).BackColor = Color.Gray;
                     string mid = ((Control)se).Tag.ToString();
@@ -935,7 +934,7 @@ namespace appel
                     if (_lbl != null)
                         f_search_labelTitle_MouseClick(_lbl, null);
                 };
-                lbl.MouseDoubleClick += f_search_labelTitle_MouseClick;
+                lbl.MouseClick += f_search_labelTitle_MouseClick;
                 lbl.MouseMove += f_form_move_MouseDown;
                 pic.MouseMove += f_form_move_MouseDown;
 
@@ -1073,34 +1072,37 @@ namespace appel
                 //    this.Cursor = Cursors.Default;
                 //}));
 
-                this.Invoke((Action)(() =>
-                {
-                    int left = this.Location.X + 9,
-                    top = this.Location.Y + 99,
-                    width = app.m_player_width,
-                    height = app.m_player_height;
+                app.player_Open(url, title);
 
-                    if (m_player != null)
-                    {
-                        left = m_player.Left;
-                        top = m_player.Top;
-                        width = m_player.Width;
-                        height = m_player.Height;
+                //this.Invoke((Action)(() =>
+                //{
 
-                        m_player.Close();
-                        m_player = null;
-                    }
+                //    //int left = this.Location.X + 9,
+                //    //top = this.Location.Y + 99,
+                //    //width = app.m_player_width,
+                //    //height = app.m_player_height;
 
-                    m_player = new fPlayer(url, title);
-                    m_player.Shown += (se, ev) =>
-                    {
-                        m_player.Height = height;
-                        m_player.Width = width;
-                        m_player.Left = left;
-                        m_player.Top = top;
-                    };
-                    m_player.Show();
-                }));
+                //    //if (m_player != null)
+                //    //{
+                //    //    left = m_player.Left;
+                //    //    top = m_player.Top;
+                //    //    width = m_player.Width;
+                //    //    height = m_player.Height;
+
+                //    //    m_player.Close();
+                //    //    m_player = null;
+                //    //}
+
+                //    //m_player = new fPlayer(url, title);
+                //    //m_player.Shown += (se, ev) =>
+                //    //{
+                //    //    m_player.Height = height;
+                //    //    m_player.Width = width;
+                //    //    m_player.Left = left;
+                //    //    m_player.Top = top;
+                //    //};
+                //    //m_player.Show();
+                //}));
             }
             else
                 MessageBox.Show("Cannot open videoId: " + title);
@@ -1268,7 +1270,6 @@ namespace appel
         public void f_form_freeResource()
         {
         }
-
         #endregion
 
         public fMain()
@@ -1276,6 +1277,7 @@ namespace appel
             log = new StringBuilder();
             this.Icon = Resources.favicon;
             this.FormBorderStyle = FormBorderStyle.None;
+            this.StartPosition = FormStartPosition.CenterScreen;
             this.Shown += (se, ev) => f_main_Shown();
 
             f_audio_initUI();
@@ -1284,5 +1286,6 @@ namespace appel
             f_store_initUI();
             f_search_initUI();
         }
+
     }
 }

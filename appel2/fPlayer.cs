@@ -22,20 +22,22 @@ namespace appel
         private IconButton btn_exit;
 
         public bool isOpening { set; get; } = false;
-
-        public void f_form_freeResource()
+        public void f_init()
         {
-        }
 
-        public fPlayer(string url, string title)
-        {
             this.TopMost = true;
             this.Icon = Resources.favicon;
             this.FormBorderStyle = FormBorderStyle.None;
             this.BackColor = Color.Black;
-            if (!string.IsNullOrEmpty(title)) this.Text = title;  
+            //if (!string.IsNullOrEmpty(title)) this.Text = title;
             this.Shown += (se, ev) =>
             {
+                if (isOpening == false)
+                {
+                    f_init();
+                    isOpening = true;
+                }
+
                 this.TopMost = true;
                 this.Width = app.m_player_width;
                 this.Height = app.m_player_height;
@@ -54,7 +56,7 @@ namespace appel
 
                 m_resize.BringToFront();
 
-                f_play(url, title);
+                //f_play(url, title);
                 isOpening = true;
             };
 
@@ -126,8 +128,30 @@ namespace appel
             btn_exit = new IconButton(18) { IconType = IconType.ios_close_empty, Anchor = AnchorStyles.Right | AnchorStyles.Top };
             btn_exit.Click += exit_Click;
             this.Controls.Add(btn_exit);
-
         }
+
+        public fPlayer()
+        {
+            //this.Location = new Point(-99, -99);
+            //this.WindowState = FormWindowState.Minimized;
+            //this.ShowInTaskbar = false;
+            //this.Top = -99;
+            //this.TopMost = true;
+            //this.FormBorderStyle = FormBorderStyle.None;
+            //this.Width = 1;
+            //this.Height = 1;
+            //this.BackColor = Color.Black;
+            //this.Shown += (se, ev) => {
+            //    this.Width = 1;
+            //    this.Height = 1;
+            //    //this.Location = new Point(-99, -99);
+            //};
+        }
+
+        public void f_form_freeResource()
+        {
+        }
+
 
         private void exit_Click(object sender, EventArgs e)
         {
@@ -137,11 +161,6 @@ namespace appel
         }
 
         #region [ MEDIA PLAYER ]
-
-        public void f_free_Resource()
-        {
-            f_hook_mouse_Close();
-        }
 
         private void menuItem_Create()
         {
@@ -179,9 +198,41 @@ namespace appel
 
 
         }
-        private void f_play(string path, string title)
+
+        private string URL = string.Empty;
+        private string TITLE = string.Empty;
+        public void open(string path, string title)
         {
+            URL = path;
+            TITLE = title;
+
             m_media.URL = path;
+            this.Text = title;
+        }
+
+        public void pause()
+        {
+            if (string.IsNullOrEmpty(URL)) return;
+
+            if (m_media.playState == WMPLib.WMPPlayState.wmppsPlaying)
+                m_media.Ctlcontrols.pause();
+            else
+                m_media.Ctlcontrols.play();
+        }
+
+        public void play()
+        {
+            if (string.IsNullOrEmpty(URL)) return;
+
+            if (m_media.playState != WMPLib.WMPPlayState.wmppsPlaying)
+                m_media.Ctlcontrols.play();
+        }
+
+        public void stop()
+        {
+            if (string.IsNullOrEmpty(URL)) return;
+
+            m_media.Ctlcontrols.stop();
         }
 
         #endregion
