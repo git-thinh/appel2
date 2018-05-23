@@ -49,7 +49,7 @@ namespace appel
         public long ViewCount = 1;
 
         [ProtoMember(13)]
-        public oMediaPath Paths { get; set; }
+        public oMediaPath Paths = new oMediaPath();
 
         public List<Tuple<string, string>> Vocabulary = new List<Tuple<string, string>>();
         public bool hasImage = false;
@@ -61,24 +61,23 @@ namespace appel
         }
 
         public oMedia()
-        {
-            Paths = new oMediaPath();
+        { 
         }
-        
+
         public oMedia(string videoId)
-        {
+        { 
             Id = convert_id_bit_shifting(videoId);
         }
 
-        public oMedia(Video v)
-        {
-            DurationSecond = (int)v.Duration.TotalSeconds;
-            Title = v.Title;
-            Description = v.Description;
-            Keywords = v.Keywords;
-            Author = v.Author;
-            UploadDate = int.Parse(v.UploadDate.ToString("yyMMdd"));
-        }
+        //public oMedia(Video v)
+        //{
+        //    DurationSecond = (int)v.Duration.TotalSeconds;
+        //    Title = v.Title;
+        //    Description = v.Description;
+        //    Keywords = v.Keywords;
+        //    Author = v.Author;
+        //    UploadDate = int.Parse(v.UploadDate.ToString("yyMMdd"));
+        //}
 
         long convert_id(string key)
         {
