@@ -30,7 +30,7 @@ namespace appel
         public const int m_box_height = 180;
 
         public const int m_app_width = m_box_width * 2 + 29;
-        public const int m_app_height = 590;
+        public const int m_app_height = 575;
 
         public const int m_player_width = 640;
         public const int m_player_height = 360;
@@ -97,23 +97,43 @@ namespace appel
 
         #region [ MEDIA ]
 
-        public static void player_Open(string url, string title)
+        static void f_player_init()
         {
-            //if (media == null)
-            //{
-            //    media = new fPlayer();
-            //    media.FormClosing += (se, ev) => {
-            //        ev.Cancel = true;
-            //        media.Hide();
-            //    };
-            //}
+            media = new fPlayer();
+            media.FormBorderStyle = FormBorderStyle.None;
+            media.ShowInTaskbar = false;
+            media.StartPosition = FormStartPosition.Manual;
+            media.Location = new System.Drawing.Point(-2000, -2000);
+            media.Width = 1;
+            media.Shown += (se, ev) => {
+                media.f_init();
+            }; 
+            media.Show();
+            media.Hide();
+        }
 
+        public static void f_player_Open(string url, string title)
+        {
+            media.Invoke((Action)(() =>
+            {                
+                media.Show();
+                //media.TopMost = true;
+                media.ShowInTaskbar = true;
+                media.open(url, title);
+            }));
+        }
 
-            //media.Invoke((Action)(() =>
-            //{
-            //    media.open(url, title);
-            //    media.Show();
-            //}));
+        public static void f_player_Hide()
+        {
+            media.ShowInTaskbar = false;
+            media.Hide();
+        }
+
+        public static void f_player_Close()
+        {
+            media.stop();
+            media.ShowInTaskbar = false;
+            media.Hide();
         }
 
         #endregion
@@ -129,20 +149,6 @@ namespace appel
             main.Shown += main_Shown;
             main.FormClosing += main_Closing;
 
-            media = new fPlayer();
-            media.FormBorderStyle = FormBorderStyle.None;
-            media.ShowInTaskbar = false;
-            media.StartPosition = FormStartPosition.Manual;
-            media.Location = new System.Drawing.Point(-2000, -2000);
-            media.Size = new System.Drawing.Size(1, 1);
-            media.FormClosing += (se, ev) =>
-            {
-                ev.Cancel = true;
-                media.Hide();
-            };
-            media.Show();
-            media.Hide();
-
             Application.EnableVisualStyles();
             Application.Run(main);
         }
@@ -151,13 +157,13 @@ namespace appel
         {
             if (main == null) return;
 
-            var confirmResult = MessageBox.Show("Are you sure to exit this application ?", "Confirm Exit!", MessageBoxButtons.YesNo);
-            if (confirmResult == DialogResult.Yes)
-            {
+            //var confirmResult = MessageBox.Show("Are you sure to exit this application ?", "Confirm Exit!", MessageBoxButtons.YesNo);
+            //if (confirmResult == DialogResult.Yes)
+            //{
                 foreach (var kv in dicService)
                     if (kv.Value != null)
                         kv.Value.Stop();
-                 
+
                 media.f_form_freeResource();
                 media.Close();
                 main.f_form_freeResource();
@@ -166,9 +172,9 @@ namespace appel
                 // wait for complete threads, free resource
                 //Thread.Sleep(30);
                 Application.Exit();
-            }
-            else
-                e.Cancel = true;
+            //}
+            //else
+            //    e.Cancel = true;
         }
 
         private static void main_Shown(object sender, EventArgs e)
@@ -229,6 +235,7 @@ namespace appel
             RuntimeTypeModel.Default.Add(typeof(DateTimeOffset), false).SetSurrogate(typeof(DateTimeOffsetSurrogate));
 
             f_api_init();
+            f_player_init();
             f_main_init();
         }
 

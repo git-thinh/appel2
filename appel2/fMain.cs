@@ -345,9 +345,7 @@ namespace appel
             IconButton btn_prev = new IconButton(16) { IconType = IconType.ios_arrow_back, Dock = DockStyle.Right };
             IconButton btn_remove = new IconButton(22) { IconType = IconType.trash_a, Dock = DockStyle.Right };
             IconButton btn_add_playlist = new IconButton(22) { IconType = IconType.android_add, Dock = DockStyle.Right, ToolTipText = "Add to Playlist" };
-
-
-
+            
             m_store_PageCurrent = new Label()
             {
                 AutoSize = true,
@@ -732,7 +730,7 @@ namespace appel
             });
 
             IconButton btn_save = new IconButton(24) { IconType = IconType.ios_cloud_download, Dock = DockStyle.Left };
-            IconButton btn_tags = new IconButton(24) { IconType = IconType.pricetags, Dock = DockStyle.Left, ToolTipText = "Tags" };
+            IconButton btn_stop_search = new IconButton(16) { IconType = IconType.stop, Dock = DockStyle.Left, ToolTipText = "Stop Search" };
             IconButton btn_user = new IconButton(22) { IconType = IconType.person, Dock = DockStyle.Left, ToolTipText = "User" };
             IconButton btn_channel = new IconButton(22) { IconType = IconType.android_desktop, Dock = DockStyle.Left, ToolTipText = "Channel" };
 
@@ -780,8 +778,8 @@ namespace appel
                 //btn_channel,
                 //new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 //btn_user,
-                //new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
-                //btn_tags,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
+                btn_stop_search,
                 new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 btn_save,
                 new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
@@ -824,6 +822,9 @@ namespace appel
             });
             btn_save.MouseClick += f_search_saveItemSelected;
             btn_remove.MouseClick += f_search_removeCacheAll;
+            btn_stop_search.MouseClick += (se, ev) => {
+                app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_ONLINE_STOP });
+            };
         }
 
         private void f_search_removeCacheAll(object sender, MouseEventArgs e)
@@ -1072,7 +1073,7 @@ namespace appel
                 //    this.Cursor = Cursors.Default;
                 //}));
 
-                app.player_Open(url, title);
+                app.f_player_Open(url, title);
 
                 //this.Invoke((Action)(() =>
                 //{
@@ -1170,6 +1171,11 @@ namespace appel
                         {
                             m_msg_api.Text = m.Log;
                         });
+                        m_search_Message.crossThreadPerformSafely(() =>
+                        {
+                            m_search_Message.Text = m.Log;
+                        });
+                        app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_ONLINE_CACHE, Input = string.Empty });
                         break;
                     case _API.MSG_MEDIA_SEARCH_SAVE_TO_STORE:
                         log.Append(m.Log + Environment.NewLine);
@@ -1270,6 +1276,7 @@ namespace appel
         public void f_form_freeResource()
         {
         }
+
         #endregion
 
         public fMain()

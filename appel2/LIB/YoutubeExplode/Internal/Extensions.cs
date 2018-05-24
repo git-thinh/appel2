@@ -99,13 +99,27 @@ namespace YoutubeExplode.Internal
                 : defaultValue;
         }
 
-        public static DateTimeOffset ParseDateTimeOffset(this string str)
-        {
-            return DateTimeOffset.Parse(str, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeUniversal);
-        }
+        //public static DateTimeOffset ParseDateTimeOffset(this string str)
+        //{
+        //    return DateTimeOffset.Parse(str, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeUniversal);
+        //}
 
-        public static DateTimeOffset ParseDateTimeOffset(this string str, string format)
+        public static DateTimeOffset ParseDateTimeOffset(this string str, string format = "MM/dd/yyyy")
         {
+            string[] a = str.Split(new char[] { '/' });
+            string mm = a[0], yy = a[a.Length - 1].Length == 2 ? "yy" : "yyyy";
+
+            if (str.Length < 9) format = "M/d/" + yy;
+
+            int mi = 0;
+            if (int.TryParse(mm, out mi) && mi > 12)
+            {
+                if (str.Length < 9)
+                    format = "d/M/" + yy;
+                else
+                    format = "dd/MM/" + yy;
+            }
+
             return DateTimeOffset.ParseExact(str, format, DateTimeFormatInfo.InvariantInfo,
                 DateTimeStyles.AssumeUniversal);
         }

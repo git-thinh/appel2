@@ -22,44 +22,44 @@ namespace appel
         private IconButton btn_exit;
 
         public bool isOpening { set; get; } = false;
-        public void f_init()
+
+        public void f_active()
         {
 
+            this.TopMost = true;
+            this.Width = app.m_player_width;
+            this.Height = app.m_player_height;
+            this.Top = (Screen.PrimaryScreen.WorkingArea.Height - app.m_player_height) / 2;
+            this.Left = (Screen.PrimaryScreen.WorkingArea.Width - app.m_player_width) / 2;
+
+
+            m_media.settings.volume = 100;
+            m_media.uiMode = "none";
+            m_modal.Size = new Size(this.Width, this.Height);
+
+            m_resize.Location = new Point(this.Width - m_resize.Width, this.Height - m_resize.Height);
+
+
+            m_modal.BringToFront();
+
+            btn_exit.Location = new Point(this.Width - (btn_exit.Width - 5), 0);
+            btn_exit.BringToFront();
+
+            m_resize.BringToFront();
+
+            //f_play(url, title);
+            isOpening = true;
+        }
+
+        public void f_init()
+        {
             this.TopMost = true;
             this.Icon = Resources.favicon;
             this.FormBorderStyle = FormBorderStyle.None;
             this.BackColor = Color.Black;
+            this.Width = 1;
             //if (!string.IsNullOrEmpty(title)) this.Text = title;
-            this.Shown += (se, ev) =>
-            {
-                if (isOpening == false)
-                {
-                    f_init();
-                    isOpening = true;
-                }
-
-                this.TopMost = true;
-                this.Width = app.m_player_width;
-                this.Height = app.m_player_height;
-
-                m_media.settings.volume = 100;
-                m_media.uiMode = "none";
-                m_modal.Size = new Size(this.Width, this.Height);
-
-                m_resize.Location = new Point(this.Width - m_resize.Width, this.Height - m_resize.Height);
-
-
-                m_modal.BringToFront();
-
-                btn_exit.Location = new Point(this.Width - (btn_exit.Width - 5), 0);
-                btn_exit.BringToFront();
-
-                m_resize.BringToFront();
-
-                //f_play(url, title);
-                isOpening = true;
-            };
-
+            
             // MEDIA
             m_media = new AxWindowsMediaPlayer();
             m_media.Dock = DockStyle.Fill;
@@ -149,15 +149,14 @@ namespace appel
         }
 
         public void f_form_freeResource()
-        {
+        { 
+            this.Close();
         }
 
 
         private void exit_Click(object sender, EventArgs e)
         {
-            m_media.Ctlcontrols.stop();
-            m_media.Dispose();
-            this.Close();
+            app.f_player_Close();
         }
 
         #region [ MEDIA PLAYER ]
@@ -206,8 +205,18 @@ namespace appel
             URL = path;
             TITLE = title;
 
-            m_media.URL = path;
-            this.Text = title;
+            this.Invoke((Action)(() =>
+            {
+                m_media.URL = path;
+                this.Text = title;
+                if (isOpening == false)
+                    f_active();
+            }));
+
+            //m_media.crossThreadPerformSafely(() => {
+            //    m_media.URL = path;
+            //    //this.Text = title;
+            //});
         }
 
         public void pause()
@@ -231,8 +240,7 @@ namespace appel
         public void stop()
         {
             if (string.IsNullOrEmpty(URL)) return;
-
-            m_media.Ctlcontrols.stop();
+                m_media.Ctlcontrols.stop();
         }
 
         #endregion

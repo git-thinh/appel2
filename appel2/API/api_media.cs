@@ -32,8 +32,10 @@ namespace appel
         public bool Open { set; get; } = false;
 
         static ConcurrentDictionary<long, oMedia> dicMediaStore = null;
-        static ConcurrentDictionary<long, Bitmap> dicMediaImage = null; 
-        static ConcurrentDictionary<long, oMedia> dicMediaSearch = null; 
+        static ConcurrentDictionary<long, Bitmap> dicMediaImage = null;
+        static ConcurrentDictionary<long, oMedia> dicMediaSearch = null;
+        static bool stop_search = false;
+        static AutoResetEvent wait_search = null;
 
         #endregion
 
@@ -43,9 +45,10 @@ namespace appel
         {
             if (!Directory.Exists(path_data)) Directory.CreateDirectory(path_data);
 
+            wait_search = new AutoResetEvent(false);
             dicMediaStore = new ConcurrentDictionary<long, oMedia>();
-            dicMediaImage = new ConcurrentDictionary<long, Bitmap>(); 
-            dicMediaSearch = new ConcurrentDictionary<long, oMedia>(); 
+            dicMediaImage = new ConcurrentDictionary<long, Bitmap>();
+            dicMediaSearch = new ConcurrentDictionary<long, oMedia>();
 
             if (File.Exists(file_media))
                 using (var file = File.OpenRead(file_media))
@@ -165,7 +168,7 @@ namespace appel
                         Bitmap bitremove = null;
                         foreach (long mid in dicMediaSearch.Keys)
                             dicMediaImage.TryRemove(mid, out bitremove);
-                        dicMediaSearch.Clear(); 
+                        dicMediaSearch.Clear();
 
                         notification_toMain(new msg() { API = m.API, KEY = m.KEY, Log = "Clear all cache of result search successfully!" });
                         Execute(new msg() { API = m.API, KEY = _API.MEDIA_KEY_SEARCH_ONLINE_CACHE, Input = string.Empty });
@@ -198,8 +201,8 @@ namespace appel
                                         {
                                             Bitmap bitmap = null;
                                             if (dicMediaImage.TryGetValue(mediaId, out bitmap) && bitmap != null)
-                                                bitmap.Save(filename, ImageFormat.Jpeg);
-                                            dicMediaImage.TryRemove(mediaId, out bitmap);
+                                                //bitmap.Save(filename, ImageFormat.Jpeg);
+                                                dicMediaImage.TryRemove(mediaId, out bitmap);
                                         }
                                     }
 
@@ -316,6 +319,14 @@ namespace appel
 
                         break;
                     #endregion
+                    case _API.MEDIA_KEY_SEARCH_ONLINE_STOP:
+                        #region
+                        // wait_search.WaitOne();
+                        // wait_search.Reset(); // Need to pause the background thread
+                        // wait_search.Set(); // Need to continue the background thread
+                        stop_search = true;
+                        break;
+                    #endregion
                     case _API.MEDIA_KEY_SEARCH_ONLINE_NEXT:
                         #region
                         if (true)
@@ -333,6 +344,8 @@ namespace appel
 
                                 do
                                 {
+                                    if (stop_search) break;
+
                                     page_query++;
                                     aIDs = f_media_searchYoutubeOnline(_client, input, page_query, hasCC_Subtitle);
                                     lsSearch.AddRange(aIDs);
@@ -358,29 +371,30 @@ namespace appel
                                     //        });
                                     //    })).Start(input);
                                     //}
+
                                 }
                                 while (aIDs.Length != 0);
+                                stop_search = false;
 
-                                //f_media_writeFile();
+
                                 notification_toMain(new appel.msg()
                                 {
                                     API = _API.MSG_MEDIA_SEARCH_RESULT,
-                                    Log = string.Format(">>> Total {0} items: Search online [ {1} ] completed", dicMediaSearch.Count, input),
+                                    Log = string.Format(">>> Search online [ {0} ] completed", input),
                                 });
-                                //Execute(m);
 
-                                m.KEY = _API.MEDIA_KEY_SEARCH_ONLINE_CACHE;
-                                //m_first.Input = input;
-                                m.Input = string.Empty;
-                                m.Counter = lsSearch.Count;
-                                m.Output.Ok = true;
-                                m.Output.Data = new oMediaSearchLocalResult()
-                                {
-                                    CountResult = lsSearch.Count,
-                                    MediaIds = lsSearch.Take(m.PageSize).ToList(),
-                                    TotalItem = lsSearch.Count,
-                                };
-                                response_toMain(m);
+                                //m.KEY = _API.MEDIA_KEY_SEARCH_ONLINE_CACHE;
+                                ////m_first.Input = input;
+                                //m.Input = string.Empty;
+                                //m.Counter = lsSearch.Count;
+                                //m.Output.Ok = true;
+                                //m.Output.Data = new oMediaSearchLocalResult()
+                                //{
+                                //    CountResult = lsSearch.Count,
+                                //    MediaIds = lsSearch.Take(m.PageSize).ToList(),
+                                //    TotalItem = lsSearch.Count,
+                                //};
+                                //response_toMain(m);
                             }
                         }
                         break;
@@ -996,10 +1010,12 @@ namespace appel
                         var cen = cap.Where(x => x.Language.Code == "en").Take(1).SingleOrDefault();
                         if (cen != null)
                         {
+                            mi.Tags.Add(query);
                             mi.SubtileEnglish = _client.GetStringAsync(cen.Url);
 
                             var videoAuthor = videoJson["author"].Value<string>();
-                            var videoUploadDate = videoJson["added"].Value<string>().ParseDateTimeOffset("M/d/yy");
+                            //var videoUploadDate = videoJson["added"].Value<string>().ParseDateTimeOffset("M/d/yy");
+                            var videoUploadDate = videoJson["added"].Value<string>().ParseDateTimeOffset();
                             var videoTitle = videoJson["title"].Value<string>();
                             var videoDuration = TimeSpan.FromSeconds(videoJson["length_seconds"].Value<double>());
                             var videoDescription = videoJson["description"].Value<string>().HtmlDecode();
@@ -1050,7 +1066,7 @@ namespace appel
         }
 
         #endregion
-        
+
         #region [ SUBTITLE - CC ]
 
         public static List<oCaptionWord> f_analytic_wordFileXml(string file_xml)
