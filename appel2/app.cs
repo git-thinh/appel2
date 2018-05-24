@@ -139,6 +139,12 @@ namespace appel
 
         #region [ MAIN ]
 
+        private static void main_Shown(object sender, EventArgs e)
+        {
+            //app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH_STORE, string.Empty);
+            main.for_test();
+        }
+
         private static void f_main_init()
         {
             main = new fMain();
@@ -176,13 +182,6 @@ namespace appel
             //    e.Cancel = true;
         }
 
-        private static void main_Shown(object sender, EventArgs e)
-        {
-            //main.Width = m_app_width;
-            //main.Height = m_app_height;
-            //main.Top = (Screen.PrimaryScreen.WorkingArea.Height - main.Height) / 2;
-            //main.Left = (Screen.PrimaryScreen.WorkingArea.Width - main.Width) / 2;
-        }
 
         public static IFORM get_Main()
         {
@@ -244,6 +243,9 @@ namespace appel
         }
 
         #endregion
+
+
+
     }
 
     class Program
