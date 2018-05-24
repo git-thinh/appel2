@@ -28,7 +28,7 @@ namespace appel
 
         private TextBox m_media_text;
         private long m_media_current_id = 0;
-        private MEDIA_TAB m_media_current_tab =  MEDIA_TAB.TAB_STORE;
+        private MEDIA_TAB m_media_current_tab = MEDIA_TAB.TAB_STORE;
         private string m_media_current_title = string.Empty;
 
         //private Label m_msg_api;
@@ -278,7 +278,7 @@ namespace appel
                     break;
                 case tab_caption_text: // "Text"
                     if ((m_tab_Text.Tag == null && m_media_current_id > 0)
-                        || (m_tab_Text.Tag != null 
+                        || (m_tab_Text.Tag != null
                         && (long)m_tab_Text.Tag != m_media_current_id
                         && m_media_current_id > 0))
                     {
@@ -320,8 +320,9 @@ namespace appel
                 Dock = DockStyle.Bottom,
                 //BackColor = Color.Red,
                 //Text = "m.Log = string.Format(Update bookmark is {0}- {1} -> {2}, mi.Star, mi.Title, SUCCESSFULLY);",
-                TextAlign = ContentAlignment.BottomCenter,
+                TextAlign = ContentAlignment.BottomLeft,
                 Height = 17,
+                Padding = new Padding(9, 0, 0, 0),
             };
 
             m_store_Result = new Panel()
@@ -483,7 +484,8 @@ namespace appel
                 it.InActiveColor = Color.Orange;
                 app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_FILTER_BOOKMAR_STAR });
             }
-            else {
+            else
+            {
                 it.InActiveColor = Color.DimGray;
                 app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_STORE, Input = string.Empty });
             }
@@ -551,6 +553,8 @@ namespace appel
                 if (img != null)
                     pic.Image = img;
 
+                Color bgColor = media.Id == m_media_current_id ? Color.Orange : Color.LightGray;
+
                 Label lbl = new Label()
                 {
                     Name = media.Id.ToString(),
@@ -558,7 +562,7 @@ namespace appel
                     TextAlign = ContentAlignment.MiddleLeft,
 
                     AutoSize = false,
-                    BackColor = Color.LightGray,
+                    BackColor = bgColor,
                     //ForeColor = Color.Black,
                     Width = app.m_box_width - app.m_item_width,
                     Height = app.m_box_height - app.m_item_height,
@@ -581,7 +585,7 @@ namespace appel
                     Name = "star-" + media.Id.ToString(),
                     IconType = IconType.ios_heart_outline,
                     Location = new Point(pic.Location.X + (app.m_box_width - 19), pic.Location.Y + 3),
-                    BackColor = Color.LightGray,
+                    BackColor = bgColor,
                     ActiveColor = Color.Black,
                     Tag = media.Id.ToString() + "|" + media.Title,
                     InActiveColor = media.Star ? Color.Red : Color.DimGray,
@@ -699,8 +703,9 @@ namespace appel
             m_media_current_title = it.Text;
             m_media_current_tab = MEDIA_TAB.TAB_STORE;
 
+            m_store_Message.Text = it.Text;
             this.Text = m_media_current_title;
-            lbl_title.Text = m_media_current_title;
+            //lbl_title.Text = m_media_current_title;
 
             if (m_media.playState == WMPLib.WMPPlayState.wmppsPlaying) m_media.Ctlcontrols.stop();
 
@@ -757,7 +762,7 @@ namespace appel
         private Label m_search_PageTotal;
         private Label m_search_TotalItems;
         private Label m_search_Message;
-        private Panel m_search_Header;
+        private Panel m_search_Footer;
 
         void f_search_initUI()
         {
@@ -765,10 +770,11 @@ namespace appel
             m_search_Message = new Label()
             {
                 AutoSize = false,
-                Dock = DockStyle.Fill,
-                //BackColor = Color.Gray,
-                Text = "Message here ...",
-                TextAlign = ContentAlignment.MiddleCenter,
+                Dock = DockStyle.Bottom,
+                BackColor = Color.White,
+                TextAlign = ContentAlignment.BottomLeft,
+                Height = 15,
+                Padding = new Padding(9, 0, 0, 0),
             };
 
             m_search_Result = new Panel()
@@ -786,18 +792,19 @@ namespace appel
             };
             m_search_Input.KeyDown += f_search_input_KeyDown;
 
-            m_search_Header = new Panel()
+            m_search_Footer = new Panel()
             {
-                Height = 35,
+                Height = 27,
                 Dock = DockStyle.Bottom,
                 BackColor = Color.White,
-                Padding = new Padding(9, 9, 9, 0),
+                Padding = new Padding(9, 1, 9, 0),
             };
-            m_search_Header.MouseMove += f_form_move_MouseDown;
+            m_search_Footer.MouseMove += f_form_move_MouseDown;
             m_tab_Search.Controls.AddRange(new Control[] {
+                m_search_Message,
                 m_search_Result,
-                m_search_Header,
-                new Label(){ AutoSize = false, Height = 9, Dock = DockStyle.Top }
+                m_search_Footer,
+                //new Label(){ AutoSize = false, Height = 9, Dock = DockStyle.Top }
             });
 
             IconButton btn_save = new IconButton(24) { IconType = IconType.ios_cloud_download, Dock = DockStyle.Left };
@@ -842,7 +849,7 @@ namespace appel
 
 
             m_search_Message.MouseMove += f_form_move_MouseDown;
-            m_search_Header.Controls.AddRange(new Control[] {
+            m_search_Footer.Controls.AddRange(new Control[] {
                 #region
 
                 m_search_Message,
@@ -920,6 +927,66 @@ namespace appel
                     MessageBox.Show(string.Format("The [{0}] saved", m_search_item_current_text));
                 else
                     app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_ONLINE_SAVE_TO_STORE, Input = m_search_item_current_id });
+            }
+        }
+
+        void f_search_Result(oMediaSearchLocalResult rs)
+        {
+            f_search_draw_Media(rs.MediaIds);
+
+            int page = rs.CountResult / rs.PageSize;
+            if (rs.CountResult % rs.PageSize != 0) page++;
+
+            m_search_PageCurrent.crossThreadPerformSafely(() =>
+            {
+                m_search_PageCurrent.Text = rs.PageNumber.ToString();
+            });
+            m_search_PageTotal.crossThreadPerformSafely(() =>
+            {
+                m_search_PageTotal.Text = page.ToString();
+            });
+            m_search_TotalItems.crossThreadPerformSafely(() =>
+            {
+                m_search_TotalItems.Text = rs.CountResult.ToString();
+            });
+        }
+
+        private void f_search_goPagePrevClick(object sender, EventArgs e)
+        {
+            if (m_search_current_msg != null)
+            {
+                if ((m_search_current_msg.PageNumber - 1) * m_search_current_msg.PageSize < m_search_current_msg.Counter)
+                {
+                    m_search_current_msg.PageNumber = m_search_current_msg.PageNumber + 1;
+                    app.postToAPI(m_search_current_msg);
+                }
+            }
+        }
+
+        private void f_search_goPageNextClick(object sender, EventArgs e)
+        {
+            if (m_search_current_msg != null)
+            {
+                if (m_search_current_msg.PageNumber > 1)
+                {
+                    m_search_current_msg.PageNumber = m_search_current_msg.PageNumber - 1;
+                    app.postToAPI(m_search_current_msg);
+                }
+            }
+        }
+
+        private void f_search_input_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                string key = m_search_Input.Text.Trim();
+                if (key.Length > 1)
+                {
+                    m_search_Message.Text = "Finding [" + key + "] ...";
+                    app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH_ONLINE, key);
+                }
+                else
+                    m_search_Message.Text = "Length of keywords must be greater than 1 characters.";
             }
         }
 
@@ -1024,66 +1091,6 @@ namespace appel
             });
         }
 
-        void f_search_Result(oMediaSearchLocalResult rs)
-        {
-            f_search_draw_Media(rs.MediaIds);
-
-            int page = rs.CountResult / rs.PageSize;
-            if (rs.CountResult % rs.PageSize != 0) page++;
-
-            m_search_PageCurrent.crossThreadPerformSafely(() =>
-            {
-                m_search_PageCurrent.Text = rs.PageNumber.ToString();
-            });
-            m_search_PageTotal.crossThreadPerformSafely(() =>
-            {
-                m_search_PageTotal.Text = page.ToString();
-            });
-            m_search_TotalItems.crossThreadPerformSafely(() =>
-            {
-                m_search_TotalItems.Text = rs.CountResult.ToString();
-            });
-        }
-
-        private void f_search_goPagePrevClick(object sender, EventArgs e)
-        {
-            if (m_search_current_msg != null)
-            {
-                if ((m_search_current_msg.PageNumber - 1) * m_search_current_msg.PageSize < m_search_current_msg.Counter)
-                {
-                    m_search_current_msg.PageNumber = m_search_current_msg.PageNumber + 1;
-                    app.postToAPI(m_search_current_msg);
-                }
-            }
-        }
-
-        private void f_search_goPageNextClick(object sender, EventArgs e)
-        {
-            if (m_search_current_msg != null)
-            {
-                if (m_search_current_msg.PageNumber > 1)
-                {
-                    m_search_current_msg.PageNumber = m_search_current_msg.PageNumber - 1;
-                    app.postToAPI(m_search_current_msg);
-                }
-            }
-        }
-
-        private void f_search_input_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                string key = m_search_Input.Text.Trim();
-                if (key.Length > 1)
-                {
-                    m_search_Message.Text = "Finding [" + key + "] ...";
-                    app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH_ONLINE, key);
-                }
-                else
-                    m_search_Message.Text = "Length of keywords must be greater than 1 characters.";
-            }
-        }
-
         private void f_search_labelTitle_MouseClick(object sender, MouseEventArgs e)
         {
             Control it = ((Control)sender);
@@ -1109,7 +1116,12 @@ namespace appel
             m_media_current_id = mediaId_sel;
             m_media_current_title = it.Text;
 
-            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_TEXT_VIDEO_ONLINE, Input = mediaId_sel });
+            m_search_Message.Text = it.Text;
+            this.Text = m_media_current_title;
+            //lbl_title.Text = m_media_current_title;
+
+            if (e == null)
+                app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_TEXT_VIDEO_ONLINE, Input = mediaId_sel });
         }
 
         #endregion
@@ -1127,7 +1139,7 @@ namespace appel
         }
 
         private void f_media_loadWord_Callback(msg m)
-        { 
+        {
         }
 
         private void f_media_event_PlayStateChange(object sender, _WMPOCXEvents_PlayStateChangeEvent e)
@@ -1136,14 +1148,14 @@ namespace appel
 
         void f_video_openMp4_Request()
         {
-            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_PLAY_VIDEO, Input = m_media_current_id , Log = m_media_current_title});
+            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_PLAY_VIDEO, Input = m_media_current_id, Log = m_media_current_title });
         }
 
         void f_video_openMp4_Callback(string url, string title)
         {
             if (url != string.Empty)
-            { 
-                app.f_player_Open(url, title); 
+            {
+                app.f_player_Open(url, title);
             }
             else
                 MessageBox.Show("Cannot open videoId: " + title);
@@ -1326,7 +1338,7 @@ namespace appel
                             case _API.MEDIA_KEY_PLAY_VIDEO:
                                 if (m.Output.Ok && (long)m.Input == m_media_current_id)
                                     f_video_openMp4_Callback((string)m.Output.Data, m.Log);
-                                break; 
+                                break;
                             case _API.MEDIA_KEY_TEXT_INFO:
                                 if (m.Output.Ok)
                                 {
@@ -1337,7 +1349,7 @@ namespace appel
                                 }
                                 break;
                             case _API.MEDIA_KEY_WORD_LIST:
-                                f_media_loadWord_Callback(m); 
+                                f_media_loadWord_Callback(m);
                                 break;
                         }
                         break;
