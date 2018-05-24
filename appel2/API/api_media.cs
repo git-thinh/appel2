@@ -109,21 +109,48 @@ namespace appel
                         }
                         break;
                     #endregion
-                    case _API.MEDIA_KEY_PLAY_VIDEO_ONLINE:
+                    case _API.MEDIA_KEY_TEXT_INFO:
                         #region
                         if (true)
                         {
                             long mediaId = (long)m.Input;
-                            string urlSrc = f_search_fetchUriSource(mediaId, MEDIA_TYPE.MP4);
-                            if (!string.IsNullOrEmpty(urlSrc))
+                            oMedia mi = null;
+                            MEDIA_TAB tab = MEDIA_TAB.TAB_STORE;
+                            if (m.Log != null) tab = (MEDIA_TAB)(int.Parse(m.Log));
+
+                            if (tab == MEDIA_TAB.TAB_STORE)
+                                dicMediaStore.TryGetValue(mediaId, out mi);
+                            else if(tab == MEDIA_TAB.TAB_SEARCH)
+                                dicMediaSearch.TryGetValue(mediaId, out mi);
+
+                            if ( mi != null)
+                            { 
+                                m.Output.Ok = true;
+                                m.Output.Data = mi.Text;
+                                response_toMain(m); 
+                            }
+                        }
+                        break;
+                    #endregion
+                    case _API.MEDIA_KEY_WORD_LIST:
+                        #region
+                        if (true)
+                        {
+                            long mediaId = (long)m.Input;
+                            oMedia mi = null;
+                            MEDIA_TAB tab = MEDIA_TAB.TAB_STORE;
+                            if (m.Log != null) tab = (MEDIA_TAB)(int.Parse(m.Log));
+
+                            if (tab == MEDIA_TAB.TAB_STORE)
+                                dicMediaStore.TryGetValue(mediaId, out mi);
+                            else if (tab == MEDIA_TAB.TAB_SEARCH)
+                                dicMediaSearch.TryGetValue(mediaId, out mi);
+
+                            if (mi != null)
                             {
                                 m.Output.Ok = true;
-                                m.Output.Data = f_proxy_getUriProxy(mediaId, MEDIA_TYPE.MP4) + "&online=true";
+                                m.Output.Data = mi.Words;
                                 response_toMain(m);
-                            }
-                            else
-                            {
-                                // cannot fetch uri
                             }
                         }
                         break;
@@ -492,6 +519,25 @@ namespace appel
 
                     #region [ SEARCH ONLINE ]
 
+                    case _API.MEDIA_KEY_PLAY_VIDEO_ONLINE:
+                        #region
+                        if (true)
+                        {
+                            long mediaId = (long)m.Input;
+                            string urlSrc = f_search_fetchUriSource(mediaId, MEDIA_TYPE.MP4);
+                            if (!string.IsNullOrEmpty(urlSrc))
+                            {
+                                m.Output.Ok = true;
+                                m.Output.Data = f_proxy_getUriProxy(mediaId, MEDIA_TYPE.MP4) + "&online=true";
+                                response_toMain(m);
+                            }
+                            else
+                            {
+                                // cannot fetch uri
+                            }
+                        }
+                        break;
+                    #endregion
                     case _API.MEDIA_KEY_SEARCH_ONLINE_CACHE_CLEAR:
                         #region
                         Bitmap bitremove = null;
@@ -559,22 +605,7 @@ namespace appel
 
                                 if (mi.Keywords != null && mi.Keywords.Count > 0)
                                     content += Environment.NewLine + string.Join(" ", mi.Keywords);
-
-                                //if (string.IsNullOrEmpty(mi.SubtileEnglish))
-                                //{
-                                //    string videoId = f_search_getYoutubeID(mi.Id);
-                                //    var _client = new YoutubeClient();
-                                //    var cap = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
-                                //    if (cap.Count > 0)
-                                //    {
-                                //        var cen = cap.Where(x => x.Language.Code == "en").Take(1).SingleOrDefault();
-                                //        if (cen != null)
-                                //        {
-                                //            mi.SubtileEnglish = _client.GetStringAsync(cen.Url);
-                                //        }
-                                //    }
-                                //}
-
+                                 
                                 string text = mi.SubtileEnglish;
                                 if (!string.IsNullOrEmpty(text))
                                 {
@@ -1463,5 +1494,11 @@ namespace appel
         MP3,
         MP4,
         WEB, // WEBM
+    }
+
+    public enum MEDIA_TAB
+    {
+        TAB_STORE = 1,
+        TAB_SEARCH = 2,
     }
 }

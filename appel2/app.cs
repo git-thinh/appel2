@@ -116,8 +116,7 @@ namespace appel
         {
             media.Invoke((Action)(() =>
             {                
-                media.Show();
-                //media.TopMost = true;
+                media.Show(); 
                 media.ShowInTaskbar = true;
                 media.open(url, title);
             }));

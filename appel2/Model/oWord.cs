@@ -9,6 +9,11 @@ namespace appel
     { 
         public string word { set; get; }
         public int count { set; get; }
+
+        public override string ToString()
+        {
+            return string.Format("{0}: {1}", count, word);
+        }
     }
 
     public class oWordContent

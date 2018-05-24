@@ -28,6 +28,7 @@ namespace appel
 
         private TextBox m_media_text;
         private long m_media_current_id = 0;
+        private MEDIA_TAB m_media_current_tab =  MEDIA_TAB.TAB_STORE;
         private string m_media_current_title = string.Empty;
 
         //private Label m_msg_api;
@@ -265,14 +266,21 @@ namespace appel
                 case tab_caption_grammar: // "Grammar"
                     break;
                 case tab_caption_word: // "Word"
-                    if (m_tab_Text.Tag != null && (long)m_tab_Word.Tag != m_media_current_id)
+                    //if (m_tab_Text.Tag != null && (long)m_tab_Word.Tag != m_media_current_id)
+                    if ((m_tab_Word.Tag == null && m_media_current_id > 0)
+                        || (m_tab_Word.Tag != null
+                        && (long)m_tab_Word.Tag != m_media_current_id
+                        && m_media_current_id > 0))
                     {
                         f_media_loadWord();
                         m_tab_Word.Tag = m_media_current_id;
                     }
                     break;
                 case tab_caption_text: // "Text"
-                    if (m_tab_Text.Tag != null && (long)m_tab_Text.Tag != m_media_current_id)
+                    if ((m_tab_Text.Tag == null && m_media_current_id > 0)
+                        || (m_tab_Text.Tag != null 
+                        && (long)m_tab_Text.Tag != m_media_current_id
+                        && m_media_current_id > 0))
                     {
                         f_media_loadText();
                         m_tab_Text.Tag = m_media_current_id;
@@ -689,6 +697,7 @@ namespace appel
 
             m_media_current_id = mid;
             m_media_current_title = it.Text;
+            m_media_current_tab = MEDIA_TAB.TAB_STORE;
 
             this.Text = m_media_current_title;
             lbl_title.Text = m_media_current_title;
@@ -718,7 +727,7 @@ namespace appel
                 btn_play.Visible = true;
 
                 f_video_openMp3_Request();
-                app.postToAPI(new msg() { API = _API.WORD, KEY = _API.WORD_KEY_ANALYTIC, Input = m_media_current_id });
+                app.postToAPI(new msg() { API = _API.WORD, KEY = _API.WORD_KEY_ANALYTIC, Input = m_media_current_id, Log = m_media_current_title });
             }
         }
 
@@ -1095,6 +1104,10 @@ namespace appel
 
             m_search_item_current_id = mediaId_sel;
             m_search_item_current_text = it.Text;
+            m_media_current_tab = MEDIA_TAB.TAB_SEARCH;
+
+            m_media_current_id = mediaId_sel;
+            m_media_current_title = it.Text;
 
             app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_TEXT_VIDEO_ONLINE, Input = mediaId_sel });
         }
@@ -1105,12 +1118,17 @@ namespace appel
 
         private void f_media_loadText()
         {
+            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_TEXT_INFO, Input = m_media_current_id, Log = ((int)m_media_current_tab).ToString() });
         }
 
         private void f_media_loadWord()
         {
+            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_WORD_LIST, Input = m_media_current_id, Log = ((int)m_media_current_tab).ToString() });
         }
 
+        private void f_media_loadWord_Callback(msg m)
+        { 
+        }
 
         private void f_media_event_PlayStateChange(object sender, _WMPOCXEvents_PlayStateChangeEvent e)
         {
@@ -1118,55 +1136,14 @@ namespace appel
 
         void f_video_openMp4_Request()
         {
-            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_PLAY_VIDEO, Input = m_media_current_id });
+            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_PLAY_VIDEO, Input = m_media_current_id , Log = m_media_current_title});
         }
 
         void f_video_openMp4_Callback(string url, string title)
         {
             if (url != string.Empty)
-            {
-                //this.Invoke((Action)(() =>
-                //{
-                //    this.Cursor = Cursors.WaitCursor;
-                //    //var f = new fPlayer(url, title);
-                //    //f.Show();
-                //    //f.Left = this.Location.X + 9;
-                //    //f.Top = this.Location.Y + 99;
-
-                //    this.Cursor = Cursors.Default;
-                //}));
-
-                app.f_player_Open(url, title);
-
-                //this.Invoke((Action)(() =>
-                //{
-
-                //    //int left = this.Location.X + 9,
-                //    //top = this.Location.Y + 99,
-                //    //width = app.m_player_width,
-                //    //height = app.m_player_height;
-
-                //    //if (m_player != null)
-                //    //{
-                //    //    left = m_player.Left;
-                //    //    top = m_player.Top;
-                //    //    width = m_player.Width;
-                //    //    height = m_player.Height;
-
-                //    //    m_player.Close();
-                //    //    m_player = null;
-                //    //}
-
-                //    //m_player = new fPlayer(url, title);
-                //    //m_player.Shown += (se, ev) =>
-                //    //{
-                //    //    m_player.Height = height;
-                //    //    m_player.Width = width;
-                //    //    m_player.Left = left;
-                //    //    m_player.Top = top;
-                //    //};
-                //    //m_player.Show();
-                //}));
+            { 
+                app.f_player_Open(url, title); 
             }
             else
                 MessageBox.Show("Cannot open videoId: " + title);
@@ -1349,6 +1326,18 @@ namespace appel
                             case _API.MEDIA_KEY_PLAY_VIDEO:
                                 if (m.Output.Ok && (long)m.Input == m_media_current_id)
                                     f_video_openMp4_Callback((string)m.Output.Data, m.Log);
+                                break; 
+                            case _API.MEDIA_KEY_TEXT_INFO:
+                                if (m.Output.Ok)
+                                {
+                                    m_media_text.crossThreadPerformSafely(() =>
+                                    {
+                                        m_media_text.Text = (string)m.Output.Data;
+                                    });
+                                }
+                                break;
+                            case _API.MEDIA_KEY_WORD_LIST:
+                                f_media_loadWord_Callback(m); 
                                 break;
                         }
                         break;
@@ -1379,4 +1368,5 @@ namespace appel
         }
 
     }
+
 }

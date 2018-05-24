@@ -197,12 +197,7 @@ namespace appel
                 this.Text = title;
                 if (isOpening == false)
                     f_active();
-            }));
-
-            //m_media.crossThreadPerformSafely(() => {
-            //    m_media.URL = path;
-            //    //this.Text = title;
-            //});
+            })); 
         }
 
         public void pause()
