@@ -132,20 +132,6 @@ namespace appel
 
         public fPlayer()
         {
-            //this.Location = new Point(-99, -99);
-            //this.WindowState = FormWindowState.Minimized;
-            //this.ShowInTaskbar = false;
-            //this.Top = -99;
-            //this.TopMost = true;
-            //this.FormBorderStyle = FormBorderStyle.None;
-            //this.Width = 1;
-            //this.Height = 1;
-            //this.BackColor = Color.Black;
-            //this.Shown += (se, ev) => {
-            //    this.Width = 1;
-            //    this.Height = 1;
-            //    //this.Location = new Point(-99, -99);
-            //};
         }
 
         public void f_form_freeResource()

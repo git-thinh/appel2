@@ -30,8 +30,8 @@ namespace appel
         private long m_media_current_id = 0;
         private string m_media_current_title = string.Empty;
 
-        private Label m_msg_api;
-        
+        //private Label m_msg_api;
+
         private StringBuilder log;
 
         #endregion
@@ -78,15 +78,15 @@ namespace appel
 
         void f_audio_initUI()
         {
-            m_msg_api = new Label()
-            {
-                Dock = DockStyle.Bottom,
-                Text = "English Media",
-                TextAlign = ContentAlignment.TopLeft,
-                AutoSize = false,
-                Height = 15,
-                Padding = new Padding(5, 0, 0, 0),
-            };
+            //m_msg_api = new Label()
+            //{
+            //    Dock = DockStyle.Bottom,
+            //    Text = "English Media",
+            //    TextAlign = ContentAlignment.TopLeft,
+            //    AutoSize = false,
+            //    Height = 15,
+            //    Padding = new Padding(5, 0, 0, 0),
+            //};
 
             lbl_hide_border_left = new Label()
             {
@@ -137,6 +137,8 @@ namespace appel
         #endregion
 
         #region [ TAB ]
+        
+        #region
 
         private FATabStrip m_tab;
         private FATabStripItem m_tab_Store;
@@ -162,6 +164,8 @@ namespace appel
         const string tab_caption_word = "Word";
         const string tab_caption_text = "Text";
         const string tab_caption_book = "Book";
+        
+        #endregion
 
         void f_tab_initUI()
         {
@@ -225,7 +229,7 @@ namespace appel
             lbl_bgHeader.MouseMove += f_form_move_MouseDown;
             this.Controls.AddRange(new Control[] {
                 m_tab,lbl_bgHeader
-                ,m_msg_api
+                //,m_msg_api
             });
 
             m_media_text = new TextBox()
@@ -240,8 +244,7 @@ namespace appel
             m_tab_Text.Controls.Add(m_media_text);
 
         }
-
-
+        
         private void f_tab_selectChanged(TabStripItemChangedEventArgs e)
         {
             if (e.Item == null) return;
@@ -291,7 +294,7 @@ namespace appel
         Label m_store_Message;
         Panel m_store_Result;
         TextBox m_store_Input;
-        Panel m_store_Header;
+        Panel m_store_Footer;
 
         Label m_store_PageCurrent;
         Label m_store_PageTotal;
@@ -302,10 +305,11 @@ namespace appel
             m_store_Message = new Label()
             {
                 AutoSize = false,
-                Dock = DockStyle.Fill,
-                //BackColor = Color.Gray,
-                Text = "",
-                TextAlign = ContentAlignment.MiddleCenter,
+                Dock = DockStyle.Bottom,
+                //BackColor = Color.Red,
+                //Text = "m.Log = string.Format(Update bookmark is {0}- {1} -> {2}, mi.Star, mi.Title, SUCCESSFULLY);",
+                TextAlign = ContentAlignment.BottomCenter,
+                Height = 17,
             };
 
             m_store_Result = new Panel()
@@ -318,22 +322,25 @@ namespace appel
 
             m_store_Input = new TextBox()
             {
-                Dock = DockStyle.Left,
-                Width = 123,
+                Anchor = AnchorStyles.Left | AnchorStyles.Top,
+                Width = 99,
+                Location = new Point(7, 2),
+                Height = 19
             };
             m_store_Input.KeyDown += f_store_input_KeyDown;
-            m_store_Header = new Panel()
+            m_store_Footer = new Panel()
             {
-                Height = 35,
+                Height = 25,
                 Dock = DockStyle.Bottom,
                 BackColor = Color.White,
-                Padding = new Padding(9, 9, 9, 0),
+                Padding = new Padding(109, 0, 9, 0),
             };
-            m_store_Header.MouseMove += f_form_move_MouseDown;
+            m_store_Footer.MouseMove += f_form_move_MouseDown;
             m_tab_Store.Controls.AddRange(new Control[] {
+                m_store_Message,
                 m_store_Result,
-                m_store_Header,
-                new Label(){ AutoSize = false, Height = 9, Dock = DockStyle.Top }
+                m_store_Footer,
+                //new Label(){ AutoSize = false, Height = 9, Dock = DockStyle.Top },
             });
 
             IconButton btn_saveResult = new IconButton(24) { IconType = IconType.ios_cloud_download, Dock = DockStyle.Left };
@@ -345,7 +352,7 @@ namespace appel
             IconButton btn_prev = new IconButton(16) { IconType = IconType.ios_arrow_back, Dock = DockStyle.Right };
             IconButton btn_remove = new IconButton(22) { IconType = IconType.trash_a, Dock = DockStyle.Right };
             IconButton btn_add_playlist = new IconButton(22) { IconType = IconType.android_add, Dock = DockStyle.Right, ToolTipText = "Add to Playlist" };
-            
+
             m_store_PageCurrent = new Label()
             {
                 AutoSize = true,
@@ -378,10 +385,10 @@ namespace appel
 
 
             m_store_Message.MouseMove += f_form_move_MouseDown;
-            m_store_Header.Controls.AddRange(new Control[] {
+            m_store_Footer.Controls.AddRange(new Control[] {
                 #region
 
-                m_store_Message,
+                //m_store_Message,
                 btn_channel,
                 new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 btn_user,
@@ -434,6 +441,7 @@ namespace appel
 
             if (ls.Count == 0) return;
 
+            const int margin_top = 5;
             const int margin_bottom = 5;
             const int margin_left = 9;
 
@@ -478,7 +486,7 @@ namespace appel
                     BackColor = Color.LightGray,
                     Width = app.m_item_width,
                     Height = app.m_item_height,
-                    Location = new Point(x, y),
+                    Location = new Point(x, y + margin_top),
                     Tag = media.Id
                 };
 
@@ -519,6 +527,7 @@ namespace appel
                     BackColor = Color.LightGray,
                     ActiveColor = Color.Black,
                     Tag = media.Id.ToString() + "|" + media.Title,
+                    InActiveColor = media.Star ? Color.Red : Color.DimGray,
                 };
                 star.MouseClick += f_store_bookmark_MouseClick;
                 stars[i] = star;
@@ -668,8 +677,12 @@ namespace appel
         {
             string tag = ((Control)sender).Tag.ToString(),
                 mid = tag.Split('|')[0], title = mid.Length < tag.Length ? tag.Substring(mid.Length + 1) : string.Empty;
-            m_msg_api.Text = "You saved item to bookmark: " + title;
-            ((IconButton)sender).InActiveColor = Color.Red;
+            //m_msg_api.Text = "You saved item to bookmark: " + title;
+            if (((IconButton)sender).InActiveColor == Color.Red)
+                ((IconButton)sender).InActiveColor = Color.DimGray;
+            else
+                ((IconButton)sender).InActiveColor = Color.Red;
+            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_UPDATE_BOOKMARK_STAR, Input = long.Parse(mid) });
         }
 
         #endregion
@@ -822,7 +835,8 @@ namespace appel
             });
             btn_save.MouseClick += f_search_saveItemSelected;
             btn_remove.MouseClick += f_search_removeCacheAll;
-            btn_stop_search.MouseClick += (se, ev) => {
+            btn_stop_search.MouseClick += (se, ev) =>
+            {
                 app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_ONLINE_STOP });
             };
         }
@@ -1167,9 +1181,9 @@ namespace appel
                 {
                     case _API.MSG_MEDIA_SEARCH_RESULT:
                         log.Append(m.Log + Environment.NewLine);
-                        m_msg_api.crossThreadPerformSafely(() =>
+                        m_search_Message.crossThreadPerformSafely(() =>
                         {
-                            m_msg_api.Text = m.Log;
+                            m_search_Message.Text = m.Log;
                         });
                         m_search_Message.crossThreadPerformSafely(() =>
                         {
@@ -1179,9 +1193,9 @@ namespace appel
                         break;
                     case _API.MSG_MEDIA_SEARCH_SAVE_TO_STORE:
                         log.Append(m.Log + Environment.NewLine);
-                        m_msg_api.crossThreadPerformSafely(() =>
+                        m_search_Message.crossThreadPerformSafely(() =>
                         {
-                            m_msg_api.Text = m.Log;
+                            m_search_Message.Text = m.Log;
                         });
                         app.postToAPI(m_search_current_msg);
                         break;
@@ -1205,11 +1219,23 @@ namespace appel
                         #region
                         switch (m.KEY)
                         {
+                            case _API.MEDIA_KEY_UPDATE_BOOKMARK_STAR:
+                                #region
+                                if (!string.IsNullOrEmpty(m.Log))
+                                {
+                                    log.Append(m.Log + Environment.NewLine);
+                                    m_store_Message.crossThreadPerformSafely(() =>
+                                    {
+                                        m_store_Message.Text = m.Log;
+                                    });
+                                }
+                                break;
+                            #endregion
                             case _API.MEDIA_KEY_SEARCH_ONLINE_CACHE_CLEAR:
                                 log.Append(m.Log + Environment.NewLine);
-                                m_msg_api.crossThreadPerformSafely(() =>
+                                m_store_Message.crossThreadPerformSafely(() =>
                                 {
-                                    m_msg_api.Text = m.Log;
+                                    m_store_Message.Text = m.Log;
                                 });
                                 break;
                             case _API.MEDIA_KEY_TEXT_VIDEO_ONLINE:

@@ -30,7 +30,7 @@ namespace appel
         public const int m_box_height = 180;
 
         public const int m_app_width = m_box_width * 2 + 29;
-        public const int m_app_height = 575;
+        public const int m_app_height = 569;
 
         public const int m_player_width = 640;
         public const int m_player_height = 360;
