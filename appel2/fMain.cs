@@ -137,7 +137,7 @@ namespace appel
         #endregion
 
         #region [ TAB ]
-        
+
         #region
 
         private FATabStrip m_tab;
@@ -164,7 +164,7 @@ namespace appel
         const string tab_caption_word = "Word";
         const string tab_caption_text = "Text";
         const string tab_caption_book = "Book";
-        
+
         #endregion
 
         void f_tab_initUI()
@@ -244,7 +244,7 @@ namespace appel
             m_tab_Text.Controls.Add(m_media_text);
 
         }
-        
+
         private void f_tab_selectChanged(TabStripItemChangedEventArgs e)
         {
             if (e.Item == null) return;
@@ -287,6 +287,8 @@ namespace appel
 
         #region [ STORE ] 
 
+        #region
+
         msg m_store_current_msg = null;
         long m_store_item_current_id = 0;
         string m_store_item_current_text = string.Empty;
@@ -299,6 +301,8 @@ namespace appel
         Label m_store_PageCurrent;
         Label m_store_PageTotal;
         Label m_store_TotalItems;
+
+        #endregion
 
         void f_store_initUI()
         {
@@ -347,6 +351,7 @@ namespace appel
             IconButton btn_tags = new IconButton(24) { IconType = IconType.pricetags, Dock = DockStyle.Left, ToolTipText = "Tags" };
             IconButton btn_user = new IconButton(22) { IconType = IconType.person, Dock = DockStyle.Left, ToolTipText = "User" };
             IconButton btn_channel = new IconButton(22) { IconType = IconType.android_desktop, Dock = DockStyle.Left, ToolTipText = "Channel" };
+            IconButton btn_bookmark = new IconButton(22) { IconType = IconType.heart, Dock = DockStyle.Left, ToolTipText = "Bookmark" };
 
             IconButton btn_next = new IconButton(16) { IconType = IconType.ios_arrow_next, Dock = DockStyle.Right };
             IconButton btn_prev = new IconButton(16) { IconType = IconType.ios_arrow_back, Dock = DockStyle.Right };
@@ -389,6 +394,8 @@ namespace appel
                 #region
 
                 //m_store_Message,
+                btn_bookmark,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 btn_channel,
                 new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 btn_user,
@@ -430,6 +437,48 @@ namespace appel
 
                 #endregion
             });
+
+            btn_bookmark.MouseClick += f_store_filter_bookMarkClick;
+            btn_tags.MouseClick += f_store_filter_tagsClick;
+            btn_channel.MouseClick += f_store_filter_channelClick;
+            btn_user.MouseClick += f_store_filter_userClick;
+
+            btn_add_playlist.MouseClick += f_store_playList_updateClick;
+            btn_remove.MouseClick += f_store_media_removeClick;
+        }
+
+        private void f_store_media_removeClick(object sender, MouseEventArgs e)
+        {
+        }
+
+        private void f_store_playList_updateClick(object sender, MouseEventArgs e)
+        {
+        }
+
+        private void f_store_filter_userClick(object sender, MouseEventArgs e)
+        {
+        }
+
+        private void f_store_filter_channelClick(object sender, MouseEventArgs e)
+        {
+        }
+
+        private void f_store_filter_tagsClick(object sender, MouseEventArgs e)
+        {
+        }
+
+        private void f_store_filter_bookMarkClick(object sender, MouseEventArgs e)
+        {
+            IconButton it = (IconButton)sender;
+            if (it.InActiveColor == Color.DimGray)
+            {
+                it.InActiveColor = Color.Orange;
+                app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_FILTER_BOOKMAR_STAR });
+            }
+            else {
+                it.InActiveColor = Color.DimGray;
+                app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_STORE, Input = string.Empty });
+            }
         }
 
         void f_store_draw_Media(List<long> ls)
@@ -1179,6 +1228,7 @@ namespace appel
             {
                 switch (m.API)
                 {
+                    #region [ MSG ]
                     case _API.MSG_MEDIA_SEARCH_RESULT:
                         log.Append(m.Log + Environment.NewLine);
                         m_search_Message.crossThreadPerformSafely(() =>
@@ -1199,6 +1249,7 @@ namespace appel
                         });
                         app.postToAPI(m_search_current_msg);
                         break;
+                    #endregion
                     case _API.WORD:
                         #region
                         switch (m.KEY)
@@ -1231,6 +1282,9 @@ namespace appel
                                 }
                                 break;
                             #endregion
+
+                            #region [ SEARCH ONLINE ]
+
                             case _API.MEDIA_KEY_SEARCH_ONLINE_CACHE_CLEAR:
                                 log.Append(m.Log + Environment.NewLine);
                                 m_store_Message.crossThreadPerformSafely(() =>
@@ -1272,6 +1326,10 @@ namespace appel
                                     MessageBox.Show("Search online error");
                                 }
                                 break;
+
+                            #endregion
+
+                            case _API.MEDIA_KEY_FILTER_BOOKMAR_STAR:
                             case _API.MEDIA_KEY_SEARCH_STORE:
                                 if (m.Output.Ok)
                                 {

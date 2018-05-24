@@ -166,6 +166,42 @@ namespace appel
                     case _API.MEDIA_KEY_DOWNLOAD_PHOTO:
                         break;
 
+                    case _API.MEDIA_KEY_FILTER_BOOKMAR_STAR:
+                        #region
+
+                        if (true)
+                        {
+                            //string input = (string)m.Input;
+                            //if (input == null) input = string.Empty;
+                            oMediaSearchLocalResult resultSearch = new oMediaSearchLocalResult();
+
+                            List<long> lsSearch = new List<long>();
+                            int min = (m.PageNumber - 1) * m.PageSize,
+                                max = m.PageNumber * m.PageSize,
+                                count = 0;
+                            foreach (var kv in dicMediaStore)
+                            {
+                                if (kv.Value.Star)
+                                {
+                                    if (count >= min && count < max)
+                                        lsSearch.Add(kv.Key);
+                                    count++;
+                                }
+                            }
+                            resultSearch.TotalItem = dicMediaStore.Count;
+                            resultSearch.PageSize = m.PageSize;
+                            resultSearch.PageNumber = m.PageNumber;
+                            resultSearch.CountResult = count;
+                            resultSearch.MediaIds = lsSearch;
+
+                            m.Counter = count;
+                            m.Output.Ok = true;
+                            m.Output.Data = resultSearch;
+                            response_toMain(m);
+                        }
+
+                        break;
+                    #endregion
                     case _API.MEDIA_KEY_UPDATE_BOOKMARK_STAR:
                         #region
 
