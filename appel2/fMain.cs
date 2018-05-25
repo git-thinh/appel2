@@ -113,11 +113,9 @@ writeline and then it's just   going to print out hello on the screen   can't do
         int m_word_page_number = 1;
         int m_word_page_size = 100;
 
-        oWordCount[] m_words = new oWordCount[] { };
-        msg m_word_current_msg = null;
-        long m_word_item_current_id = 0;
-        string m_word_item_current_text = string.Empty;
-
+        oWordCount[] m_words = new oWordCount[] { }; 
+        string m_word_current = string.Empty;
+        List<string> m_word_selected = new List<string>();
         Label m_word_Message;
         FlowLayoutPanel m_word_Result;
         TextBox m_word_Input;
@@ -132,34 +130,50 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         void f_word_goPage(int page_current)
         {
+            if (page_current <= 0) return;
+
             string key = m_word_Input.Text.Trim();
             if (key.Length > 0)
             {
                 var a = m_words.Where(x => x.word.Contains(key));
                 int totalItems = a.Count();
-                m_word_Message.Text = string.Format("The finding [{0}] have {1} words", key, totalItems);
-                m_word_page_number = page_current;
-                f_word_draw_Items(a.Take(m_word_page_size).ToArray());
                 //////////////////////////////////////
                 int pageTotal = totalItems / m_word_page_size;
                 if (totalItems % m_word_page_size != 0) pageTotal++;
 
+                if (page_current > pageTotal) return;
+
+                m_word_page_number = page_current;
                 m_word_TotalItems.Text = totalItems.ToString();
+                m_word_PageCurrent.Text = page_current.ToString();
                 m_word_PageTotal.Text = pageTotal.ToString();
+
+                f_word_draw_Items(a.Skip(m_word_page_size * (page_current - 1))
+                  .Take(m_word_page_size)
+                  .ToArray());
+                m_word_Message.Text = string.Format("The finding [{0}] have {1} words", key, totalItems);
             }
             else
             {
                 m_word_Message.Text = string.Empty;
-                var a = m_words.Take(m_word_page_size).ToArray();
-                m_word_page_number = page_current;
-                f_word_draw_Items(a);
                 //////////////////////////////////////
                 int pageTotal = m_words.Length / m_word_page_size;
                 if (m_words.Length % m_word_page_size != 0) pageTotal++;
 
+                if (page_current > pageTotal) return;
+
+                m_word_page_number = page_current;
                 m_word_TotalItems.Text = m_words.Length.ToString();
                 m_word_PageTotal.Text = pageTotal.ToString();
+                m_word_PageCurrent.Text = page_current.ToString();
                 m_word_page_number = page_current;
+
+                var a = m_words
+                  .Skip(m_word_page_size * (page_current - 1))
+                  .Take(m_word_page_size)
+                  .ToArray();
+
+                f_word_draw_Items(a);
             }
         }
 
@@ -181,10 +195,31 @@ writeline and then it's just   going to print out hello on the screen   can't do
                     Height = 17,
                     Padding = new Padding(0),
                     Margin = new Padding(19, 3, 0, 0),
+                    BackColor = Color.White,
                 };
                 names[i] = lbl;
+                lbl.MouseClick += f_word_labelText_MouseClick;
             }
             m_word_Result.Controls.AddRange(names);
+        }
+
+        private void f_word_labelText_MouseClick(object sender, MouseEventArgs e)
+        {
+            Control lbl = (Control)sender;
+            string text = lbl.Text;
+            m_word_current = text;
+
+            if (lbl.BackColor == Color.White)
+            {
+                lbl.BackColor = Color.Orange;
+                if (m_word_selected.IndexOf(text) == -1)
+                    m_word_selected.Add(text);
+            }
+            else {
+                lbl.BackColor = Color.White;
+                if (m_word_selected.IndexOf(text) != -1)
+                    m_word_selected.Remove(text);
+            }
         }
 
         void f_word_Init()
@@ -232,12 +267,12 @@ writeline and then it's just   going to print out hello on the screen   can't do
             });
 
             IconButton btn_saveResult = new IconButton(24) { IconType = IconType.ios_cloud_download, Dock = DockStyle.Left };
-            IconButton btn_tags = new IconButton(24) { IconType = IconType.pricetags, Dock = DockStyle.Left, ToolTipText = "Tags" };
-            IconButton btn_bookmark = new IconButton(22) { IconType = IconType.heart, Dock = DockStyle.Left, ToolTipText = "Bookmark" };
+            //IconButton btn_tags = new IconButton(24) { IconType = IconType.pricetags, Dock = DockStyle.Left, ToolTipText = "Tags" };
+            //IconButton btn_bookmark = new IconButton(22) { IconType = IconType.heart, Dock = DockStyle.Left, ToolTipText = "Bookmark" };
 
             IconButton btn_next = new IconButton(16) { IconType = IconType.ios_arrow_next, Dock = DockStyle.Right };
             IconButton btn_prev = new IconButton(16) { IconType = IconType.ios_arrow_back, Dock = DockStyle.Right };
-            IconButton btn_remove = new IconButton(22) { IconType = IconType.trash_a, Dock = DockStyle.Right };
+            //IconButton btn_remove = new IconButton(22) { IconType = IconType.trash_a, Dock = DockStyle.Right };
             IconButton btn_add_playlist = new IconButton(22) { IconType = IconType.android_add, Dock = DockStyle.Right, ToolTipText = "Add to Playlist" };
 
             m_word_PageCurrent = new Label()
@@ -273,16 +308,16 @@ writeline and then it's just   going to print out hello on the screen   can't do
             m_word_Footer.Controls.AddRange(new Control[] {
                 #region
                  
-                btn_bookmark,
-                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
-                btn_tags,
-                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
+                //btn_bookmark,
+                //new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
+                //btn_tags,
+                //new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 m_word_Input,
 
                 btn_add_playlist,
                 new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
-                btn_remove,
-                new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
+                //btn_remove,
+                //new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
                 btn_prev,
                 m_word_PageCurrent,
                 new Label()
@@ -314,36 +349,25 @@ writeline and then it's just   going to print out hello on the screen   can't do
             m_word_Input.KeyDown += f_word_input_KeyDown;
             btn_next.Click += f_word_goPageNextClick;
             btn_prev.Click += f_word_goPagePrevClick;
-
-            btn_bookmark.MouseClick += f_word_filter_bookMarkClick;
-            btn_tags.MouseClick += f_word_filter_tagsClick;
-
             btn_add_playlist.MouseClick += f_word_playList_updateClick;
-            btn_remove.MouseClick += f_word_media_removeClick;
-        }
 
-        private void f_word_media_removeClick(object sender, MouseEventArgs e)
-        {
+            //btn_bookmark.MouseClick += f_word_filter_bookMarkClick;
+            //btn_tags.MouseClick += f_word_filter_tagsClick;
+            //btn_remove.MouseClick += f_word_media_removeClick;
         }
-
+        
         private void f_word_playList_updateClick(object sender, MouseEventArgs e)
         {
         }
-
-        private void f_word_filter_tagsClick(object sender, MouseEventArgs e)
-        {
-        }
-
-        private void f_word_filter_bookMarkClick(object sender, MouseEventArgs e)
-        {
-        }
-
+        
         private void f_word_goPagePrevClick(object sender, EventArgs e)
         {
+            f_word_goPage(m_word_page_number - 1);
         }
 
         private void f_word_goPageNextClick(object sender, EventArgs e)
         {
+            f_word_goPage(m_word_page_number + 1);
         }
 
         private void f_word_input_KeyDown(object sender, KeyEventArgs e)
