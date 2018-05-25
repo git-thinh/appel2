@@ -19,22 +19,24 @@ namespace appel
     {
         #region [ VARIABLE ] 
 
-        private readonly Font font_Title = new Font("Arial", 11f, FontStyle.Regular);
+        readonly Font font_Title = new Font("Arial", 11f, FontStyle.Regular);
 
-        private IconButton btn_exit;
-        private IconButton btn_mini;
+        IconButton btn_exit;
+        IconButton btn_mini;
 
-        private Label lbl_title;
+        Label lbl_title;
 
 
-        private TextBox m_media_text;
-        private long m_media_current_id = 0;
-        private MEDIA_TAB m_media_current_tab = MEDIA_TAB.TAB_STORE;
-        private string m_media_current_title = string.Empty;
+        TextBox m_media_text;
+        long m_media_current_id = 0;
+        MEDIA_TAB m_media_current_tab = MEDIA_TAB.TAB_STORE;
+        string m_media_current_title = string.Empty;
 
-        //private Label m_msg_api;
+        //Label m_msg_api;
 
-        private StringBuilder log;
+        StringBuilder log;
+        const int m_text_search_width = 99;
+
 
         #endregion
 
@@ -106,6 +108,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
         #region [ WORD ]
 
         FlowLayoutPanel word_Panel = null;
+        Panel word_Footer = null;
+        TextBox word_searchInput = null;
 
         void f_word_draw_Items(oWordCount[] words)
         {
@@ -139,17 +143,33 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 AutoScroll = true,
                 FlowDirection = FlowDirection.TopDown | FlowDirection.LeftToRight,
             };
-
-            Panel footer = new Panel()
+            
+            word_Footer = new Panel()
             {
-                Dock = DockStyle.Bottom,
                 Height = 25,
-                BackColor = Color.Red,
+                Dock = DockStyle.Bottom,
+                BackColor = Color.White,
+                Padding = new Padding(109, 0, 9, 0),
             };
+            word_searchInput = new TextBox()
+            {
+                Anchor = AnchorStyles.Left | AnchorStyles.Top,
+                Width = m_text_search_width,
+                Location = new Point(7, 2),
+                Height = 19
+            };
+
 
             m_tab_Word.Controls.AddRange(new Control[] {
                 word_Panel,
-                footer,
+                word_Footer,
+            });
+
+
+            word_searchInput.KeyDown += f_search_input_KeyDown;
+
+            word_Footer.Controls.AddRange(new Control[] {
+                word_searchInput,
             });
         }
 
@@ -418,14 +438,6 @@ writeline and then it's just   going to print out hello on the screen   can't do
             };
             m_store_Result.MouseMove += f_form_move_MouseDown;
 
-            m_store_Input = new TextBox()
-            {
-                Anchor = AnchorStyles.Left | AnchorStyles.Top,
-                Width = 99,
-                Location = new Point(7, 2),
-                Height = 19
-            };
-            m_store_Input.KeyDown += f_store_input_KeyDown;
             m_store_Footer = new Panel()
             {
                 Height = 25,
@@ -433,6 +445,14 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 BackColor = Color.White,
                 Padding = new Padding(109, 0, 9, 0),
             };
+            m_store_Input = new TextBox()
+            {
+                Anchor = AnchorStyles.Left | AnchorStyles.Top,
+                Width = m_text_search_width,
+                Location = new Point(7, 2),
+                Height = 19
+            };
+            m_store_Input.KeyDown += f_store_input_KeyDown;
             m_store_Footer.MouseMove += f_form_move_MouseDown;
             m_tab_Store.Controls.AddRange(new Control[] {
                 m_store_Message,
@@ -869,21 +889,26 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 Dock = DockStyle.Fill,
             };
             m_search_Result.MouseMove += f_form_move_MouseDown;
-
-            m_search_Input = new TextBox()
-            {
-                Dock = DockStyle.Left,
-                Width = 123,
-            };
-            m_search_Input.KeyDown += f_search_input_KeyDown;
-
+            
             m_search_Footer = new Panel()
             {
-                Height = 27,
+                Height = 25,
                 Dock = DockStyle.Bottom,
                 BackColor = Color.White,
-                Padding = new Padding(9, 1, 9, 0),
+                Padding = new Padding(109, 0, 9, 0),
             };
+            m_search_Input = new TextBox()
+            {
+                Anchor = AnchorStyles.Left | AnchorStyles.Top,
+                Width = m_text_search_width,
+                Location = new Point(7, 2),
+                Height = 19
+            };
+
+
+
+            m_search_Input.KeyDown += f_search_input_KeyDown;
+
             m_search_Footer.MouseMove += f_form_move_MouseDown;
             m_tab_Search.Controls.AddRange(new Control[] {
                 m_search_Message,
