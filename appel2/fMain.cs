@@ -106,14 +106,27 @@ writeline and then it's just   going to print out hello on the screen   can't do
         }
 
         #region [ WORD ]
+        
+        #region
 
-        FlowLayoutPanel word_Panel = null;
-        Panel word_Footer = null;
-        TextBox word_searchInput = null;
+        msg     m_word_current_msg = null;
+        long    m_word_item_current_id = 0;
+        string  m_word_item_current_text = string.Empty;
+                  
+        Label   m_word_Message;
+        FlowLayoutPanel m_word_Result;
+        TextBox m_word_Input;
+        Panel   m_word_Footer;
+                  
+        Label   m_word_PageCurrent;
+        Label   m_word_PageTotal;
+        Label   m_word_TotalItems;
+
+        #endregion
 
         void f_word_draw_Items(oWordCount[] words)
         {
-            word_Panel.Controls.Clear();
+            m_word_Result.Controls.Clear();
             if (words.Length == 0) return;
 
             Control[] names = new Control[words.Length];
@@ -132,45 +145,170 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 };
                 names[i] = lbl;
             }
-            word_Panel.Controls.AddRange(names);
+            m_word_Result.Controls.AddRange(names);
         }
 
         void f_word_Init()
         {
-            word_Panel = new FlowLayoutPanel()
+
+            m_word_Message = new Label()
+            {
+                AutoSize = false,
+                Dock = DockStyle.Bottom,
+                //BackColor = Color.Red,
+                //Text = "m.Log = string.Format(Update bookmark is {0}- {1} -> {2}, mi.Star, mi.Title, SUCCESSFULLY);",
+                TextAlign = ContentAlignment.BottomLeft,
+                Height = 17,
+                Padding = new Padding(9, 0, 0, 0),
+            };
+
+            m_word_Result = new FlowLayoutPanel()
             {
                 Dock = DockStyle.Fill,
                 AutoScroll = true,
                 FlowDirection = FlowDirection.TopDown | FlowDirection.LeftToRight,
             };
-            
-            word_Footer = new Panel()
+            m_word_Result.MouseMove += f_form_move_MouseDown;
+
+            m_word_Footer = new Panel()
             {
                 Height = 25,
                 Dock = DockStyle.Bottom,
                 BackColor = Color.White,
                 Padding = new Padding(109, 0, 9, 0),
             };
-            word_searchInput = new TextBox()
+            m_word_Input = new TextBox()
             {
                 Anchor = AnchorStyles.Left | AnchorStyles.Top,
                 Width = m_text_search_width,
                 Location = new Point(7, 2),
                 Height = 19
             };
-
-
+            m_word_Footer.MouseMove += f_form_move_MouseDown;
             m_tab_Word.Controls.AddRange(new Control[] {
-                word_Panel,
-                word_Footer,
+                m_word_Message,
+                m_word_Result,
+                m_word_Footer,
+                //new Label(){ AutoSize = false, Height = 9, Dock = DockStyle.Top },
             });
 
+            IconButton btn_saveResult = new IconButton(24) { IconType = IconType.ios_cloud_download, Dock = DockStyle.Left };
+            IconButton btn_tags = new IconButton(24) { IconType = IconType.pricetags, Dock = DockStyle.Left, ToolTipText = "Tags" };
+            IconButton btn_bookmark = new IconButton(22) { IconType = IconType.heart, Dock = DockStyle.Left, ToolTipText = "Bookmark" };
 
-            word_searchInput.KeyDown += f_search_input_KeyDown;
+            IconButton btn_next = new IconButton(16) { IconType = IconType.ios_arrow_next, Dock = DockStyle.Right };
+            IconButton btn_prev = new IconButton(16) { IconType = IconType.ios_arrow_back, Dock = DockStyle.Right };
+            IconButton btn_remove = new IconButton(22) { IconType = IconType.trash_a, Dock = DockStyle.Right };
+            IconButton btn_add_playlist = new IconButton(22) { IconType = IconType.android_add, Dock = DockStyle.Right, ToolTipText = "Add to Playlist" };
 
-            word_Footer.Controls.AddRange(new Control[] {
-                word_searchInput,
+            m_word_PageCurrent = new Label()
+            {
+                AutoSize = true,
+                //BackColor = Color.Gray,
+                Text = "1",
+                TextAlign = ContentAlignment.BottomRight,
+                Dock = DockStyle.Right,
+                Padding = new Padding(9, 3, 0, 0)
+            };
+            m_word_PageTotal = new Label()
+            {
+                AutoSize = true,
+                //BackColor = Color.Yellow,
+                Text = "1",
+                TextAlign = ContentAlignment.BottomLeft,
+                Dock = DockStyle.Right,
+                Padding = new Padding(0, 3, 0, 0)
+            };
+            m_word_TotalItems = new Label()
+            {
+                AutoSize = true,
+                //BackColor = Color.Blue,
+                Text = "1",
+                TextAlign = ContentAlignment.BottomLeft,
+                Dock = DockStyle.Right,
+                Padding = new Padding(0, 3, 0, 0)
+            };
+
+
+            m_word_Message.MouseMove += f_form_move_MouseDown;
+            m_word_Footer.Controls.AddRange(new Control[] {
+                #region
+                 
+                btn_bookmark,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
+                btn_tags,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
+                m_word_Input,
+
+                btn_add_playlist,
+                new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
+                btn_remove,
+                new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
+                btn_prev,
+                m_word_PageCurrent,
+                new Label()
+                {
+                    AutoSize = true,
+                    //BackColor = Color.Red,
+                    Text = "|",
+                    TextAlign = ContentAlignment.BottomLeft,
+                    Dock = DockStyle.Right,
+                    Padding = new Padding(5,3,5,0),
+                },
+                m_word_PageTotal,
+                new Label()
+                {
+                    AutoSize = true,
+                    //BackColor = Color.Red,
+                    Text = "_",
+                    TextAlign = ContentAlignment.BottomLeft,
+                    Dock = DockStyle.Right,
+                    Padding = new Padding(5,3,5,0),
+                },
+                m_word_TotalItems,
+                new Label(){ Dock = DockStyle.Right, Padding = new Padding(0,3,0,0), Text = " items ", TextAlign = ContentAlignment.BottomLeft, AutoSize = true, },
+                btn_next,
+
+                #endregion
             });
+
+            m_word_Input.KeyDown += f_word_input_KeyDown;
+            btn_next.Click += f_word_goPageNextClick;
+            btn_prev.Click += f_word_goPagePrevClick;
+
+            btn_bookmark.MouseClick += f_word_filter_bookMarkClick;
+            btn_tags.MouseClick += f_word_filter_tagsClick;
+
+            btn_add_playlist.MouseClick += f_word_playList_updateClick;
+            btn_remove.MouseClick += f_word_media_removeClick;
+        }
+
+        private void f_word_media_removeClick(object sender, MouseEventArgs e)
+        {
+        }
+
+        private void f_word_playList_updateClick(object sender, MouseEventArgs e)
+        {
+        }
+
+        private void f_word_filter_tagsClick(object sender, MouseEventArgs e)
+        {
+        }
+
+        private void f_word_filter_bookMarkClick(object sender, MouseEventArgs e)
+        {
+        }
+
+        private void f_word_goPagePrevClick(object sender, EventArgs e)
+        {
+        }
+
+        private void f_word_goPageNextClick(object sender, EventArgs e)
+        {
+        }
+
+        private void f_word_input_KeyDown(object sender, KeyEventArgs e)
+        {
         }
 
         #endregion
