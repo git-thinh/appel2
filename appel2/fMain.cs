@@ -100,10 +100,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
             #endregion
 
-            //var w1 = m_words.Where(x => x.word.Length == 1).ToArray();
-            //var ws = m_words.Where(x => x.word.Length > 1).ToArray();
-            //f_word_draw_Items(ws.Take(m_word_page_size).ToArray());
             f_word_input_KeyDown(m_word_Input, null);
+            f_word_labelText_DoubleClick(new Label() { Text = "hello" }, null);
         }
 
         #region [ WORD ]
@@ -113,7 +111,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
         int m_word_page_number = 1;
         int m_word_page_size = 100;
 
-        oWordCount[] m_words = new oWordCount[] { }; 
+        oWordCount[] m_words = new oWordCount[] { };
         string m_word_current = string.Empty;
         List<string> m_word_selected = new List<string>();
         Label m_word_Message;
@@ -127,6 +125,9 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         #endregion
 
+        private void f_word_playList_updateClick(object sender, MouseEventArgs e)
+        {
+        }
 
         void f_word_goPage(int page_current)
         {
@@ -190,17 +191,30 @@ writeline and then it's just   going to print out hello on the screen   can't do
                     AutoSize = true,
                     TextAlign = ContentAlignment.MiddleCenter,
                     Text = words[i].word,
-                    //BackColor = Color.LightGray,
                     Font = font_Title,
                     Height = 17,
                     Padding = new Padding(0),
                     Margin = new Padding(19, 3, 0, 0),
-                    BackColor = Color.White,
+                    BackColor = m_word_selected.IndexOf(words[i].word) == -1 ? Color.White : Color.Orange,
                 };
                 names[i] = lbl;
                 lbl.MouseClick += f_word_labelText_MouseClick;
+                lbl.DoubleClick += f_word_labelText_DoubleClick;
             }
             m_word_Result.Controls.AddRange(names);
+        }
+
+        private void f_word_labelText_DoubleClick(object sender, EventArgs e)
+        {
+            Control uc = (Control)sender;
+            string text = uc.Text;
+            m_word_current = text;
+
+            m_tab.SelectedItem = m_tab_WordDetail;
+
+            uc.BackColor = Color.Orange;
+            if (m_word_selected.IndexOf(text) == -1)
+                m_word_selected.Add(text);
         }
 
         private void f_word_labelText_MouseClick(object sender, MouseEventArgs e)
@@ -215,7 +229,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 if (m_word_selected.IndexOf(text) == -1)
                     m_word_selected.Add(text);
             }
-            else {
+            else
+            {
                 lbl.BackColor = Color.White;
                 if (m_word_selected.IndexOf(text) != -1)
                     m_word_selected.Remove(text);
@@ -266,13 +281,13 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 //new Label(){ AutoSize = false, Height = 9, Dock = DockStyle.Top },
             });
 
-            IconButton btn_saveResult = new IconButton(24) { IconType = IconType.ios_cloud_download, Dock = DockStyle.Left };
+            //IconButton btn_saveResult = new IconButton(24) { IconType = IconType.ios_cloud_download, Dock = DockStyle.Left };
             //IconButton btn_tags = new IconButton(24) { IconType = IconType.pricetags, Dock = DockStyle.Left, ToolTipText = "Tags" };
             //IconButton btn_bookmark = new IconButton(22) { IconType = IconType.heart, Dock = DockStyle.Left, ToolTipText = "Bookmark" };
 
             IconButton btn_next = new IconButton(16) { IconType = IconType.ios_arrow_next, Dock = DockStyle.Right };
             IconButton btn_prev = new IconButton(16) { IconType = IconType.ios_arrow_back, Dock = DockStyle.Right };
-            //IconButton btn_remove = new IconButton(22) { IconType = IconType.trash_a, Dock = DockStyle.Right };
+            IconButton btn_remove = new IconButton(22) { IconType = IconType.trash_a, Dock = DockStyle.Right, ToolTipText = "Clear words selected" };
             IconButton btn_add_playlist = new IconButton(22) { IconType = IconType.android_add, Dock = DockStyle.Right, ToolTipText = "Add to Playlist" };
 
             m_word_PageCurrent = new Label()
@@ -316,8 +331,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
                 btn_add_playlist,
                 new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
-                //btn_remove,
-                //new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
+                btn_remove,
+                new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
                 btn_prev,
                 m_word_PageCurrent,
                 new Label()
@@ -353,13 +368,18 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
             //btn_bookmark.MouseClick += f_word_filter_bookMarkClick;
             //btn_tags.MouseClick += f_word_filter_tagsClick;
-            //btn_remove.MouseClick += f_word_media_removeClick;
+            btn_remove.MouseClick += (se, ev) =>
+            {
+                if (m_word_selected.Count > 0)
+                {
+                    m_word_Message.Text = string.Format("You clear {0} words selected", m_word_selected.Count);
+                    m_word_selected.Clear();
+                    foreach (Control li in m_word_Result.Controls)
+                        li.BackColor = Color.White;
+                }
+            };
         }
-        
-        private void f_word_playList_updateClick(object sender, MouseEventArgs e)
-        {
-        }
-        
+
         private void f_word_goPagePrevClick(object sender, EventArgs e)
         {
             f_word_goPage(m_word_page_number - 1);
@@ -374,6 +394,91 @@ writeline and then it's just   going to print out hello on the screen   can't do
         {
             if (e == null || e.KeyCode == Keys.Enter)
                 f_word_goPage(1);
+        }
+
+        #endregion
+
+        #region [ WORD DETAIL ]
+
+        Panel wd_header = null;
+        Panel wd_content = null;
+
+        Label wd_word_name = null;
+        Label wd_word_pronunciation = null;
+        Label wd_word_meaning = null;
+
+        IconButton wd_word_speak = null;
+
+        void f_word_detail_Init()
+        {
+            wd_header = new Panel()
+            {
+                Height = 45,
+                Dock = DockStyle.Top,
+                BackColor = Color.WhiteSmoke,
+                Padding = new Padding(9, 7, 0, 0),
+            };
+            wd_content = new Panel()
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+            };
+
+            wd_word_name = new Label()
+            {
+                Dock = DockStyle.Left,
+                AutoSize = true,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Text = "hello",
+                Font = new Font("Arial", 17f, FontStyle.Bold),
+            };
+            wd_word_pronunciation = new Label()
+            {
+                Dock = DockStyle.Left,
+                AutoSize = true,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Text = "/heˈləʊ/",
+                Font = new Font("Arial", 13f, FontStyle.Regular),
+                Padding = new Padding(9, 3, 9, 0),
+            };
+            wd_word_meaning = new Label()
+            {
+                Dock = DockStyle.Left,
+                AutoSize = true,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Text = "Xin chào",
+                ForeColor = Color.DimGray,
+                Font = new Font("Arial", 9f, FontStyle.Italic),
+                Padding = new Padding(0, 7, 0, 0),
+            };
+
+            wd_word_speak = new IconButton(32)
+            {
+                IconType = IconType.ios_volume_high,
+                Dock = DockStyle.Right
+            };
+
+            m_tab_WordDetail.Controls.AddRange(new Control[] {
+                wd_content,
+                wd_header,
+            });
+
+            wd_header.Controls.AddRange(new Control[] {
+                wd_word_meaning,
+                wd_word_pronunciation,
+                wd_word_name,
+
+                wd_word_speak,
+            });
+        }
+
+        void f_word_detail_Active()
+        {
+            if (!string.IsNullOrEmpty(m_word_current)) {
+                wd_word_name.Text = m_word_current;
+
+
+            }
         }
 
         #endregion
@@ -452,7 +557,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
         private FATabStrip m_tab;
         private FATabStripItem m_tab_Store;
         private FATabStripItem m_tab_Search;
-        private FATabStripItem m_tab_Tag;
+        private FATabStripItem m_tab_WordDetail;
         private FATabStripItem m_tab_Listen;
         private FATabStripItem m_tab_Speaking;
         private FATabStripItem m_tab_Word;
@@ -465,12 +570,13 @@ writeline and then it's just   going to print out hello on the screen   can't do
         //🕮🖎✍⦦☊🕭🔔🗣🗢🖳🎚🏷🖈🎗🏱🏲🗀🗁🕷🖒🖓👍👎♥♡♫♪♬♫🎙🎖🗝●◯⬤⚲☰⚒🕩🕪❯►❮⟳⚐🗑✎✛🗋🖫⛉ ⛊ ⛨⚏★☆
         const string tab_caption_store = "☰";
         const string tab_caption_search = "⚲";
-        const string tab_caption_tags = "⛉";
+        const string tab_caption_word = "W";
+        const string tab_caption_word_detail = "WD";
+        //const string tab_caption_word_detail = "⛉";
         const string tab_caption_listen = "►";
         const string tab_caption_speak = "☊";
         const string tab_caption_writer = "✍";
         const string tab_caption_grammar = "Grammar";
-        const string tab_caption_word = "Word";
         const string tab_caption_text = "Text";
         const string tab_caption_book = "Book";
 
@@ -512,7 +618,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
             m_tab_Store = new FATabStripItem(tab_caption_store, false);
             m_tab_Search = new FATabStripItem(tab_caption_search, false);
-            m_tab_Tag = new FATabStripItem(tab_caption_tags, false);
+            m_tab_WordDetail = new FATabStripItem(tab_caption_word_detail, false);
             m_tab_Speaking = new FATabStripItem(tab_caption_listen, false);
             m_tab_Listen = new FATabStripItem(tab_caption_speak, false);
             m_tab_Writer = new FATabStripItem(tab_caption_writer, false);
@@ -524,7 +630,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
             m_tab.Items.AddRange(new FATabStripItem[] {
                 m_tab_Store,
                 m_tab_Search,
-                m_tab_Tag,
+                m_tab_WordDetail,
                 m_tab_Listen,
                 m_tab_Speaking,
                 m_tab_Writer,
@@ -563,7 +669,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
                     break;
                 case tab_caption_search: // "⚲"
                     break;
-                case tab_caption_tags: // "⛉"
+                case tab_caption_word_detail: // "⛉"
+                    f_word_detail_Active();
                     break;
                 case tab_caption_listen: // "►"
                     break;
@@ -1691,6 +1798,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
             f_store_initUI();
             f_search_initUI();
 
+            f_word_detail_Init();
             f_word_Init();
         }
 
