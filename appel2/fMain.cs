@@ -114,6 +114,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
         oWordCount[] m_words = new oWordCount[] { };
         string m_word_current = string.Empty;
         List<string> m_word_selected = new List<string>();
+        string m_word_content = string.Empty;
+
         Label m_word_Message;
         FlowLayoutPanel m_word_Result;
         TextBox m_word_Input;
@@ -477,6 +479,21 @@ writeline and then it's just   going to print out hello on the screen   can't do
             if (!string.IsNullOrEmpty(m_word_current)) {
                 wd_word_name.Text = m_word_current;
 
+                if(string.IsNullOrEmpty(m_word_content))
+                    m_word_content = api_media.f_media_getText(m_media_current_id);
+
+                if (!string.IsNullOrEmpty(m_word_content)) {
+                    string[] sentences = m_word_content
+                        .Replace("\r", string.Empty)
+                        .Replace("\r", " ")
+                        .Split('.')
+                        .Select(x => x.Trim())
+                        .ToArray();
+
+
+                }
+
+
 
             }
         }
@@ -630,13 +647,13 @@ writeline and then it's just   going to print out hello on the screen   can't do
             m_tab.Items.AddRange(new FATabStripItem[] {
                 m_tab_Store,
                 m_tab_Search,
-                m_tab_WordDetail,
                 m_tab_Listen,
                 m_tab_Speaking,
                 m_tab_Writer,
                 m_tab_Book,
                 m_tab_Grammar,
                 m_tab_Word,
+                m_tab_WordDetail,
                 m_tab_Text,
             });
             Label lbl_bgHeader = new Label() { Dock = DockStyle.Top, Height = lbl_title.Height };
@@ -964,9 +981,9 @@ writeline and then it's just   going to print out hello on the screen   can't do
                     Tag = media.Id
                 };
 
-                Bitmap img = api_media.f_image_getCache(media.Id);
-                if (img != null)
-                    pic.Image = img;
+                //Bitmap img = api_media.f_image_getCache(media.Id);
+                //if (img != null)
+                //    pic.Image = img;
 
                 Color bgColor = media.Id == m_media_current_id ? Color.Orange : Color.LightGray;
 
@@ -1555,11 +1572,17 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         private void f_media_loadWord()
         {
-            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_WORD_LIST, Input = m_media_current_id, Log = ((int)m_media_current_tab).ToString() });
+            m_words = api_media.f_media_getWords(m_media_current_id);
+            f_word_goPage(1);
+
+            //app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_WORD_LIST, Input = m_media_current_id, Log = ((int)m_media_current_tab).ToString() });
         }
 
         private void f_media_loadWord_Callback(msg m)
         {
+            if (m != null && m.Output != null) {
+                m_words = m.Output.Data as oWordCount[];
+            }
         }
 
         private void f_media_event_PlayStateChange(object sender, _WMPOCXEvents_PlayStateChangeEvent e)

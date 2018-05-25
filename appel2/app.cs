@@ -142,8 +142,8 @@ namespace appel
 
         private static void main_Shown(object sender, EventArgs e)
         {
-            //app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH_STORE, string.Empty);
-            main.for_test();
+            app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH_STORE, string.Empty);
+            //main.for_test();
         }
 
         private static void f_main_init()

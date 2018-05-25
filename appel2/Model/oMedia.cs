@@ -138,7 +138,8 @@ namespace appel
                 .Select(x => x.ToLower())
                 .GroupBy(x => x)
                 .Select(x => new oWordCount() { count = x.Count(), word = x.Key })
-                .OrderByDescending(x => x.count)
+                //.OrderByDescending(x => x.count)
+                .OrderBy(x => x.word)
                 .ToList();
         }
 

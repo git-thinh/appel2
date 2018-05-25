@@ -848,6 +848,24 @@ namespace appel
             return title;
         }
 
+        public static string f_media_getText(long mediaId)
+        {
+            string text = string.Empty;
+            oMedia m = null;
+            dicMediaStore.TryGetValue(mediaId, out m);
+            if (m != null && !string.IsNullOrEmpty(m.Text)) text = m.Text;
+            return text;
+        }
+
+        public static oWordCount[] f_media_getWords(long mediaId)
+        {
+            oMedia m = null;
+            dicMediaStore.TryGetValue(mediaId, out m);
+            if (m != null && !string.IsNullOrEmpty(m.Text))
+                return m.Words.ToArray();
+            return new oWordCount[] { };
+        }
+
         public static string f_media_getYoutubeID(long mediaId)
         {
             string url = string.Empty;
