@@ -483,12 +483,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                     m_word_content = api_media.f_media_getText(m_media_current_id);
 
                 if (!string.IsNullOrEmpty(m_word_content)) {
-                    string[] sentences = m_word_content
-                        .Replace("\r", string.Empty)
-                        .Replace("\r", " ")
-                        .Split('.')
-                        .Select(x => x.Trim())
-                        .ToArray();
+                    string[] sentences = api_media.f_media_getSentences(m_media_current_id);
 
 
                 }
@@ -1138,6 +1133,9 @@ writeline and then it's just   going to print out hello on the screen   can't do
             m_store_Message.Text = it.Text;
             this.Text = m_media_current_title;
             //lbl_title.Text = m_media_current_title;
+
+            string[] sentences = api_media.f_media_getSentences(m_media_current_id);
+
 
             if (m_media.playState == WMPLib.WMPPlayState.wmppsPlaying) m_media.Ctlcontrols.stop();
 

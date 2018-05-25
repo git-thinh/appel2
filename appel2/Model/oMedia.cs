@@ -177,8 +177,8 @@ namespace appel
             }
 
             content += Environment.NewLine +
-                "------------------------------------------------------------------"
-                + Environment.NewLine + Environment.NewLine +
+                //"------------------------------------------------------------------" +
+                Environment.NewLine + Environment.NewLine +
                 text;
 
             return content;

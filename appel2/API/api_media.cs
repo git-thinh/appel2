@@ -864,22 +864,37 @@ namespace appel
             dicMediaStore.TryGetValue(mediaId, out m);
             if (m != null && !string.IsNullOrEmpty(m.Text))
             {
-                string text = m.Text;
+                string text = m.Text.ToLower()
+                    .Replace("\r", string.Empty)
+                    .Replace("\n", string.Empty);
+
                 string[] a = new string[] { };
                 if (!string.IsNullOrEmpty(text))
                 {
-                    //if (wi == "i" || wi == "we" || wi == "you" || wi == "they" || wi == "he" || wi == "she" || wi == "it"
-                    //    || wi == "i'm" || wi == "we're" || wi == "you're" || wi == "they're" || wi == "he's" || wi == "she's" || wi == "it's"
-                    //    || wi == "how" || wi == "where" || wi == "what" || wi == "whom" || wi == "who" || wi == "which")
-                    //{
-                    //    bool sub = false;
-                    //    wii = listWord[i - 1].Word.ToLower();
-                    //    if (i > 0 &&
-                    //        (wii == "so" || wii == "and" || wii == "if" || wii == "when" || wii == "because"))
+                    //a = text.ToLower().Split(new string[] {
+                    //        "so", "and", "if", "when", "because",
+                    //        "i'm","we're","you're","they're","he's","she's","it's",
+                    //        "how","where","what","whom","who","which",
+                    //        "i","we","you","they","he","she","it",
+                    //    }, StringSplitOptions.None);
 
-                    a = text.Split(new string[] {
-                        //"so" || wii == "and" || wii == "if", "when", "because"
-                    }, StringSplitOptions.None);
+                    string[] aw = new string[] {
+                        " if ", " because ",
+                        "how", "where", "what", "whom", "who", "which", "when", "i'm", "we're", "you're", "they're", "he's", "she's", "it's",
+                        // " and "
+                        " i "," we "," they "," he "," she "," it ",
+                        //" you ",
+                    };
+                    foreach (string ai in aw)
+                        text = text.Replace(ai, ". " + ai);
+
+                    a = text.Split('.')
+                        .Select(x => x.Trim())
+                        .Where(x => x != string.Empty)
+                        .Select(x => x[0].ToString().ToUpper() + x.Substring(1))
+                        .ToArray();
+
+
                 }
                 return a;
             }
