@@ -882,7 +882,8 @@ namespace appel
                         " if ", " because ",
                         "how", "where", "what", "whom", "who", "which", "when", "i'm", "we're", "you're", "they're", "he's", "she's", "it's",
                         // " and "
-                        " i "," we "," they "," he "," she "," it ",
+                        " i "," we "," they "," he "," she ",
+                        //" it ",
                         " let's ",
                         " but ",
                         " while ",
@@ -902,27 +903,34 @@ namespace appel
                     string si = string.Empty;
                     string[] wds;
                     string[] asen = new string[a.Length - 1];
-                    for (int i = 0; i < a.Length - 1; i++) {
+                    for (int i = 0; i < a.Length - 1; i++)
+                    {
                         asen[i] = string.Empty;
-                        si = a[i];
+                        si = a[i].Trim();
                         wds = si.Split(' ');
-                        if (wds.Length > 2)
+
+                        if (i > 0)
                         {
-                            if (i > 0) {
-                                if (a[i - 1].Split(' ').Length < 3 && li.IndexOf(i) == -1) {
-                                    asen[i] = a[i - 1];
-                                    li.Add(i);
-                                }
+                            if (a[i - 1].IndexOf(' ') == -1 && li.IndexOf(i - 1) == -1)
+                            {
+                                asen[i] = a[i - 1];
+                                li.Add(i);
                             }
+                        }
+
+                        if (wds.Length > 1)
+                        {
                             if (asen[i] == string.Empty)
                                 asen[i] = si;
                             else if (!si.StartsWith(asen[i]))
                                 asen[i] += " " + si;
                         }
-                        else {
-                        }
                     }
 
+
+
+                    string s1 = string.Join(Environment.NewLine, a);
+                    string s2 = string.Join(Environment.NewLine, asen);
                 }
                 return a;
             }
