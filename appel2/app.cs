@@ -105,9 +105,10 @@ namespace appel
             media.StartPosition = FormStartPosition.Manual;
             media.Location = new System.Drawing.Point(-2000, -2000);
             media.Width = 1;
-            media.Shown += (se, ev) => {
+            media.Shown += (se, ev) =>
+            {
                 media.f_init();
-            }; 
+            };
             media.Show();
             media.Hide();
         }
@@ -115,8 +116,8 @@ namespace appel
         public static void f_player_Open(string url, string title)
         {
             media.Invoke((Action)(() =>
-            {                
-                media.Show(); 
+            {
+                media.Show();
                 media.ShowInTaskbar = true;
                 media.open(url, title);
             }));
@@ -165,18 +166,18 @@ namespace appel
             //var confirmResult = MessageBox.Show("Are you sure to exit this application ?", "Confirm Exit!", MessageBoxButtons.YesNo);
             //if (confirmResult == DialogResult.Yes)
             //{
-                foreach (var kv in dicService)
-                    if (kv.Value != null)
-                        kv.Value.Stop();
+            foreach (var kv in dicService)
+                if (kv.Value != null)
+                    kv.Value.Stop();
 
-                media.f_form_freeResource();
-                media.Close();
-                main.f_form_freeResource();
+            media.f_form_freeResource();
+            media.Close();
+            main.f_form_freeResource();
 
-                Application.ExitThread();
-                // wait for complete threads, free resource
-                //Thread.Sleep(30);
-                Application.Exit();
+            Application.ExitThread();
+            // wait for complete threads, free resource
+            //Thread.Sleep(30);
+            Application.Exit();
             //}
             //else
             //    e.Cancel = true;
@@ -243,9 +244,6 @@ namespace appel
         }
 
         #endregion
-
-
-
     }
 
     class Program

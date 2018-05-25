@@ -77,9 +77,9 @@ namespace appel
             m_tab.SelectedItem = m_tab_Word;
 
             string content = string.Empty;
-            List<oWordCount> words = new List<oWordCount>();
 
             #region
+
             content = @"well hello internet and welcome to my C   sharp tutorial you guys have asked for   it and I did my best to cover pretty   much the entire c-sharp language in this   one video in the description underneath   video you'll actually see links to all   the individual parts so not only will   you be able to jump to whatever you want   to learn about but you'll also be able   to see every single thing that's covered   in this video so I have a lot to do so   let's get into it   okay so if you are on Windows you no   doubt are probably going to use Visual   Studio 2015 or 2013 depending upon what   you want to use Community Edition and   you just go to Visual Studio calm or   just type in Visual Studio Community   Edition that's what I'm going to be   using in this tutorial however if you   are on Mac OS X or on Linux you can try   out the mono project comm right here and   download and give that a try everything   here is going to be able to compile on   any OS and now let's jump over and let's   start writing some code alright so here   I am inside of Windows and I'm just   going to come in here and open up a   Visual Studio 2015   sorry about the zooming some people   don't like that and here it is and it's   going to be real big here in a second   what I'm going to do is I'm going to say   that I want to start a new project and   specifically I want to start a console   application because that's gonna make it   easy for us all to see exactly what's   going on and focus on coding and click   OK and here we go this is exactly what   it's going to generate here on our   screen so let's just start writing some   code we're going to write all of our   code inside of static void main right   here and let's just start off with the   simple stuff comments just two slashes   there's your comment and then your   multi-line comment is forward slash star   and multi-line up above   and star and there you go so we got   comments out of the way now we're going   to be out putting everything onto the   console so in this situation I'm going   to say console dot if we type in right   there is not going to be a newline if we   type in right line there is going to be   a newline and we can just say a little   world and get the hello world thing out   of the way and then we can execute that   and you're going to see that there it is   a little world da-da-da-da-da opened up   in the screen don't worry about all this   stuff right here all right so let's   continue if you wanted to come in here   and get input from your user you could   say something like what is your name   like that and maybe you want to use just   right here because we don't want to put   a new line after that and then it's so   easy to get user input we're just going   to come in here well first we're going   to say that we want to store a string   that's how the input comes in and we're   going to store it in a variable name   name and just like everything else you   can use letters numbers underscores but   you should start off with a letter and   we're going to say console and read line   and that's how we're going to be able to   get input and then we'll be able to come   in here again and go console and write   line in this situation and then if we   want to output information in the screen   we could just go hello I'm going to put   a space inside of there and if we want   to combine two strings we can just type   in name with our variable name like that   now is how simple it is and we can   execute it what is your name and I can   say Dirk and it will say hello Derrick   instead let's get into data types now we   have boolean x' and a boolean is either   going to have the value of true or false   so can vote for example if we want to   store that inside of here we could say   true or false and that is a boolean   characters we could come in CH AR is   equal to dot a or whatever and this is   going to be able to hold a single 16-bit   Unicode character for us and the little   lines there is just there because I   saying hey you defined this variable but   you didn't do anything with it now let's   get into all of the different numeric   types you have integers with have a   maximum number of that big giant number   and you can actually get that number do   I just going int dot and then max value   with uppercase letters like that you   have   Long's which can have a larger non   floating-point number and then once   again you can get that value by just   going long dot max value and store it   over in this variable decimals are   actually massively huge and if you need   anything bigger than that you could go   and take a look at big integers and once   again you can get that value by just   going max value floats are going to have   very large numbers as well however   they're only going to have seven   decimals of precision that means if you   go in here and try to create a float   that is more than seven decimals that it   is going to cause errors and it's not   going to be accurate if you need   something even bigger go for doubles for   the most part you're going to use   doubles anywhere you can see how large   they are and they have fifteen decimals   of precision which is considerably   better there's a rundown of all the   major different data types you're going   to use being int Long's decimals floats   and doubles once again if we want to   come in here and combine our strings we   could do so with our console and write   line and just say something like max int   and all the code by the way is available   in the description as well and of course   it is all free there we go and you can   combine not only strings but you can   also combine strings with any other   different datatype this way and you can   see right there I printed that out on   screen for me another different data   type that is available to you is var and   basically the VAR data type is defined   whenever the program is compiled and   then its value isn't going to be able to   be changed so we could say something   like bar another name is equal to and   it's automatically going to say okay   this is a string because the data that   you store it inside of there is a string   however we wouldn't be able to come in   there thereafter and say another   and give it a value of two for example   that is going to cause an error so this   is a shorthand way for us to create a   variable based off of whatever we assign   to it however remember we're not going   to be able to change it to some other   data type because this is considered an   integer the thing that is interesting is   we can come in here and actually get the   type for our data type that we have here   so let's just go write line and we could   say something like another make sure you   put double quotes around this another   name is a and if you want to format or   throw in different pieces of data you   can just put inside here you're going to   start off with curly brackets and then 0   and then the next piece is going to be   squirrely brackets on one we'll get more   into that here in a second and then we   can come in and get the data type for   another name by just going another name   and then get type code and execute you   can see another name is a string so now   let's get into the different math   operations we can perform you can see a   whole bunch from right here we can add   subtract multiply divide this guy right   here is a modulus character which is   going to get us the remainder of this   division and you can see right here how   we can increment different values and   we're going to see exactly how they work   as well as decrement there's the   increment and decrement shorthands and   you can also see there are additional   shorthands this right here would be   equivalent to saying I is equal to I   plus 3 so this guy right here is just   the same as that this is just a   shorthand version of the same thing you   can see right here if we come in here   and add this is actually a remainder   operator so you can see it goes in there   and throws the decimal point in there as   well and you can see right here the way   that this is operating with this   shorthand notation see right here we   have at a value of 0 and you can see it   prints out a value of 0 so you might be   saying what's going on here basically   what it's doing is it's going and   getting the current value of I putting   that inside of there and then it's   performing the addition right here and   then when that's the same reason why it   jumps up to 2 is it whenever you put the   plus plus ahead of your variable like   you have right here it goes ahead and   performs the addition before transposes   it inside air and prints it   on the screen same exact thing happens   whenever we're decrementing and you can   also see exactly how this shorthand   notation works right there so that's how   you perform your basic arithmetic now   let's take a look at a casting and how   exactly that works now basically if no   magnitude is lost casting is going to   happen automatically but otherwise   you're going to have to set it up like   this so let's say we have double and pi   is equal to 3.
 14 and we're going to   convert that into an integer you call   this integer pi is equal to you just put   little brackets inside of there and what   you want to cast it to and then the   thing that you want to cast and of   course make sure that you always end all   of your statements with semicolons that   is a requirement so pretty simple if you   want to cast from one to the other you   just go and put inside of there or   whatever you want to cast to as for math   functions that are built in there are a   whole bunch of them here or some of the   other ones and what the heck I might as   well just run through a couple of them   just so you can see exactly how they all   operate so let's go and create ourselves   two doubles number one and number two   and you can see here we can get the   absolute value with this function right   here we can get the ceiling which is   going to round up the value floor which   is going to round down max you're going   to send it to numbers it's going to give   you the maximum number or the largest   number men is going to do the opposite   you do the power you can do another   round and here is square root you can   see exactly how all of those operate   right here so absolute value 10.
 5 could   see ceiling is going to round it up   floor is going to round it down max is   going to give you the maximum value man   is going to give you the minimum and you   can see the power operation and rounding   and square root right there so there are   some of the most common math functions   you use something else that we'd like to   do a lot is to generate random numbers   and let's just go and create a random is   equal to and you're just going to go new   random and then inside of here we can   do another console right and let's say   that we want to generate a random number   between 1 and 10 just be able to come in   here and then go Rand dot next and we're   going to if we went 1 to 10 we have to   go up to 11 right like this if we   execute that random number between 1 to   10 and you can see right there is the   value of 5 so there's a rundown of a   whole bunch of different things we can   do math related inside of Seashore now   let's go and take a look at some of our   conditionals   now the relational operators we're going   to have available or all the same year   very well used two less than greater   than greater than or equal to equal to   and not equal to and then with our   logical operators we're going to have   and or exclusive or and not I'm going to   show you exactly how they work so let's   just come in here and let's go over how   if statements work so let's say we have   int and an age and let's give it a value   of 17 can then come in and go if and   we're going to use two brackets here age   is greater than or equal to 5 and and   this is going to allow us to do two   comparisons at once age is less than or   equal to 7 then we're going to put in   our curly brackets and define what   happens if that comes back is true for   this to come back is true since we're   using and here this has to be true and   that has to be true we'll say something   like go to elementary school now   likewise we continue making comparisons   just by going else if and then we could   throw in another conditional inside of   this age greater than 7 and age less   than 13 in that situation once again we   could do another console right and   instead change this to middle school and   then finally as a default if you get   through all of those we can say else   console right and we could say go to   highschool and there you go that's   exactly how if-else F and else work as   well as the relational operators and the   logical operators when it's the example   of how the logical operator or works we   could also come in here   Kengo if age is less than 14 or age is   greater than 67 could come in here and   say something like you shouldn't work   that's not a political statement right   there that's just based off of   retirement ages and when it's legal to   work in the United States anyway all   right so there we go and you can see   that this is only going to come back   true or this is going to come back   through if either this is true or that   is true and of course we could use the   exclusive-or which is going to only come   back if one of them is false and one of   them is true but this was the one you're   going to use most of the time another   thing we can do is go console right and   just to demonstrate how not works not   true it's just going to take whatever   you have here and it is going to give   you the absolute opposite of it so we   can put not true for example right like   this and if we execute it you're going   to see not true is equal to false also   take a look at the ternary operator and   it's going to allow us to assign a value   based off of a condition so we'll put a   boolean in here but this could be   anything this could be an integer or   double or anything and we're going to   say if age is greater than or equal to   16 I'm going to put a question mark   inside of there then we'll put true and   then a colon and false basically what   this is saying is if this value or this   condition comes back true we want to   assign the value of true to can drive if   it comes back as false we're going to   assign false to it like I said we could   also come in here and do something like   integer and then assign some arbitrary   number that is how we would like to work   with this instead but that is how the   ternary operator works inside of c-sharp   another condition that we can use is the   switch statement yes we have switch   statements we could say age come inside   of here and we're going to be able to go   case 0 like this and then in the case   that age has a value of 0   we could go console right and we could   say infant and you're going to have to   put your break statements in here to   jump outside of there otherwise you're   going to get errors you're also going to   be able to come in and stack these up so   let's go case and then we could also   check case two and in that situation we   type toddler out on   so if the value of age is either 1 or 2   it's going to perform this operation   that's inside of there another thing we   could do is this isn't specific to   switch statements but you can use go   twos inside of Seashore do something   like go too cute and then we could jump   outside of this like this and then type   in cute the colon like that and this   would jump completely out of the switch   statement and we could say something   like toddlers are cute or something like   that that is how go-to works inside of   there you can see there you are there's   a label jumps to that hopefully you   almost never use that because go-to   statements can cause major nightmares   and then finally of course we're going   to be able to come in and find a default   situation if nothing else matches and in   that situation we could just say child   and then through our break statement in   there you go that is how switch   statements work if ternary operators as   well as go-to now let's jump over and   take a look at looping now with looping   we're going to continue executing   statements as long as a condition is   true so in this situation we're going to   create an integer here give it a value   of 0 because we're going to need a value   that is going to increment over and over   again and I'm just going to call this   into I just to keep this nice and simple   let's first talk about the while loop   and in this situation we're going to   continue looping as long as I is less   than 10   I could however come in here and say if   I is ever equal to 7 in that situation I   want to do something different I'm going   to increment the value oh I always have   to do that if you ever ever have any   sort of errors with your loops there   probably have something to do with not   incrementing when that situation what   we're going to say is continue so if I   is equal to 7 what we want to do is we   want to increment the value to 8 right   here I is now going to be equal to 8 and   then we're going to say we want to   continue with our loop which means we're   going to ignore everything that comes   out right here we're going to jump back   up to the loop and then continue working   with what we got right here we could   also come in and say if I is equal to No   mine in that situation we can use our   break statement again which is going to   jump us completely out of a loop no more   while no more check-in anything we are   all done and if I is not equal to seven   or nine we could do something like this   if we want to only be able to print out   odd numbers we could say if I remainder   of two is greater than zero well in that   situation we want to print out our value   of I and do it right like that and then   of course we want to make sure that we   increment I before we leave our while   loop so this is going to come in here   the reason why this is only going to   print out i if it is an odd value is   here if we would take like a four and   then do modulus of two that is not going   to give us a remainder so we're checking   for a remainder and the remainder would   only occur if it is in odd number and   that is the reason why only odd numbers   are going to print that situation if we   go and execute this you can see it   prints out one three and five right   there   now the other looping operation we're   going to take a look at we're going to   take a look at all of them but we're   also going to take a look at two while   and do-while basically going to be used   instead of Wow whenever you want to   guarantee that you are going to   definitely go through the code in the   loop at least once before you check if   you should continue cycling through the   code inside of the loop and this is   actually quite useful let's say that we   have a string that we have the name of   guess and we want to cycle through this   loop and consider or continue getting   input from the user   until they guess the proper number so we   can come in and go console and we can   say something like guess a number like   that we could then go and get the user   input and store it inside of guest by   going console read line just like we   covered previously and now what we're   going to do is the while part is   actually going to come after the do part   so you can see right here this code is   definitely going to be executed at least   one time because after we go through it   the first time we're then going to say   not guess equals and this is how we   check for equality with strings so we're   going to put 15 inside of there which is   a string and we're going to come   to the string that was input here by our   user so what we're saying is while gas   is not equal to 15 we want to continue   executing this loop over and over and   over again and this is how we check   string equality by the way is with the   string and then equal sorry like that we   can execute it and it's going to say   guess a number and we can start guessing   numbers until we get to 15 and then we   know that we got the right number   there's an example of do-while now let's   take a look at the for loop which is   basically going to allow us to put the   iterator and all of its initialization   all in one place so we're going to go   for we're going to find the datatype for   the guy that we're going to need to be   iterating over and let's say zero then   we're going to define exactly how long   or the condition in which we're going to   continue execution while I is less than   10 and then we're going to come in here   and we're going to say how much we're   going to increment each time and you can   of course increment this by 2 or 3 or 5   whatever you want to do doesn't matter   then we could say something like let's   say we want to do similar thing with   what we did before we could say if I   assign to greater than zero so we're   going to check so that we're only going   to print odds out on our screen again   and we could say console.
@@ -90,39 +90,77 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
             string temp = Regex.Replace(content, "[^0-9a-zA-Z]+", " ").ToLower();
             temp = Regex.Replace(temp, "[ ]{2,}", " ").ToLower();
-            words = temp.Split(new char[] { '\r', '\n', ' ' })
+            m_words = temp.Split(new char[] { '\r', '\n', ' ' })
                 .Where(x => x != string.Empty)
                 .Select(x => x.ToLower())
                 .GroupBy(x => x)
                 .Select(x => new oWordCount() { count = x.Count(), word = x.Key })
-                .OrderByDescending(x => x.count)
-                .ToList();
+                .OrderBy(x => x.word)
+                .ToArray();
+
             #endregion
 
-            var w1 = words.Where(x => x.word.Length == 1).ToArray();
-            var ws = words.Where(x => x.word.Length > 1).ToArray();
-
-            f_word_draw_Items(ws.Take(133).ToArray());
+            //var w1 = m_words.Where(x => x.word.Length == 1).ToArray();
+            //var ws = m_words.Where(x => x.word.Length > 1).ToArray();
+            //f_word_draw_Items(ws.Take(m_word_page_size).ToArray());
+            f_word_input_KeyDown(m_word_Input, null);
         }
 
         #region [ WORD ]
-        
+
         #region
 
-        msg     m_word_current_msg = null;
-        long    m_word_item_current_id = 0;
-        string  m_word_item_current_text = string.Empty;
-                  
-        Label   m_word_Message;
+        int m_word_page_number = 1;
+        int m_word_page_size = 100;
+
+        oWordCount[] m_words = new oWordCount[] { };
+        msg m_word_current_msg = null;
+        long m_word_item_current_id = 0;
+        string m_word_item_current_text = string.Empty;
+
+        Label m_word_Message;
         FlowLayoutPanel m_word_Result;
         TextBox m_word_Input;
-        Panel   m_word_Footer;
-                  
-        Label   m_word_PageCurrent;
-        Label   m_word_PageTotal;
-        Label   m_word_TotalItems;
+        Panel m_word_Footer;
+
+        Label m_word_PageCurrent;
+        Label m_word_PageTotal;
+        Label m_word_TotalItems;
 
         #endregion
+
+
+        void f_word_goPage(int page_current)
+        {
+            string key = m_word_Input.Text.Trim();
+            if (key.Length > 0)
+            {
+                var a = m_words.Where(x => x.word.Contains(key));
+                int totalItems = a.Count();
+                m_word_Message.Text = string.Format("The finding [{0}] have {1} words", key, totalItems);
+                m_word_page_number = 1;
+                f_word_draw_Items(a.Take(m_word_page_size).ToArray());
+                //////////////////////////////////////
+                int pageTotal = totalItems / m_word_page_size;
+                if (totalItems % m_word_page_size != 0) pageTotal++;
+
+                m_word_TotalItems.Text = totalItems.ToString();
+                m_word_PageTotal.Text = pageTotal.ToString();
+            }
+            else
+            {
+                m_word_Message.Text = string.Empty;
+                var a = m_words.Take(m_word_page_size).ToArray();
+                m_word_page_number = 1;
+                f_word_draw_Items(a);
+                //////////////////////////////////////
+                int pageTotal = m_words.Length / m_word_page_size;
+                if (m_words.Length % m_word_page_size != 0) pageTotal++;
+
+                m_word_TotalItems.Text = m_words.Length.ToString();
+                m_word_PageTotal.Text = pageTotal.ToString();
+            }
+        }
 
         void f_word_draw_Items(oWordCount[] words)
         {
@@ -266,7 +304,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                     Padding = new Padding(5,3,5,0),
                 },
                 m_word_TotalItems,
-                new Label(){ Dock = DockStyle.Right, Padding = new Padding(0,3,0,0), Text = " items ", TextAlign = ContentAlignment.BottomLeft, AutoSize = true, },
+                new Label(){ Dock = DockStyle.Right, Padding = new Padding(0,3,0,0), Text = " words ", TextAlign = ContentAlignment.BottomLeft, AutoSize = true, },
                 btn_next,
 
                 #endregion
@@ -309,6 +347,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         private void f_word_input_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e == null || e.KeyCode == Keys.Enter)
+                f_word_goPage(1);
         }
 
         #endregion
@@ -1027,7 +1067,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 Dock = DockStyle.Fill,
             };
             m_search_Result.MouseMove += f_form_move_MouseDown;
-            
+
             m_search_Footer = new Panel()
             {
                 Height = 25,
