@@ -120,14 +120,14 @@ namespace appel
 
                             if (tab == MEDIA_TAB.TAB_STORE)
                                 dicMediaStore.TryGetValue(mediaId, out mi);
-                            else if(tab == MEDIA_TAB.TAB_SEARCH)
+                            else if (tab == MEDIA_TAB.TAB_SEARCH)
                                 dicMediaSearch.TryGetValue(mediaId, out mi);
 
-                            if ( mi != null)
-                            { 
+                            if (mi != null)
+                            {
                                 m.Output.Ok = true;
                                 m.Output.Data = mi.Text;
-                                response_toMain(m); 
+                                response_toMain(m);
                             }
                         }
                         break;
@@ -236,7 +236,8 @@ namespace appel
                         {
                             long mediaId = (long)m.Input;
                             oMedia mi = null;
-                            if (dicMediaStore.TryGetValue(mediaId, out mi) && mi != null) {
+                            if (dicMediaStore.TryGetValue(mediaId, out mi) && mi != null)
+                            {
                                 if (mi.Star)
                                     mi.Star = false;
                                 else
@@ -244,7 +245,7 @@ namespace appel
                                 f_media_writeFile();
 
                                 m.Log = string.Format("Update bookmark set be {0} for {1}: {2}", mi.Star, mi.Title, "SUCCESSFULLY");
-                                notification_toMain(m); 
+                                notification_toMain(m);
                             }
                         }
 
@@ -605,7 +606,7 @@ namespace appel
 
                                 if (mi.Keywords != null && mi.Keywords.Count > 0)
                                     content += Environment.NewLine + string.Join(" ", mi.Keywords);
-                                 
+
                                 string text = mi.SubtileEnglish;
                                 if (!string.IsNullOrEmpty(text))
                                 {
@@ -855,6 +856,34 @@ namespace appel
             dicMediaStore.TryGetValue(mediaId, out m);
             if (m != null && !string.IsNullOrEmpty(m.Text)) text = m.Text;
             return text;
+        }
+
+        public static string[] f_media_getSentences(long mediaId)
+        {
+            oMedia m = null;
+            dicMediaStore.TryGetValue(mediaId, out m);
+            if (m != null && !string.IsNullOrEmpty(m.Text))
+            {
+                string text = m.Text;
+                string[] a = new string[] { };
+                if (!string.IsNullOrEmpty(text))
+                {
+                    //if (wi == "i" || wi == "we" || wi == "you" || wi == "they" || wi == "he" || wi == "she" || wi == "it"
+                    //    || wi == "i'm" || wi == "we're" || wi == "you're" || wi == "they're" || wi == "he's" || wi == "she's" || wi == "it's"
+                    //    || wi == "how" || wi == "where" || wi == "what" || wi == "whom" || wi == "who" || wi == "which")
+                    //{
+                    //    bool sub = false;
+                    //    wii = listWord[i - 1].Word.ToLower();
+                    //    if (i > 0 &&
+                    //        (wii == "so" || wii == "and" || wii == "if" || wii == "when" || wii == "because"))
+
+                    a = text.Split(new string[] {
+                        //"so" || wii == "and" || wii == "if", "when", "because"
+                    }, StringSplitOptions.None);
+                }
+                return a;
+            }
+            return new string[] { };
         }
 
         public static oWordCount[] f_media_getWords(long mediaId)
