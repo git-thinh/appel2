@@ -138,7 +138,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 var a = m_words.Where(x => x.word.Contains(key));
                 int totalItems = a.Count();
                 m_word_Message.Text = string.Format("The finding [{0}] have {1} words", key, totalItems);
-                m_word_page_number = 1;
+                m_word_page_number = page_current;
                 f_word_draw_Items(a.Take(m_word_page_size).ToArray());
                 //////////////////////////////////////
                 int pageTotal = totalItems / m_word_page_size;
@@ -151,7 +151,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
             {
                 m_word_Message.Text = string.Empty;
                 var a = m_words.Take(m_word_page_size).ToArray();
-                m_word_page_number = 1;
+                m_word_page_number = page_current;
                 f_word_draw_Items(a);
                 //////////////////////////////////////
                 int pageTotal = m_words.Length / m_word_page_size;
@@ -159,6 +159,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
                 m_word_TotalItems.Text = m_words.Length.ToString();
                 m_word_PageTotal.Text = pageTotal.ToString();
+                m_word_page_number = page_current;
             }
         }
 
