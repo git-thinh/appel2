@@ -883,7 +883,11 @@ namespace appel
                         "how", "where", "what", "whom", "who", "which", "when", "i'm", "we're", "you're", "they're", "he's", "she's", "it's",
                         // " and "
                         " i "," we "," they "," he "," she "," it ",
+                        " let's ",
+                        " but ",
+                        " while ",
                         //" you ",
+                        //"   ",
                     };
                     foreach (string ai in aw)
                         text = text.Replace(ai, ". " + ai);
@@ -891,9 +895,33 @@ namespace appel
                     a = text.Split('.')
                         .Select(x => x.Trim())
                         .Where(x => x != string.Empty)
-                        .Select(x => x[0].ToString().ToUpper() + x.Substring(1))
+                        //.Select(x => x[0].ToString().ToUpper() + x.Substring(1))
                         .ToArray();
 
+                    List<int> li = new List<int>();
+                    string si = string.Empty;
+                    string[] wds;
+                    string[] asen = new string[a.Length - 1];
+                    for (int i = 0; i < a.Length - 1; i++) {
+                        asen[i] = string.Empty;
+                        si = a[i];
+                        wds = si.Split(' ');
+                        if (wds.Length > 2)
+                        {
+                            if (i > 0) {
+                                if (a[i - 1].Split(' ').Length < 3 && li.IndexOf(i) == -1) {
+                                    asen[i] = a[i - 1];
+                                    li.Add(i);
+                                }
+                            }
+                            if (asen[i] == string.Empty)
+                                asen[i] = si;
+                            else if (!si.StartsWith(asen[i]))
+                                asen[i] += " " + si;
+                        }
+                        else {
+                        }
+                    }
 
                 }
                 return a;
