@@ -104,6 +104,40 @@ namespace appel
             return string.Format("{0} - {1}", Id, Title);
         }
 
+        private string _subtileEnglish_Text = string.Empty;
+        public string SubtileEnglish_Text {
+            get {
+                if (!string.IsNullOrEmpty(_subtileEnglish_Text))
+                    return _subtileEnglish_Text;
+
+                string text = this.SubtileEnglish;
+                if (!string.IsNullOrEmpty(text))
+                {
+                    text = Regex.Replace(text, @"<[^>]*>", String.Empty);
+                    text = HttpUtility.HtmlDecode(text);
+                    text = text.Replace('\r', ' ').Replace('\n', ' ');
+                    string[] a = text.Split(new char[] { '.' })
+                        .Select(x => x.Trim())
+                        .Where(x => x != string.Empty)
+                        .ToArray();
+                    text = string.Join(Environment.NewLine, a);
+                    text = text.Replace("?", "?" + Environment.NewLine);
+                    a = text.Split(new char[] { '\r', '\n' })
+                       .Select(x => x.Trim())
+                       .Where(x => x != string.Empty)
+                       .ToArray();
+                    text = string.Empty;
+                    foreach (string ti in a)
+                        if (ti[ti.Length - 1] == '?') text += ti + Environment.NewLine;
+                        else text += ti + "." + Environment.NewLine;
+                }
+
+                _subtileEnglish_Text = text;
+
+                return text;
+            }
+        }
+
         private List<oWordCount> _Words = new List<oWordCount>();
         public List<oWordCount> Words
         {
@@ -153,33 +187,11 @@ namespace appel
 
             if (mi.Keywords != null && mi.Keywords.Count > 0)
                 content += Environment.NewLine + string.Join(" ", mi.Keywords);
-
-            string text = mi.SubtileEnglish;
-            if (!string.IsNullOrEmpty(text))
-            {
-                text = Regex.Replace(text, @"<[^>]*>", String.Empty);
-                text = HttpUtility.HtmlDecode(text);
-                text = text.Replace('\r', ' ').Replace('\n', ' ');
-                string[] a = text.Split(new char[] { '.' })
-                    .Select(x => x.Trim())
-                    .Where(x => x != string.Empty)
-                    .ToArray();
-                text = string.Join(Environment.NewLine, a);
-                text = text.Replace("?", "?" + Environment.NewLine);
-                a = text.Split(new char[] { '\r', '\n' })
-                   .Select(x => x.Trim())
-                   .Where(x => x != string.Empty)
-                   .ToArray();
-                text = string.Empty;
-                foreach (string ti in a)
-                    if (ti[ti.Length - 1] == '?') text += ti + Environment.NewLine;
-                    else text += ti + "." + Environment.NewLine;
-            }
-
+            
             content += Environment.NewLine +
                 //"------------------------------------------------------------------" +
                 Environment.NewLine + Environment.NewLine +
-                text;
+                mi.SubtileEnglish_Text;
 
             return content;
         }

@@ -864,9 +864,14 @@ namespace appel
             dicMediaStore.TryGetValue(mediaId, out m);
             if (m != null && !string.IsNullOrEmpty(m.Text))
             {
-                string text = m.Text.ToLower()
-                    .Replace("\r", string.Empty)
-                    .Replace("\n", string.Empty);
+                string text = m.SubtileEnglish_Text.ToLower()
+                    //.Replace("\r", string.Empty)
+                    //.Replace("\n", string.Empty)
+                    .Replace('.', '^')
+                    .Replace(" i i ", " i ")
+                    .Replace('\r', ' ')
+                    .Replace('\n', ' ')
+                    .Replace("[music]", ".");
 
                 string[] a = new string[] { };
                 if (!string.IsNullOrEmpty(text))
@@ -879,14 +884,20 @@ namespace appel
                     //    }, StringSplitOptions.None);
 
                     string[] aw = new string[] {
+                        "and then",
                         " if ", " because ",
                         "how", "where", "what", "whom", "who", "which", "when", "i'm", "we're", "you're", "they're", "he's", "she's", "it's",
-                        // " and "
                         " i "," we "," they "," he "," she ",
-                        //" it ",
                         " let's ",
                         " but ",
                         " while ",
+                        " now ",
+                        " at this ",
+                        " let ",
+                        "my name",
+                        "thank you",
+                        //" and ",
+                        //" it ",
                         //" you ",
                         //"   ",
                     };
@@ -907,6 +918,7 @@ namespace appel
                     {
                         asen[i] = string.Empty;
                         si = a[i].Trim();
+                        si = si.Replace('^', '.');
                         wds = si.Split(' ');
 
                         if (i > 0)
@@ -926,9 +938,7 @@ namespace appel
                                 asen[i] += " " + si;
                         }
                     }
-
-
-
+                    
                     string s1 = string.Join(Environment.NewLine, a);
                     string s2 = string.Join(Environment.NewLine, asen);
                 }
