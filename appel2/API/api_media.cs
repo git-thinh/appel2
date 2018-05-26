@@ -883,19 +883,23 @@ namespace appel
                     //        "i","we","you","they","he","she","it",
                     //    }, StringSplitOptions.None);
 
-                    string[] aw = new string[] {
+                    List<string> ls_key = new List<string>() { 
+                        "my name",
+                        "thank you",
+                        "at this",
                         "and then",
+                        "how are",
+                    };
+                    string[] aw = new string[] {
+                        " let ",
                         " if ", " because ",
-                        "how", "where", "what", "whom", "who", "which", "when", "i'm", "we're", "you're", "they're", "he's", "she's", "it's",
+                        "how", "where", "what", "whom", "who", "which", "when",
+                        "i'm", "we're", "you're", "they're", "he's", "she's", "it's",
                         " i "," we "," they "," he "," she ",
                         " let's ",
                         " but ",
                         " while ",
                         " now ",
-                        " at this ",
-                        " let ",
-                        "my name",
-                        "thank you",
                         //" and ",
                         //" it ",
                         //" you ",
@@ -918,12 +922,16 @@ namespace appel
                     {
                         asen[i] = string.Empty;
                         si = a[i].Trim();
+
+                        if (ls_key.IndexOf(si) != -1) continue;
+
                         si = si.Replace('^', '.');
                         wds = si.Split(' ');
 
                         if (i > 0)
                         {
-                            if (a[i - 1].IndexOf(' ') == -1 && li.IndexOf(i - 1) == -1)
+                            if ((ls_key.IndexOf(a[i - 1]) != -1)
+                                ||( a[i - 1].IndexOf(' ') == -1 && li.IndexOf(i - 1) == -1))
                             {
                                 asen[i] = a[i - 1];
                                 li.Add(i);
