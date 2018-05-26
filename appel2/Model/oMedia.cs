@@ -105,8 +105,10 @@ namespace appel
         }
 
         private string _subtileEnglish_Text = string.Empty;
-        public string SubtileEnglish_Text {
-            get {
+        public string SubtileEnglish_Text
+        {
+            get
+            {
                 if (!string.IsNullOrEmpty(_subtileEnglish_Text))
                     return _subtileEnglish_Text;
 
@@ -130,10 +132,30 @@ namespace appel
                     foreach (string ti in a)
                         if (ti[ti.Length - 1] == '?') text += ti + Environment.NewLine;
                         else text += ti + "." + Environment.NewLine;
+
+                    text = text
+                        //string text = m.SubtileEnglish_Text.ToLower()
+                        //.Replace("\r", string.Empty)
+                        //.Replace("\n", string.Empty)
+                        //.Replace('.', '|')
+                        .Replace(" i i ", " i ")
+                        .Replace('\r', ' ')
+                        .Replace('\n', ' ')
+                        .Replace("[music]", ".");
+
+                    text = Regex.Replace(text, "[^0-9a-zA-Z.'|]+", " ").ToLower();
+                    text = Regex.Replace(text, "[ ]{2,}", " ").ToLower();
+                    //string.Join("." + Environment.NewLine, text.Split('.').Select(x => x.Trim()).ToArray());
+
+                    text = string.Join(Environment.NewLine,
+                        text.Split('.')
+                        .Select(x => x.Trim())
+                        .Where(x => x.Length > 0)
+                        .Select(x => x[0].ToString().ToUpper() + x.Substring(1))
+                        .ToArray());
                 }
 
                 _subtileEnglish_Text = text;
-
                 return text;
             }
         }
@@ -187,7 +209,7 @@ namespace appel
 
             if (mi.Keywords != null && mi.Keywords.Count > 0)
                 content += Environment.NewLine + string.Join(" ", mi.Keywords);
-            
+
             content += Environment.NewLine +
                 //"------------------------------------------------------------------" +
                 Environment.NewLine + Environment.NewLine +

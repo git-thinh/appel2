@@ -27,7 +27,6 @@ namespace appel
         Label lbl_title;
 
 
-        TextBox m_media_text;
         long m_media_current_id = 0;
         MEDIA_TAB m_media_current_tab = MEDIA_TAB.TAB_STORE;
         string m_media_current_title = string.Empty;
@@ -693,6 +692,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 case tab_caption_grammar: // "Grammar"
                     break;
                 case tab_caption_word: // "Word"
+                    #region
+
                     //if (m_tab_Text.Tag != null && (long)m_tab_Word.Tag != m_media_current_id)
                     if ((m_tab_Word.Tag == null && m_media_current_id > 0)
                         || (m_tab_Word.Tag != null
@@ -703,7 +704,11 @@ writeline and then it's just   going to print out hello on the screen   can't do
                         m_tab_Word.Tag = m_media_current_id;
                     }
                     break;
+
+                    #endregion
                 case tab_caption_text: // "Text"
+                    #region
+
                     if ((m_tab_Text.Tag == null && m_media_current_id > 0)
                         || (m_tab_Text.Tag != null
                         && (long)m_tab_Text.Tag != m_media_current_id
@@ -713,6 +718,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
                         m_tab_Text.Tag = m_media_current_id;
                     }
                     break;
+
+                    #endregion
                 case tab_caption_book: // "Book"
                     break;
             }
@@ -1563,9 +1570,17 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         #region [ MEDIA ]
 
+        TextBox m_media_text;
+
         private void f_media_loadText()
         {
-            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_TEXT_INFO, Input = m_media_current_id, Log = ((int)m_media_current_tab).ToString() });
+            //app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_TEXT_INFO, Input = m_media_current_id, Log = ((int)m_media_current_tab).ToString() });
+            if (m_media_current_id > 0)
+            {
+                //string text = api_media.f_media_getText(m_media_current_id);
+                string[] a = api_media.f_media_getSentences(m_media_current_id);
+                m_media_text.Text = string.Join(Environment.NewLine + Environment.NewLine, a);
+            }
         }
 
         private void f_media_loadWord()

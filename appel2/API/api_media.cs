@@ -867,11 +867,21 @@ namespace appel
                 string text = m.SubtileEnglish_Text.ToLower()
                     //.Replace("\r", string.Empty)
                     //.Replace("\n", string.Empty)
-                    .Replace('.', '^')
+                    .Replace('.', '|')
                     .Replace(" i i ", " i ")
                     .Replace('\r', ' ')
                     .Replace('\n', ' ')
                     .Replace("[music]", ".");
+
+                text = Regex.Replace(text, "[^0-9a-zA-Z.'|]+", " ").ToLower();
+                text = Regex.Replace(text, "[ ]{2,}", " ").ToLower();
+                //string.Join("." + Environment.NewLine, text.Split('.').Select(x => x.Trim()).ToArray());
+
+                //return text.Split('.')
+                //    .Select(x => x.Trim())
+                //    .Select(x => x[0].ToString().ToUpper() + x.Substring(1))
+                //    .ToArray();
+
 
                 string[] a = new string[] { };
                 if (!string.IsNullOrEmpty(text))
@@ -883,27 +893,46 @@ namespace appel
                     //        "i","we","you","they","he","she","it",
                     //    }, StringSplitOptions.None);
 
-                    List<string> ls_key = new List<string>() { 
-                        "my name",
-                        "thank you",
-                        "at this",
-                        "and then",
-                        "how are",
+                    List<string> ls_key = new List<string>()
+                    {
                     };
                     string[] aw = new string[] {
+                        "please",
+                        "my name",
+                        "all these",
+                        "these while",
+                        "there are",
+                        "this is",
+                        "thank you",
+                        "and then",
+                        "how are",
+                        "that you can",
+                        "that you do",
+                        "you can even",
+                        "you could use",
+                        "so you can",
+                        "and you can",
+                        "so you know",
+                        "and you know",
+                        "you know that",
+                        "you ask",
+                        "that will",
+
+                        //" today ",
                         " let ",
-                        " if ", " because ",
-                        "how", "where", "what", "whom", "who", "which", "when",
-                        "i'm", "we're", "you're", "they're", "he's", "she's", "it's",
-                        " i "," we "," they "," he "," she ",
+                        " if ",
+                        " because ",
                         " let's ",
                         " but ",
                         " while ",
-                        " now ",
-                        //" and ",
-                        //" it ",
-                        //" you ",
-                        //"   ",
+
+                        "how", "where", "what", "whom", "who", "which", "when", "why",
+                        "i'm", "we're", "you're", "they're", "he's", "she's", "it's",
+                        "i will", "we will", "you will", "they will", "he will", "she will", "it will",
+                        "i'll", "we'll", "you'll", "they'll", "he'll", "she'll", "it'll",
+                        "i've", "we've", "you've", "they've",
+                        "i'd", "we'd", "you'd", "they'd",
+                        " i "," we "," they "," he "," she ", // " it ",
                     };
                     foreach (string ai in aw)
                         text = text.Replace(ai, ". " + ai);
@@ -914,41 +943,49 @@ namespace appel
                         //.Select(x => x[0].ToString().ToUpper() + x.Substring(1))
                         .ToArray();
 
-                    List<int> li = new List<int>();
-                    string si = string.Empty;
-                    string[] wds;
-                    string[] asen = new string[a.Length - 1];
-                    for (int i = 0; i < a.Length - 1; i++)
-                    {
-                        asen[i] = string.Empty;
-                        si = a[i].Trim();
+                    ////List<int> li = new List<int>();
+                    ////string si = string.Empty;
+                    ////string[] wds;
+                    ////string[] asen = new string[a.Length - 1];
+                    ////for (int i = 0; i < a.Length - 1; i++)
+                    ////{
+                    ////    asen[i] = string.Empty;
+                    ////    si = a[i].Trim();
 
-                        if (ls_key.IndexOf(si) != -1) continue;
+                    ////    if (ls_key.IndexOf(si) != -1) continue;
 
-                        si = si.Replace('^', '.');
-                        wds = si.Split(' ');
+                    ////    si = si.Replace('^', '.');
+                    ////    wds = si.Split(' ');
 
-                        if (i > 0)
-                        {
-                            if ((ls_key.IndexOf(a[i - 1]) != -1)
-                                ||( a[i - 1].IndexOf(' ') == -1 && li.IndexOf(i - 1) == -1))
-                            {
-                                asen[i] = a[i - 1];
-                                li.Add(i);
-                            }
-                        }
+                    ////    if (i > 0)
+                    ////    {
+                    ////        if ((ls_key.IndexOf(a[i - 1]) != -1)
+                    ////            || (a[i - 1].IndexOf(' ') == -1 && li.IndexOf(i - 1) == -1))
+                    ////        {
+                    ////            asen[i] = a[i - 1];
+                    ////            li.Add(i);
+                    ////        }
+                    ////    }
 
-                        if (wds.Length > 1)
-                        {
-                            if (asen[i] == string.Empty)
-                                asen[i] = si;
-                            else if (!si.StartsWith(asen[i]))
-                                asen[i] += " " + si;
-                        }
-                    }
-                    
-                    string s1 = string.Join(Environment.NewLine, a);
-                    string s2 = string.Join(Environment.NewLine, asen);
+                    ////    if (wds.Length > 1)
+                    ////    {
+                    ////        if (asen[i] == string.Empty)
+                    ////            asen[i] = si;
+                    ////        else if (!si.StartsWith(asen[i]))
+                    ////            asen[i] += " " + si;
+                    ////    }
+                    ////}
+
+                    ////string s0 = string.Join("." + Environment.NewLine, text.Split('.').Select(x => x.Trim()).ToArray());
+                    ////string s1 = string.Join(Environment.NewLine, a);
+                    ////string s2 = string.Join(Environment.NewLine, asen);
+
+                    a = text
+                        .Split('.')
+                        .Select(x => x.Trim())
+                        .Where(x => x.Length > 0)
+                        .Select(x => x[0].ToString().ToUpper() + x.Substring(1))
+                        .ToArray();
                 }
                 return a;
             }
