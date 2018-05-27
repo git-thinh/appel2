@@ -110,8 +110,6 @@ namespace appel
                 if (!string.IsNullOrEmpty(_subtileEnglish_Text))
                 {
                     string text = _subtileEnglish_Text.ToLower()
-                        //.Replace("\r", string.Empty)
-                        //.Replace("\n", string.Empty)
                         .Replace('.', '|')
                         .Replace(" i i ", " i ")
                         .Replace('\r', ' ')
@@ -121,16 +119,20 @@ namespace appel
                     text = Regex.Replace(text, "[^0-9a-zA-Z.'|]+", " ").ToLower();
                     text = Regex.Replace(text, "[ ]{2,}", " ").ToLower();
 
-                    List<string> ls_key = new List<string>()
-                    {
-                    };
-                    string[] aw = new string[] {
+                    string[] a_break_sentence = new string[] {
+                        #region
+
+                        "welcome to",
+                        "there's",
+                        "these're",
+                        "there is",
+                        "these are",
+                        "there are",
+                        "this is",
                         "please",
                         "my name",
                         "all these",
                         "these while",
-                        "there are",
-                        "this is",
                         "thank you",
                         "and then",
                         "how are",
@@ -143,10 +145,10 @@ namespace appel
                         "so you know",
                         "and you know",
                         "you know that",
+                        "you only",
                         "you ask",
                         "that will",
-
-                        //" today ",
+                         
                         " let ",
                         " if ",
                         " because ",
@@ -160,57 +162,46 @@ namespace appel
                         "i'll", "we'll", "you'll", "they'll", "he'll", "she'll", "it'll",
                         "i've", "we've", "you've", "they've",
                         "i'd", "we'd", "you'd", "they'd",
+                        "it was",
+                        "it is",
                         " i "," we "," they "," he "," she ", // " it ",
+
+                        #endregion
                     };
-                    foreach (string ai in aw)
+                    foreach (string ai in a_break_sentence)
                         text = text.Replace(ai, ". " + ai);
+
+                    //return a = text
+                    //    .Split('.')
+                    //    .Select(x => x.Trim())
+                    //    .Where(x => x.Length > 0)
+                    //    .Select(x => x[0].ToString().ToUpper() + x.Substring(1))
+                    //    .ToArray();
 
                     a = text.Split('.')
                         .Select(x => x.Trim())
-                        .Where(x => x != string.Empty)
-                        //.Select(x => x[0].ToString().ToUpper() + x.Substring(1))
+                        .Where(x => x.Length > 0) 
                         .ToArray();
+                    if (a[0] == "music") a[0] = string.Empty;
 
-                    ////List<int> li = new List<int>();
-                    ////string si = string.Empty;
-                    ////string[] wds;
-                    ////string[] asen = new string[a.Length - 1];
-                    ////for (int i = 0; i < a.Length - 1; i++)
-                    ////{
-                    ////    asen[i] = string.Empty;
-                    ////    si = a[i].Trim();
+                    List<int> ls_index_short = a.Select((x, k) => new oWordCount() { word = x, count = k })
+                        .Where(x => x.word.Split(' ').Length < 3)
+                        .Select(x => x.count)
+                        .ToList();
+                    
+                    string[] rs = new string[a.Length - 1];
+                    for (int i = 0; i < a.Length - 1; i++)
+                    {
+                        rs[i] = string.Empty;
+                        if (ls_index_short.IndexOf(i) == -1)
+                        {
+                            if (ls_index_short.IndexOf(i - 1) != -1)
+                                rs[i] = a[i - 1] + " ";
+                            rs[i] += a[i];
+                        }
+                    }
 
-                    ////    if (ls_key.IndexOf(si) != -1) continue;
-
-                    ////    si = si.Replace('^', '.');
-                    ////    wds = si.Split(' ');
-
-                    ////    if (i > 0)
-                    ////    {
-                    ////        if ((ls_key.IndexOf(a[i - 1]) != -1)
-                    ////            || (a[i - 1].IndexOf(' ') == -1 && li.IndexOf(i - 1) == -1))
-                    ////        {
-                    ////            asen[i] = a[i - 1];
-                    ////            li.Add(i);
-                    ////        }
-                    ////    }
-
-                    ////    if (wds.Length > 1)
-                    ////    {
-                    ////        if (asen[i] == string.Empty)
-                    ////            asen[i] = si;
-                    ////        else if (!si.StartsWith(asen[i]))
-                    ////            asen[i] += " " + si;
-                    ////    }
-                    ////}
-
-                    ////string s0 = string.Join("." + Environment.NewLine, text.Split('.').Select(x => x.Trim()).ToArray());
-                    ////string s1 = string.Join(Environment.NewLine, a);
-                    ////string s2 = string.Join(Environment.NewLine, asen);
-
-                    a = text
-                        .Split('.')
-                        .Select(x => x.Trim())
+                    return rs
                         .Where(x => x.Length > 0)
                         .Select(x => x[0].ToString().ToUpper() + x.Substring(1))
                         .ToArray();
