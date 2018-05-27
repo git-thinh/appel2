@@ -423,6 +423,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
             {
                 Dock = DockStyle.Fill,
                 AutoScroll = true,
+                //FlowDirection = FlowDirection.TopDown,
             };
 
             wd_word_name = new Label()
@@ -476,13 +477,36 @@ writeline and then it's just   going to print out hello on the screen   can't do
         void f_word_detail_Active()
         {
             if (!string.IsNullOrEmpty(m_word_current)) {
+                wd_content.Controls.Clear();
+
                 wd_word_name.Text = m_word_current;
 
                 if(string.IsNullOrEmpty(m_word_content))
                     m_word_content = api_media.f_media_getText(m_media_current_id);
 
                 if (!string.IsNullOrEmpty(m_word_content)) {
-                    string[] sentences = api_media.f_media_getSentences(m_media_current_id);
+                    string[] sentences = api_media.f_media_getSentencesByWord(m_media_current_id, m_word_current);
+                    Control[] sens = new Control[sentences.Length];
+                    int y = 0;// wd_header.Location.Y + wd_header.Height;
+                    for (int i = 0; i < sens.Length; i++)
+                    {
+                        var lbl = new GrowLabel()
+                        {
+                            Width = app.m_app_width - 19,
+                            Text = sentences[i],
+                            Location = new Point(0, y),
+                            Padding = new Padding(0, 0, 0, 9),
+                            BackColor = Color.DimGray,
+                            //Font = font_Title,
+                        };
+                        y += i * 39;
+                        sens[i] = lbl;
+                    }
+
+                    wd_content.Controls.AddRange(sens);
+
+                    
+
 
 
                 }

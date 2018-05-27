@@ -101,25 +101,28 @@ namespace appel
         #region [ SUBTITLE - CC ]
 
         private string _subtileEnglish_Text = string.Empty;
+        private string[] _subtileEnglish_Sentences = null;
 
         public string[] SubtileEnglish_Sentence
         {
             get
             {
+                if (_subtileEnglish_Sentences != null)
+                    return _subtileEnglish_Sentences;
+
                 string[] a = new string[] { };
-                if (!string.IsNullOrEmpty(_subtileEnglish_Text))
-                {
-                    string text = _subtileEnglish_Text.ToLower()
-                        .Replace('.', '|')
-                        .Replace(" i i ", " i ")
-                        .Replace('\r', ' ')
-                        .Replace('\n', ' ')
-                        .Replace("[music]", ".");
 
-                    text = Regex.Replace(text, "[^0-9a-zA-Z.'|]+", " ").ToLower();
-                    text = Regex.Replace(text, "[ ]{2,}", " ").ToLower();
+                string text = this.SubtileEnglish_Text.ToLower()
+                    .Replace('.', '|')
+                    .Replace(" i i ", " i ")
+                    .Replace('\r', ' ')
+                    .Replace('\n', ' ')
+                    .Replace("[music]", ".");
 
-                    string[] a_break_sentence = new string[] {
+                text = Regex.Replace(text, "[^0-9a-zA-Z.'|]+", " ").ToLower();
+                text = Regex.Replace(text, "[ ]{2,}", " ").ToLower();
+
+                string[] a_break_sentence = new string[] {
                         #region
 
                         "welcome to",
@@ -148,7 +151,7 @@ namespace appel
                         "you only",
                         "you ask",
                         "that will",
-                         
+
                         " let ",
                         " if ",
                         " because ",
@@ -168,44 +171,45 @@ namespace appel
 
                         #endregion
                     };
-                    foreach (string ai in a_break_sentence)
-                        text = text.Replace(ai, ". " + ai);
+                foreach (string ai in a_break_sentence)
+                    text = text.Replace(ai, ". " + ai);
 
-                    //return a = text
-                    //    .Split('.')
-                    //    .Select(x => x.Trim())
-                    //    .Where(x => x.Length > 0)
-                    //    .Select(x => x[0].ToString().ToUpper() + x.Substring(1))
-                    //    .ToArray();
+                //return a = text
+                //    .Split('.')
+                //    .Select(x => x.Trim())
+                //    .Where(x => x.Length > 0)
+                //    .Select(x => x[0].ToString().ToUpper() + x.Substring(1))
+                //    .ToArray();
 
-                    a = text.Split('.')
-                        .Select(x => x.Trim())
-                        .Where(x => x.Length > 0) 
-                        .ToArray();
-                    if (a[0] == "music") a[0] = string.Empty;
+                a = text.Split('.')
+                    .Select(x => x.Trim())
+                    .Where(x => x.Length > 0)
+                    .ToArray();
+                if (a[0] == "music") a[0] = string.Empty;
 
-                    List<int> ls_index_short = a.Select((x, k) => new oWordCount() { word = x, count = k })
-                        .Where(x => x.word.Split(' ').Length < 3)
-                        .Select(x => x.count)
-                        .ToList();
-                    
-                    string[] rs = new string[a.Length - 1];
-                    for (int i = 0; i < a.Length - 1; i++)
+                List<int> ls_index_short = a.Select((x, k) => new oWordCount() { word = x, count = k })
+                    .Where(x => x.word.Split(' ').Length < 3)
+                    .Select(x => x.count)
+                    .ToList();
+
+                string[] rs = new string[a.Length - 1];
+                for (int i = 0; i < a.Length - 1; i++)
+                {
+                    rs[i] = string.Empty;
+                    if (ls_index_short.IndexOf(i) == -1)
                     {
-                        rs[i] = string.Empty;
-                        if (ls_index_short.IndexOf(i) == -1)
-                        {
-                            if (ls_index_short.IndexOf(i - 1) != -1)
-                                rs[i] = a[i - 1] + " ";
-                            rs[i] += a[i];
-                        }
+                        if (ls_index_short.IndexOf(i - 1) != -1)
+                            rs[i] = a[i - 1] + " ";
+                        rs[i] += a[i];
                     }
-
-                    return rs
-                        .Where(x => x.Length > 0)
-                        .Select(x => x[0].ToString().ToUpper() + x.Substring(1))
-                        .ToArray();
                 }
+
+                a = rs
+                    .Where(x => x.Length > 0)
+                    .Select(x => x[0].ToString().ToUpper() + x.Substring(1))
+                    .ToArray();
+                _subtileEnglish_Sentences = a;
+
                 return a;
             }//end get
         }
@@ -223,6 +227,7 @@ namespace appel
                     text = Regex.Replace(text, @"<[^>]*>", String.Empty);
                     text = HttpUtility.HtmlDecode(text);
                     text = text.Replace('\r', ' ').Replace('\n', ' ');
+
                     string[] a = text.Split(new char[] { '.' })
                         .Select(x => x.Trim())
                         .Where(x => x != string.Empty)
@@ -233,6 +238,7 @@ namespace appel
                        .Select(x => x.Trim())
                        .Where(x => x != string.Empty)
                        .ToArray();
+
                     text = string.Empty;
                     foreach (string ti in a)
                         if (ti[ti.Length - 1] == '?') text += ti + Environment.NewLine;

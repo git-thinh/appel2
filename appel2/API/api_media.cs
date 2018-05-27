@@ -854,7 +854,7 @@ namespace appel
             string text = string.Empty;
             oMedia m = null;
             dicMediaStore.TryGetValue(mediaId, out m);
-            if (m != null && !string.IsNullOrEmpty(m.Text)) text = m.Text;
+            if (m != null) text = m.Text;
             return text;
         }
 
@@ -862,8 +862,21 @@ namespace appel
         {
             oMedia m = null;
             dicMediaStore.TryGetValue(mediaId, out m);
-            if (m != null && !string.IsNullOrEmpty(m.Text))
+            if (m != null)
                 return m.SubtileEnglish_Sentence;
+            return new string[] { };
+        }
+
+        public static string[] f_media_getSentencesByWord(long mediaId, string word)
+        {
+            oMedia m = null;
+            dicMediaStore.TryGetValue(mediaId, out m);
+
+            if (m != null)
+                return m.SubtileEnglish_Sentence
+                    .Where(x=>x.Contains(word))
+                    .ToArray();
+
             return new string[] { };
         }
 
