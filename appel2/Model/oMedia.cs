@@ -14,6 +14,49 @@ namespace appel
     [ProtoInclude(13, typeof(oMediaPath))]
     public class oMedia
     {
+        #region [ CONTRACTOR - ID ]
+
+        public oMedia clone()
+        {
+            oMedia m = Serializer.DeepClone<oMedia>(this);
+            return m;
+        }
+
+        public oMedia()
+        {
+        }
+
+        public oMedia(string videoId)
+        {
+            Id = convert_id_bit_shifting(videoId);
+        }
+
+        long convert_id(string key)
+        {
+            byte[] bytes = Encoding.ASCII.GetBytes(key);
+            long result = BitConverter.ToInt64(bytes, 0);
+            return result;
+        }
+
+        long convert_id_bit_shifting(string key)
+        {
+            long val = 0;
+            for (int i = 3; i >= 0; i--)
+            {
+                val <<= 8;
+                val += (int)key[i];
+            }
+            return val;
+        }
+        public override string ToString()
+        {
+            return string.Format("{0} - {1}", Id, Title);
+        }
+
+        #endregion
+
+        #region [ MEMBER PROTO ]
+
         [ProtoMember(1)]
         public long Id { get; set; }
 
@@ -53,58 +96,129 @@ namespace appel
         [ProtoMember(13)]
         public oMediaPath Paths = new oMediaPath();
 
-        public List<Tuple<string, string>> Vocabulary = new List<Tuple<string, string>>();
-        //public List<oWordCount> Words = new List<oWordCount>();
-        //public string Text = string.Empty;
+        #endregion
 
-        public oMedia clone()
-        {
-            oMedia m = Serializer.DeepClone<oMedia>(this);
-            return m;
-        }
-
-        public oMedia()
-        {
-        }
-
-        public oMedia(string videoId)
-        {
-            Id = convert_id_bit_shifting(videoId);
-        }
-
-        //public oMedia(Video v)
-        //{
-        //    DurationSecond = (int)v.Duration.TotalSeconds;
-        //    Title = v.Title;
-        //    Description = v.Description;
-        //    Keywords = v.Keywords;
-        //    Author = v.Author;
-        //    UploadDate = int.Parse(v.UploadDate.ToString("yyMMdd"));
-        //}
-
-        long convert_id(string key)
-        {
-            byte[] bytes = Encoding.ASCII.GetBytes(key);
-            long result = BitConverter.ToInt64(bytes, 0);
-            return result;
-        }
-
-        long convert_id_bit_shifting(string key)
-        {
-            long val = 0;
-            for (int i = 3; i >= 0; i--)
-            {
-                val <<= 8;
-                val += (int)key[i];
-            }
-            return val;
-        }
-        public override string ToString()
-        {
-            return string.Format("{0} - {1}", Id, Title);
-        }
+        #region [ SUBTITLE - CC ]
 
         private string _subtileEnglish_Text = string.Empty;
+
+        public string[] SubtileEnglish_Sentence
+        {
+            get
+            {
+                string[] a = new string[] { };
+                if (!string.IsNullOrEmpty(_subtileEnglish_Text))
+                {
+                    string text = _subtileEnglish_Text.ToLower()
+                        //.Replace("\r", string.Empty)
+                        //.Replace("\n", string.Empty)
+                        .Replace('.', '|')
+                        .Replace(" i i ", " i ")
+                        .Replace('\r', ' ')
+                        .Replace('\n', ' ')
+                        .Replace("[music]", ".");
+
+                    text = Regex.Replace(text, "[^0-9a-zA-Z.'|]+", " ").ToLower();
+                    text = Regex.Replace(text, "[ ]{2,}", " ").ToLower();
+
+                    List<string> ls_key = new List<string>()
+                    {
+                    };
+                    string[] aw = new string[] {
+                        "please",
+                        "my name",
+                        "all these",
+                        "these while",
+                        "there are",
+                        "this is",
+                        "thank you",
+                        "and then",
+                        "how are",
+                        "that you can",
+                        "that you do",
+                        "you can even",
+                        "you could use",
+                        "so you can",
+                        "and you can",
+                        "so you know",
+                        "and you know",
+                        "you know that",
+                        "you ask",
+                        "that will",
+
+                        //" today ",
+                        " let ",
+                        " if ",
+                        " because ",
+                        " let's ",
+                        " but ",
+                        " while ",
+
+                        "how", "where", "what", "whom", "who", "which", "when", "why",
+                        "i'm", "we're", "you're", "they're", "he's", "she's", "it's",
+                        "i will", "we will", "you will", "they will", "he will", "she will", "it will",
+                        "i'll", "we'll", "you'll", "they'll", "he'll", "she'll", "it'll",
+                        "i've", "we've", "you've", "they've",
+                        "i'd", "we'd", "you'd", "they'd",
+                        " i "," we "," they "," he "," she ", // " it ",
+                    };
+                    foreach (string ai in aw)
+                        text = text.Replace(ai, ". " + ai);
+
+                    a = text.Split('.')
+                        .Select(x => x.Trim())
+                        .Where(x => x != string.Empty)
+                        //.Select(x => x[0].ToString().ToUpper() + x.Substring(1))
+                        .ToArray();
+
+                    ////List<int> li = new List<int>();
+                    ////string si = string.Empty;
+                    ////string[] wds;
+                    ////string[] asen = new string[a.Length - 1];
+                    ////for (int i = 0; i < a.Length - 1; i++)
+                    ////{
+                    ////    asen[i] = string.Empty;
+                    ////    si = a[i].Trim();
+
+                    ////    if (ls_key.IndexOf(si) != -1) continue;
+
+                    ////    si = si.Replace('^', '.');
+                    ////    wds = si.Split(' ');
+
+                    ////    if (i > 0)
+                    ////    {
+                    ////        if ((ls_key.IndexOf(a[i - 1]) != -1)
+                    ////            || (a[i - 1].IndexOf(' ') == -1 && li.IndexOf(i - 1) == -1))
+                    ////        {
+                    ////            asen[i] = a[i - 1];
+                    ////            li.Add(i);
+                    ////        }
+                    ////    }
+
+                    ////    if (wds.Length > 1)
+                    ////    {
+                    ////        if (asen[i] == string.Empty)
+                    ////            asen[i] = si;
+                    ////        else if (!si.StartsWith(asen[i]))
+                    ////            asen[i] += " " + si;
+                    ////    }
+                    ////}
+
+                    ////string s0 = string.Join("." + Environment.NewLine, text.Split('.').Select(x => x.Trim()).ToArray());
+                    ////string s1 = string.Join(Environment.NewLine, a);
+                    ////string s2 = string.Join(Environment.NewLine, asen);
+
+                    a = text
+                        .Split('.')
+                        .Select(x => x.Trim())
+                        .Where(x => x.Length > 0)
+                        .Select(x => x[0].ToString().ToUpper() + x.Substring(1))
+                        .ToArray();
+                }
+                return a;
+            }//end get
+        }
+
         public string SubtileEnglish_Text
         {
             get
@@ -160,6 +274,14 @@ namespace appel
             }
         }
 
+        #endregion
+
+        #region [ WORD - VOCABULARY ]
+
+        public List<Tuple<string, string>> Vocabulary = new List<Tuple<string, string>>();
+        //public List<oWordCount> Words = new List<oWordCount>();
+        //public string Text = string.Empty;
+
         private List<oWordCount> _Words = new List<oWordCount>();
         public List<oWordCount> Words
         {
@@ -170,16 +292,6 @@ namespace appel
                     _Words = this.f_get_Words();
                 }
                 return _Words;
-            }
-        }
-
-        private string _Text = string.Empty;
-        public string Text
-        {
-            get
-            {
-                if (_Text == string.Empty) _Text = this.f_get_Text();
-                return _Text;
             }
         }
 
@@ -197,6 +309,20 @@ namespace appel
                 //.OrderByDescending(x => x.count)
                 .OrderBy(x => x.word)
                 .ToList();
+        }
+
+        #endregion
+
+        #region [ TEXT ]
+
+        private string _Text = string.Empty;
+        public string Text
+        {
+            get
+            {
+                if (_Text == string.Empty) _Text = this.f_get_Text();
+                return _Text;
+            }
         }
 
         private string f_get_Text()
@@ -217,5 +343,7 @@ namespace appel
 
             return content;
         }
+
+        #endregion
     }
 }
