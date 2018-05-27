@@ -407,6 +407,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
         Label wd_word_name = null;
         Label wd_word_pronunciation = null;
         Label wd_word_meaning = null;
+        TextBox wd_text_detail = null;
 
         IconButton wd_word_speak = null;
 
@@ -423,7 +424,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
             {
                 Dock = DockStyle.Fill,
                 AutoScroll = true,
-                //FlowDirection = FlowDirection.TopDown,
+                //BackColor = Color.Orange,
+                Padding = new Padding(9, 0, 0, 0),
             };
 
             wd_word_name = new Label()
@@ -472,44 +474,31 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
                 wd_word_speak,
             });
+
+            wd_text_detail = new TextBox()
+            {
+                Dock = DockStyle.Fill,
+                BorderStyle = BorderStyle.None,
+                Multiline = true,
+                ScrollBars = ScrollBars.Vertical,
+                //BackColor = Color.Yellow,
+                Font = font_Title,
+            };
+            wd_content.Controls.Add(wd_text_detail);
         }
 
         void f_word_detail_Active()
         {
-            if (!string.IsNullOrEmpty(m_word_current)) {
-                wd_content.Controls.Clear();
-
+            if (!string.IsNullOrEmpty(m_word_current))
+            {
                 wd_word_name.Text = m_word_current;
 
-                if(string.IsNullOrEmpty(m_word_content))
+                if (string.IsNullOrEmpty(m_word_content))
                     m_word_content = api_media.f_media_getText(m_media_current_id);
 
-                if (!string.IsNullOrEmpty(m_word_content)) {
-                    string[] sentences = api_media.f_media_getSentencesByWord(m_media_current_id, m_word_current);
-                    Control[] sens = new Control[sentences.Length];
-                    int y = 0;// wd_header.Location.Y + wd_header.Height;
-                    for (int i = 0; i < sens.Length; i++)
-                    {
-                        var lbl = new GrowLabel()
-                        {
-                            Width = app.m_app_width - 19,
-                            Text = sentences[i],
-                            Location = new Point(0, y),
-                            Padding = new Padding(0, 0, 0, 9),
-                            BackColor = Color.DimGray,
-                            //Font = font_Title,
-                        };
-                        y += i * 39;
-                        sens[i] = lbl;
-                    }
-
-                    wd_content.Controls.AddRange(sens);
-
-                    
-
-
-
-                }
+                string[] sentences = api_media.f_media_getSentencesByWord(m_media_current_id, m_word_current);
+                if (sentences.Length > 0)
+                    wd_text_detail.Text = string.Join(Environment.NewLine + Environment.NewLine, sentences);
 
 
 
@@ -729,7 +718,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                     }
                     break;
 
-                    #endregion
+                #endregion
                 case tab_caption_text: // "Text"
                     #region
 
@@ -743,7 +732,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                     }
                     break;
 
-                    #endregion
+                #endregion
                 case tab_caption_book: // "Book"
                     break;
             }
@@ -1603,7 +1592,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
             {
                 //string text = api_media.f_media_getText(m_media_current_id);
                 string[] a = api_media.f_media_getSentences(m_media_current_id);
-                m_media_text.Text = string.Join(Environment.NewLine + Environment.NewLine, a);
+                m_media_text.Text = Environment.NewLine + Environment.NewLine +
+                    string.Join(Environment.NewLine + Environment.NewLine, a);
             }
         }
 
@@ -1617,7 +1607,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         private void f_media_loadWord_Callback(msg m)
         {
-            if (m != null && m.Output != null) {
+            if (m != null && m.Output != null)
+            {
                 m_words = m.Output.Data as oWordCount[];
             }
         }

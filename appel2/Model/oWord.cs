@@ -9,6 +9,7 @@ namespace appel
     { 
         public string word { set; get; }
         public int count { set; get; }
+        public int len { set; get; }
 
         public override string ToString()
         {

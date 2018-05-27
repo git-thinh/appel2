@@ -27,15 +27,8 @@ namespace appel
         #region [ VARIABLE ]
 
         static readonly string path_data = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
-        static readonly string file_media = Path.Combine(path_data, "media.bin");
 
         public bool Open { set; get; } = false;
-
-        static ConcurrentDictionary<long, oMedia> dicMediaStore = null;
-        static ConcurrentDictionary<long, Bitmap> dicMediaImage = null;
-        static ConcurrentDictionary<long, oMedia> dicMediaSearch = null;
-        static bool stop_search = false;
-        static AutoResetEvent wait_search = null;
 
         #endregion
 
@@ -826,7 +819,29 @@ namespace appel
 
         #endregion
 
+        #region [ WORD ]
+
+        static readonly string file_word = Path.Combine(path_data, "word.bin");
+
+        static ConcurrentDictionary<string, string> dicWordPronunciation = null;
+        static ConcurrentDictionary<string, string> dicWordMeaningVi = null;
+        static ConcurrentDictionary<string, string> dicWordMeaningEn = null;
+        static ConcurrentDictionary<string, List<string>> dicWordSentence = null;
+
+        public static void f_word_Init() {
+
+        }
+
+
+
+        #endregion
+
         #region [ MEDIA ]
+
+        static readonly string file_media = Path.Combine(path_data, "media.bin");
+        static ConcurrentDictionary<long, oMedia> dicMediaStore = null;
+        static ConcurrentDictionary<long, Bitmap> dicMediaImage = null;
+
 
         public static oMedia f_media_getInfo(long mediaId)
         {
@@ -1011,6 +1026,10 @@ namespace appel
         #endregion
 
         #region [ SEARCH ]
+
+        static ConcurrentDictionary<long, oMedia> dicMediaSearch = null;
+        static bool stop_search = false;
+        static AutoResetEvent wait_search = null;
 
         public static oMedia f_search_getInfo(long mediaId)
         {

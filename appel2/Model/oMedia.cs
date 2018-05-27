@@ -122,6 +122,8 @@ namespace appel
                 text = Regex.Replace(text, "[^0-9a-zA-Z.'|]+", " ").ToLower();
                 text = Regex.Replace(text, "[ ]{2,}", " ").ToLower();
 
+                List<string> ls_questions = new List<string>() { "how", "where", "what", "whom", "who", "which", "when", "why" };
+
                 string[] a_break_sentence = new string[] {
                         #region
 
@@ -187,12 +189,18 @@ namespace appel
                     .ToArray();
                 if (a[0] == "music") a[0] = string.Empty;
 
-                List<int> ls_index_short = a.Select((x, k) => new oWordCount() { word = x, count = k })
-                    .Where(x => x.word.Split(' ').Length < 3)
+                List<int> ls_index_short = a.Select((x, k) => new oWordCount() { word = x, count = k, len = x.Split(' ').Length })
+                    .Where(x =>
+                        x.len < 3
+                        || (x.len < 4 && (
+                            x.word.EndsWith("was")
+                            || x.word.EndsWith("did")
+                        )))
                     .Select(x => x.count)
                     .ToList();
 
                 string[] rs = new string[a.Length - 1];
+                string si = string.Empty;
                 for (int i = 0; i < a.Length - 1; i++)
                 {
                     rs[i] = string.Empty;
@@ -200,7 +208,17 @@ namespace appel
                     {
                         if (ls_index_short.IndexOf(i - 1) != -1)
                             rs[i] = a[i - 1] + " ";
-                        rs[i] += a[i];
+
+                        si = a[i];
+
+                        if (si.EndsWith(" and so"))
+                            si = si.Substring(0, si.Length - 7);                        
+                        else if (si.EndsWith(" so") || si.EndsWith(" and"))
+                            si = si.Substring(0, si.Length - 3).Trim();
+
+                        if (ls_questions.IndexOf(si.Split(' ')[0]) != -1) si += " ?";
+
+                        rs[i] += si;
                     }
                 }
 
