@@ -828,6 +828,7 @@ namespace appel
         #region [ WORD ]
 
         static readonly string file_word_mean_vi = Path.Combine(path_data, "word-vi.bin");
+        static readonly string file_word_pronunciation = Path.Combine(path_data, "word-pro.bin");
 
         static ConcurrentDictionary<string, string> dicWordPronunciation = null;
         static ConcurrentDictionary<string, string> dicWordMeaningVi = null;
@@ -845,14 +846,23 @@ namespace appel
                 using (var file = File.OpenRead(file_word_mean_vi))
                     dicWordMeaningVi = Serializer.Deserialize<ConcurrentDictionary<string, string>>(file);
 
+            if (File.Exists(file_word_pronunciation))
+                using (var file = File.OpenRead(file_word_pronunciation))
+                    dicWordPronunciation = Serializer.Deserialize<ConcurrentDictionary<string, string>>(file);
         }
 
-        private void f_word_mean_vi_writeFile()
+        private static void f_word_mean_vi_writeFile()
         {
             using (var file = File.Create(file_word_mean_vi))
                 Serializer.Serialize<ConcurrentDictionary<string, string>>(file, dicWordMeaningVi);
         }
 
+        private static void f_word_pronunciation_writeFile()
+        {
+            using (var file = File.Create(file_word_pronunciation))
+                Serializer.Serialize<ConcurrentDictionary<string, string>>(file, dicWordPronunciation);
+        }
+        
         private void f_word_MEDIA_KEY_WORD_TRANSLATER(msg m)
         {
             if (m.Input != null)
@@ -924,11 +934,14 @@ namespace appel
 
                             f_word_mean_vi_writeFile();
 
-                            if (hasMultiPart) {
+                            if (hasMultiPart)
+                            {
                                 f_word_MEDIA_KEY_WORD_TRANSLATER(m);
                             }
                             else
                             {
+                                ///////////////////////////////////////////////////////////
+                                ///////////////////////////////////////////////////////////
                                 m.Output = new msgOutput()
                                 {
                                     Ok = true,
@@ -969,8 +982,10 @@ namespace appel
             }
         }
 
-        public static string f_word_meaning_Vi(string word_en) {
-            if (dicWordMeaningVi.ContainsKey(word_en)) {
+        public static string f_word_meaning_Vi(string word_en)
+        {
+            if (dicWordMeaningVi.ContainsKey(word_en))
+            {
                 string vi = string.Empty;
                 if (dicWordMeaningVi.TryGetValue(word_en, out vi))
                     return vi;
@@ -978,7 +993,8 @@ namespace appel
             return string.Empty;
         }
 
-        public static string f_word_speak_getURL(string word_en) {
+        public static string f_word_speak_getURL(string word_en)
+        {
             if (!string.IsNullOrEmpty(word_en))
             {
                 if (word_en[word_en.Length - 1] == 's')
@@ -994,6 +1010,36 @@ namespace appel
                 return url;
             }
             return string.Empty;
+        }
+
+        const string sp_word_pronunciation = @"<span class=""ipa"">";
+        static WebClient web_word_pronunciation = new WebClient() { Encoding = Encoding.UTF8 };
+        private static string f_word_speak_getPronunciationFromCambridge(string word_en)
+        {
+            string htm = web_word_pronunciation.DownloadString(string.Format("https://dictionary.cambridge.org/dictionary/english/{0}", word_en));
+            int pos = htm.IndexOf(sp_word_pronunciation);
+            if (pos > 0)
+                return htm.Substring(pos + sp_word_pronunciation.Length, htm.Length - (pos + sp_word_pronunciation.Length)).Split('<')[0].Trim();
+            return string.Empty;
+        }
+
+        public static string f_word_speak_getPronunciation(string word_en, bool has_update_file_if_new = false)
+        {
+            string pro = string.Empty;
+            if (dicWordPronunciation.ContainsKey(word_en))
+            {
+                if (dicWordPronunciation.TryGetValue(word_en, out pro))
+                    return pro;
+            }
+            else {
+                pro = f_word_speak_getPronunciationFromCambridge(word_en);
+                if (!string.IsNullOrEmpty(pro)) {
+                    dicWordPronunciation.TryAdd(word_en, pro);
+                    if (has_update_file_if_new)
+                        f_word_pronunciation_writeFile();
+                }
+            }
+            return pro;
         }
 
         #endregion

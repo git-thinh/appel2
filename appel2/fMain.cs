@@ -659,8 +659,9 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 string[] sentences = api_media.f_media_getSentencesByWord(m_media_current_id, m_word_current);
                 if (sentences.Length > 0)
                     wd_text_detail.Text = string.Join(Environment.NewLine + Environment.NewLine, sentences);
-
-
+                
+                string pronunciation = api_media.f_word_speak_getPronunciation(m_word_current, true);
+                wd_word_pronunciation.Text = pronunciation;
 
             }
         }
@@ -1117,7 +1118,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
             Control[] stars = new Control[30];
 
             #region
-
+            
             for (int i = 0; i < ls.Count; i++)
             {
                 if (i > 29) break;
@@ -1156,9 +1157,9 @@ writeline and then it's just   going to print out hello on the screen   can't do
                     Tag = media.Id
                 };
 
-                //Bitmap img = api_media.f_image_getCache(media.Id);
-                //if (img != null)
-                //    pic.Image = img;
+                Bitmap img = api_media.f_image_getCache(media.Id);
+                if (img != null)
+                    pic.Image = img;
 
                 Color bgColor = media.Id == m_media_current_id ? Color.Orange : Color.LightGray;
 

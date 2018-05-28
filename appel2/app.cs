@@ -227,6 +227,9 @@ namespace appel
 
         public static void RUN()
         {
+            
+
+
             // active SSL 1.1, 1.2, 1.3 for WebClient request HTTPS
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | (SecurityProtocolType)3072 | (SecurityProtocolType)0x00000C00 | SecurityProtocolType.Tls;
