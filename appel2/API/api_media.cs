@@ -19,6 +19,7 @@ using YoutubeExplode.Models.MediaStreams;
 using YoutubeExplode.Internal;
 using System.Text.RegularExpressions;
 using System.Web;
+using HtmlAgilityPack;
 
 namespace appel
 {
@@ -1011,16 +1012,67 @@ namespace appel
             }
             return string.Empty;
         }
-
-        const string sp_word_pronunciation = @"<span class=""ipa"">";
-        static WebClient web_word_pronunciation = new WebClient() { Encoding = Encoding.UTF8 };
+         
+        static HttpClient web_word_pronunciation = new HttpClient();
         private static string f_word_speak_getPronunciationFromCambridge(string word_en)
         {
-            string htm = web_word_pronunciation.DownloadString(string.Format("https://dictionary.cambridge.org/dictionary/english/{0}", word_en));
-            int pos = htm.IndexOf(sp_word_pronunciation);
-            if (pos > 0)
-                return htm.Substring(pos + sp_word_pronunciation.Length, htm.Length - (pos + sp_word_pronunciation.Length)).Split('<')[0].Trim();
+            string requestUri = string.Format("https://dictionary.cambridge.org/dictionary/english/{0}", word_en);
+            using (var response = web_word_pronunciation.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead).Result)
+            {
+                response.EnsureSuccessStatusCode();
+                string htm = response.Content.ReadAsStringAsync().Result;
+                if (htm.Contains(@"<span class=""ipa"">"))
+                    return htm.Split(new string[] { @"<span class=""ipa"">" }, StringSplitOptions.None)[1].Split('<')[0].Trim();
+            }
+
             return string.Empty;
+        }
+
+        private static string f_word_speak_getPronunciationFromOxford(string word_en)
+        {
+            string requestUri = string.Format("https://www.oxfordlearnersdictionaries.com/definition/english/{0}?q={0}", word_en);
+            using (var response = web_word_pronunciation.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead).Result)
+            {
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                    return string.Empty;
+
+                response.EnsureSuccessStatusCode();
+                string htm = response.Content.ReadAsStringAsync().Result, pro = string.Empty, type= string.Empty;
+                //if (htm.Contains(@"<span class=""wrap"">/</span>"))
+                //    pro = "/" + htm.Split(new string[] { @"<span class=""wrap"">/</span>" }, StringSplitOptions.None)[1].Split('<')[0].Trim() + "/";
+                //if (htm.Contains(@"<span class=""pos"">"))
+                //    type = " " + htm.Split(new string[] { @"<span class=""pos"">" }, StringSplitOptions.None)[1].Split('<')[0].Trim();
+
+                HtmlNode nodes = f_word_speak_getPronunciationFromOxford_Nodes(htm);
+                pro = nodes.QuerySelectorAll("span[class=\"phon\"]").Select(x => x.InnerText).Where(x => !string.IsNullOrEmpty(x)).Take(1).SingleOrDefault();
+                type = nodes.QuerySelectorAll("span[class=\"pos\"]").Select(x => x.InnerText).Where(x => !string.IsNullOrEmpty(x)).Take(1).SingleOrDefault();
+
+                if (pro == null) pro = string.Empty;
+                if (type == null) type = string.Empty; else type = " " + type;
+                if (pro.StartsWith("BrE")) pro = pro.Substring(3).Trim();
+
+                string[] sens = nodes.QuerySelectorAll("span[class=\"x\"]").Select(x => x.InnerText).Where(x => !string.IsNullOrEmpty(x)).ToArray();
+
+                return string.Format("{0}{1}", pro, type).Trim();
+            }
+        }
+
+        private static HtmlNode f_word_speak_getPronunciationFromOxford_Nodes(string s) {
+            s = Regex.Replace(s, @"<script[^>]*>[\s\S]*?</script>", string.Empty);
+            s = Regex.Replace(s, @"<style[^>]*>[\s\S]*?</style>", string.Empty);
+            s = Regex.Replace(s, @"<noscript[^>]*>[\s\S]*?</noscript>", string.Empty);
+            s = Regex.Replace(s, @"(?s)(?<=<!--).+?(?=-->)", string.Empty).Replace("<!---->", string.Empty);
+
+            //s = Regex.Replace(s, @"<noscript[^>]*>[\s\S]*?</noscript>", string.Empty);
+            //s = Regex.Replace(s, @"<noscript[^>]*>[\s\S]*?</noscript>", string.Empty);
+            //s = Regex.Replace(s, @"</?(?i:embed|object|frameset|frame|iframe|meta|link)(.|\n|\s)*?>", string.Empty, RegexOptions.Singleline | RegexOptions.IgnoreCase);
+            s = Regex.Replace(s, @"</?(?i:embed|object|frameset|frame|iframe|meta|link)(.|\n|\s)*?>", string.Empty, RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
+            // Load the document using HTMLAgilityPack as normal
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(s);
+
+            return doc.DocumentNode;//
         }
 
         public static string f_word_speak_getPronunciation(string word_en, bool has_update_file_if_new = false)
@@ -1031,12 +1083,14 @@ namespace appel
                 if (dicWordPronunciation.TryGetValue(word_en, out pro))
                     return pro;
             }
-            else {
-                pro = f_word_speak_getPronunciationFromCambridge(word_en);
+            else
+            {
+                //pro = f_word_speak_getPronunciationFromCambridge(word_en);
+                pro = f_word_speak_getPronunciationFromOxford(word_en);
                 if (!string.IsNullOrEmpty(pro)) {
                     dicWordPronunciation.TryAdd(word_en, pro);
                     if (has_update_file_if_new)
-                        f_word_pronunciation_writeFile();
+                        new Thread(new ThreadStart(() => { f_word_pronunciation_writeFile(); })).Start();
                 }
             }
             return pro;

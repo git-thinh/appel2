@@ -402,8 +402,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Buildx86\cambridge-hello.txt">
-      <Link>cambridge-hello.txt</Link>
+    <Content Include="..\Buildx86\cambridge-hello.html">
+      <Link>cambridge-hello.html</Link>
     </Content>
     <Content Include="favicon.ico" />
     <Content Include="LIB\Gma.System.MouseKeyHook\HotKeys\ReadMe.txt" />

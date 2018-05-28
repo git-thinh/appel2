@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 using YoutubeExplode;
 using YoutubeExplode.Models;
@@ -350,7 +351,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
         }
 
         private void f_word_speak_prev_Click(object sender, MouseEventArgs e)
-        { 
+        {
         }
 
         private void f_word_speak_next_Click(object sender, MouseEventArgs e)
@@ -645,11 +646,12 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         void f_word_detail_Active()
         {
-            //wd_word_name.Text = string.Empty;
-            //wd_word_meaning.Text = string.Empty;
-
             if (!string.IsNullOrEmpty(m_word_current))
             {
+                //wd_word_name.Text = string.Empty;
+                //wd_word_meaning.Text = string.Empty;
+                wd_word_pronunciation.Text = string.Empty;
+
                 wd_word_name.Text = m_word_current;
                 wd_word_meaning.Text = api_media.f_word_meaning_Vi(m_word_current);
 
@@ -659,10 +661,15 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 string[] sentences = api_media.f_media_getSentencesByWord(m_media_current_id, m_word_current);
                 if (sentences.Length > 0)
                     wd_text_detail.Text = string.Join(Environment.NewLine + Environment.NewLine, sentences);
-                
-                string pronunciation = api_media.f_word_speak_getPronunciation(m_word_current, true);
-                wd_word_pronunciation.Text = pronunciation;
 
+                new Thread(new ThreadStart(() =>
+                {
+                    string pronunciation = api_media.f_word_speak_getPronunciation(m_word_current, false);
+                    wd_word_pronunciation.crossThreadPerformSafely(() =>
+                    {
+                        wd_word_pronunciation.Text = pronunciation;
+                    });
+                })).Start();
             }
         }
 
@@ -1118,7 +1125,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
             Control[] stars = new Control[30];
 
             #region
-            
+
             for (int i = 0; i < ls.Count; i++)
             {
                 if (i > 29) break;
