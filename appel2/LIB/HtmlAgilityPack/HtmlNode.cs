@@ -438,12 +438,12 @@ namespace HtmlAgilityPack
                 string s = string.Empty;
                 foreach (HtmlNode node in ChildNodes)
                 {
-                    if (!string.IsNullOrEmpty(node.InnerText))
+                    if (!string.IsNullOrEmpty(node.InnerText) && node.InnerText.Trim().Length > 0)
                     {
                         if (s.Length == 0)
                             s = node.InnerText.Trim();
                         else
-                            s += Environment.NewLine + node.InnerText.Trim();
+                            s += Environment.NewLine + Environment.NewLine + node.InnerText.Trim();
                     }
                 }
 

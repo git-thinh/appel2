@@ -1089,6 +1089,8 @@ namespace appel
 
         private static string f_word_speak_getPronunciationFromOxford(string word_en, bool has_update_file_if_new)
         {
+            if (word_en[word_en.Length - 1] == 's') word_en = word_en.Substring(0, word_en.Length - 1);
+
             string requestUri = string.Format("https://www.oxfordlearnersdictionaries.com/definition/english/{0}?q={0}", word_en);
             using (var response = web_word_pronunciation.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead).Result)
             {
@@ -1102,43 +1104,79 @@ namespace appel
                 HtmlNode nodes = f_word_speak_getPronunciationFromOxford_Nodes(htm);
                 pro = nodes.QuerySelectorAll("span[class=\"phon\"]").Select(x => x.InnerText).Where(x => !string.IsNullOrEmpty(x)).Take(1).SingleOrDefault();
                 type = nodes.QuerySelectorAll("span[class=\"pos\"]").Select(x => x.InnerText).Where(x => !string.IsNullOrEmpty(x)).Take(1).SingleOrDefault();
+                string[] pro_s = nodes.QuerySelectorAll("span[class=\"vp-g\"]").Select(x => x.InnerText).Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                if (pro == null) pro = string.Empty;
+                if (pro.StartsWith("BrE")) pro = pro.Substring(3).Trim();
+                if (type != null && type.Length > 0) pro += "\r\n{" + type + "}\r\n";
+                if (pro_s.Length > 0)
+                    pro += "\r\n\r\n[*]\r\n" + string.Join(Environment.NewLine, pro_s).Replace("//", "/");
+                pro = pro.Replace("//", "/");
 
                 string[] uns = nodes.QuerySelectorAll("span[class=\"un\"]").Select(x => x.InnerText_NewLine).Where(x => !string.IsNullOrEmpty(x)).ToArray();
-                string[] mens = nodes.QuerySelectorAll("span[class=\"vp-g\"]").Select(x => x.InnerText).Where(x => !string.IsNullOrEmpty(x)).ToArray();
                 string[] idoms = nodes.QuerySelectorAll("span[class=\"idm-g\"]").Select(x => x.InnerText_NewLine).Where(x => !string.IsNullOrEmpty(x)).ToArray();
                 string[] defines = nodes.QuerySelectorAll("li[class=\"sn-g\"]").Select(x => x.InnerText_NewLine).Where(x => !string.IsNullOrEmpty(x)).ToArray();
 
-                if (mens.Length > 0)
-                    mean_en += "\r\n\r\n[VERB]\r\n" + string.Join(Environment.NewLine, mens).Replace("//", "/");
 
                 if (defines.Length > 0)
-                    mean_en += "\r\n\r\n[DEFINE]\r\n" + string.Join(Environment.NewLine, string.Join(Environment.NewLine, defines).Split(new char[] { '\r', '\n', '.' }).Select(x => x.Trim()).Where(x => x.Length > 0).ToArray())
+                    mean_en += "\r\n\r\n[DEFINE]\r\n" + string.Join(Environment.NewLine, string.Join(Environment.NewLine, defines).Split(new char[] { '\r', '\n' }).Select(x => x.Replace(".", ".\r\n").Trim()).Where(x => x.Length > 0).ToArray())
                         .Replace("\r\n[", ". ").Replace("]", ":")
-                        .Replace("1\r\n", "1, ")
-                        .Replace("2\r\n", "2, ")
-                        .Replace("3\r\n", "3, ")
-                        .Replace("4\r\n", "4, ")
-                        .Replace("5\r\n", "5, ")
-                        .Replace("6\r\n", "6, ")
-                        .Replace("7\r\n", "7, ")
-                        .Replace("8\r\n", "8, ")
-                        .Replace("9\r\n", "9, ");
+
+                        .Replace("1\r\n", "\r\n• ")
+                        .Replace("2\r\n", "\r\n• ")
+                        .Replace("3\r\n", "\r\n• ")
+                        .Replace("4\r\n", "\r\n• ")
+                        .Replace("5\r\n", "\r\n• ")
+                        .Replace("6\r\n", "\r\n• ")
+                        .Replace("7\r\n", "\r\n• ")
+                        .Replace("8\r\n", "\r\n• ")
+                        .Replace("9\r\n", "\r\n• ")
+
+                        .Replace("1.", "\r\n■ ")
+                        .Replace("2.", "\r\n■ ")
+                        .Replace("3.", "\r\n■ ")
+                        .Replace("4.", "\r\n■ ")
+                        .Replace("5.", "\r\n■ ")
+                        .Replace("6.", "\r\n■ ")
+                        .Replace("7.", "\r\n■ ")
+                        .Replace("8.", "\r\n■ ")
+                        .Replace("9.", "\r\n■ ")
+                        ;
 
                 if (uns.Length > 0)
-                    mean_en += "\r\n\r\n[NOTE]\r\n" + string.Join(Environment.NewLine, string.Join(Environment.NewLine, uns).Split(new char[] { '\r', '\n', '.' }).Select(x => x.Trim()).Where(x => x.Length > 0).ToArray());
+                    mean_en += "\r\n\r\n[NOTE]\r\n\r\n" + string.Join(Environment.NewLine, string.Join(Environment.NewLine, uns).Split(new char[] { '\r', '\n' }).Select(x => x.Replace(".", ".\r\n").Trim()).Where(x => x.Length > 0).ToArray());
 
                 if (idoms.Length > 0)
-                    mean_en += "\r\n\r\n[IDOM]\r\n" + string.Join(Environment.NewLine, string.Join(Environment.NewLine, idoms).Split(new char[] { '\r', '\n', '.' }).Select(x => x.Trim()).Where(x => x.Length > 0).ToArray());
-                 
+                    mean_en += "\r\n\r\n[IDOM]\r\n\r\n" + string.Join(Environment.NewLine, string.Join(Environment.NewLine, idoms).Split(new char[] { '\r', '\n' }).Select(x => x.Replace(".", ".\r\n").Trim()).Where(x => x.Length > 0).ToArray());
+
+                mean_en = Regex.Replace(mean_en, "[ ]{2,}", " ").Replace("\r\n’", "’");
+
+                mean_en = string.Join(Environment.NewLine,
+                    mean_en.Split(new string[] { Environment.NewLine }, StringSplitOptions.None)
+                    .Select(x => x.Trim())
+                    .Select(x => x.Length > 0 ?
+                        (
+                            (x[0] == '■' || x[0] == '•') ?
+                                (x[0].ToString() + " " + x[2].ToString().ToUpper() + x.Substring(3))
+                                    : (x[0].ToString().ToUpper() + x.Substring(1))
+                        ) : x)
+                    .ToArray());
+
                 if (!string.IsNullOrEmpty(mean_en))
                 {
+                    if (dicWordMeaningEn.ContainsKey(mean_en))
+                        dicWordMeaningEn[word_en] = mean_en;
+                    else
+                        dicWordMeaningEn.TryAdd(word_en, mean_en);
 
+                    if (has_update_file_if_new)
+                    {
+                        new Thread(new ThreadStart(() =>
+                        {
+                            f_word_mean_en_writeFile();
+                        })).Start();
+                    }
                 }
 
-                if (pro == null) pro = string.Empty;
-                if (type == null) type = string.Empty; else type = " " + type;
-                if (pro.StartsWith("BrE")) pro = pro.Substring(3).Trim();
-                pro = pro.Replace("//", "/");
 
                 string[] mp3 = nodes.QuerySelectorAll("div[data-src-mp3]")
                     .Select(x => x.GetAttributeValue("data-src-mp3", string.Empty))
@@ -1190,7 +1228,7 @@ namespace appel
                     }
                 }
 
-                return string.Format("{0}{1}", pro, type).Trim();
+                return pro;
             }
         }
 
