@@ -51,6 +51,8 @@ namespace appel
                 }
 
             f_proxy_Start();
+
+            f_word_Init();
         }
 
         public msg Execute(msg m)
@@ -64,6 +66,10 @@ namespace appel
                         #region  
                         break;
                     #endregion
+
+                    case _API.MEDIA_KEY_WORD_TRANSLATER:
+                        f_word_MEDIA_KEY_WORD_TRANSLATER(m);
+                        break;
                     case _API.MEDIA_KEY_PLAY_AUDIO:
                         #region
                         if (true)
@@ -821,18 +827,156 @@ namespace appel
 
         #region [ WORD ]
 
-        static readonly string file_word = Path.Combine(path_data, "word.bin");
+        static readonly string file_word_mean_vi = Path.Combine(path_data, "word-vi.bin");
 
         static ConcurrentDictionary<string, string> dicWordPronunciation = null;
         static ConcurrentDictionary<string, string> dicWordMeaningVi = null;
         static ConcurrentDictionary<string, string> dicWordMeaningEn = null;
         static ConcurrentDictionary<string, List<string>> dicWordSentence = null;
 
-        public static void f_word_Init() {
+        public static void f_word_Init()
+        {
+            dicWordMeaningVi = new ConcurrentDictionary<string, string>();
+            dicWordPronunciation = new ConcurrentDictionary<string, string>();
+            dicWordMeaningEn = new ConcurrentDictionary<string, string>();
+            dicWordSentence = new ConcurrentDictionary<string, List<string>>();
+
+            if (File.Exists(file_word_mean_vi))
+                using (var file = File.OpenRead(file_word_mean_vi))
+                    dicWordMeaningVi = Serializer.Deserialize<ConcurrentDictionary<string, string>>(file);
 
         }
 
+        private void f_word_mean_vi_writeFile()
+        {
+            using (var file = File.Create(file_word_mean_vi))
+                Serializer.Serialize<ConcurrentDictionary<string, string>>(file, dicWordMeaningVi);
+        }
 
+        private void f_word_MEDIA_KEY_WORD_TRANSLATER(msg m)
+        {
+            if (m.Input != null)
+            {
+                long mediaId = (long)m.Input;
+                oWordCount[] a = f_media_getWords(mediaId);
+
+                var akey = dicWordMeaningVi.Keys.ToArray();
+
+                string[] ws = a.OrderByDescending(x => x.count)
+                        .Where(x => x.word.Length > 3)
+                        .Select(x => x.word)
+                        .ToArray();
+                bool hasMultiPart = false;
+
+                if (akey.Length > 0)
+                    ws = ws.Where(x => !akey.Any(o => o == x)).ToArray();
+                if (ws.Length > 0)
+                {
+                    if (ws.Length > 300)
+                    {
+                        ws = ws.Take(300).ToArray();
+                        hasMultiPart = true;
+                    }
+
+                    string input = string.Join(Environment.NewLine, ws);
+
+                    //string temp = HttpUtility.UrlEncode(input.Replace(" ", "---"));
+                    string temp = HttpUtility.UrlEncode(input);
+                    //temp = temp.Replace("-----", "%20");
+
+                    string url = String.Format("http://www.google.com/translate_t?hl=en&ie=UTF8&text={0}&langpair={1}", temp, "en|vi");
+
+                    string s = String.Empty;
+                    using (WebClient webClient = new WebClient())
+                    {
+                        webClient.Encoding = Encoding.UTF7;
+                        s = webClient.DownloadString(url);
+                    }
+                    string ht = HttpUtility.HtmlDecode(s);
+
+                    string result = String.Empty;
+                    int p = s.IndexOf("id=result_box");
+                    if (p > 0)
+                        s = "<span " + s.Substring(p, s.Length - p);
+                    p = s.IndexOf("</div>");
+                    if (p > 0)
+                    {
+                        s = s.Substring(0, p);
+                        s = s.Replace("<br>", "¦");
+                        s = HttpUtility.HtmlDecode(s);
+                        result = Regex.Replace(s, @"<[^>]*>", String.Empty);
+                    }
+                    if (result.Length > 0)
+                    {
+                        string[] ms = result
+                            .Replace("\r", string.Empty)
+                            .Replace("\n", string.Empty)
+                            .Split('¦');
+                        if (ms.Length == ws.Length)
+                        {
+                            for (int i = 0; i < ms.Length; i++)
+                            {
+                                if (!dicWordMeaningVi.ContainsKey(ws[i]))
+                                {
+                                    dicWordMeaningVi.TryAdd(ws[i], ms[i]);
+                                }
+                            }
+
+                            f_word_mean_vi_writeFile();
+
+                            if (hasMultiPart) {
+                                f_word_MEDIA_KEY_WORD_TRANSLATER(m);
+                            }
+                            else
+                            {
+                                m.Output = new msgOutput()
+                                {
+                                    Ok = true,
+                                };
+                                m.Log = string.Format("Translate {0} words: {1}", ms.Length, "SUCCESSFULLY");
+                                response_toMain(m);
+                            }
+                        }
+                        else
+                        {
+                            m.Output = new msgOutput()
+                            {
+                                Ok = false,
+                            };
+                            m.Log = string.Format("Translate {0} words: {1}", ms.Length, "FAIL");
+                            response_toMain(m);
+                        }
+                    }
+                    else
+                    {
+                        m.Output = new msgOutput()
+                        {
+                            Ok = false,
+                        };
+                        m.Log = string.Format("Translate {0} words: {1}", ws.Length, "FAIL because cannot send request to API Google Translate");
+                        response_toMain(m);
+                    }
+                }
+                else
+                {
+                    m.Output = new msgOutput()
+                    {
+                        Ok = true,
+                    };
+                    m.Log = string.Format("All words exist in system. Translate successfully!");
+                    response_toMain(m);
+                }
+            }
+        }
+
+        public static string f_word_meaning_Vi(string word_en) {
+            if (dicWordMeaningVi.ContainsKey(word_en)) {
+                string vi = string.Empty;
+                if (dicWordMeaningVi.TryGetValue(word_en, out vi))
+                    return vi;
+            }
+            return string.Empty;
+        }
 
         #endregion
 
@@ -889,7 +1033,7 @@ namespace appel
 
             if (m != null)
                 return m.SubtileEnglish_Sentence
-                    .Where(x=>x.Contains(word))
+                    .Where(x => x.Contains(word))
                     .ToArray();
 
             return new string[] { };

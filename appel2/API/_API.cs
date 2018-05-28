@@ -25,6 +25,7 @@ namespace appel
         public const string MEDIA_KEY_WORD_LIST = "MEDIA_KEY_WORD_LIST";
         public const string MEDIA_KEY_PLAY_VIDEO = "MEDIA_KEY_PLAY_VIDEO";
         public const string MEDIA_KEY_PLAY_AUDIO = "MEDIA_KEY_PLAY_AUDIO";
+        public const string MEDIA_KEY_WORD_TRANSLATER = "MEDIA_KEY_WORD_TRANSLATER";
 
         public const string MEDIA_KEY_FILTER_BOOKMAR_STAR = "MEDIA_KEY_FILTER_BOOKMAR_STAR";
         public const string MEDIA_KEY_FILTER_USER = "MEDIA_KEY_FILTER_USER";
