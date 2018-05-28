@@ -978,6 +978,24 @@ namespace appel
             return string.Empty;
         }
 
+        public static string f_word_speak_getURL(string word_en) {
+            if (!string.IsNullOrEmpty(word_en))
+            {
+                if (word_en[word_en.Length - 1] == 's')
+                    word_en = word_en.Substring(0, word_en.Length - 1);
+
+                string url = string.Empty;
+                //url = "https://s3.amazonaws.com/audio.oxforddictionaries.com/en/mp3/you_gb_1.mp3";
+                //url = "https://ssl.gstatic.com/dictionary/static/sounds/oxford/you--_gb_1.mp3";
+                //url = "https://ssl.gstatic.com/dictionary/static/sounds/20160317/you--_gb_1.mp3";
+
+                url = string.Format("https://ssl.gstatic.com/dictionary/static/sounds/oxford/{0}--_gb_1.mp3", word_en);
+
+                return url;
+            }
+            return string.Empty;
+        }
+
         #endregion
 
         #region [ MEDIA ]

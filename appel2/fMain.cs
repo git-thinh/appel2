@@ -57,6 +57,7 @@ namespace appel
             m_media.Height = 44;
             m_media.Location = new Point(this.Width - (m_media_width - 2), 1);
             m_media.settings.volume = 100;
+            m_media.enableContextMenu = false;
             m_media.BringToFront();
 
             //lbl_hide_border_left.BackColor = Color.Orange;
@@ -67,6 +68,9 @@ namespace appel
 
             btn_play.Location = new Point(this.Width - m_media_width, 3);
             btn_play.BringToFront();
+
+            wd_media.settings.volume = 100;
+            wd_media.enableContextMenu = false;
 
             m_search_Input.Focus();
         }
@@ -435,6 +439,9 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         IconButton wd_word_speak = null;
 
+        AxWindowsMediaPlayer wd_media;
+        Panel wd_footer;
+
         void f_word_detail_Init()
         {
             wd_header = new Panel()
@@ -485,10 +492,40 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 IconType = IconType.ios_volume_high,
                 Dock = DockStyle.Right
             };
+            wd_word_speak.MouseClick += f_wd_word_detail_speakClick;
+
+            wd_text_detail = new TextBox()
+            {
+                Dock = DockStyle.Fill,
+                BorderStyle = BorderStyle.None,
+                Multiline = true,
+                ScrollBars = ScrollBars.Vertical,
+                //BackColor = Color.Yellow,
+                Font = font_Title,
+            };            
+            wd_content.Controls.Add(wd_text_detail);
+
+            wd_footer = new Panel() {
+                Dock = DockStyle.Bottom,
+                Height = 45,
+                BackColor = Color.DimGray,
+            };
+
+            wd_media = new AxWindowsMediaPlayer()
+            {
+                //Dock = DockStyle.Right,
+                //Width = m_media_width,
+                Location = new Point(-999, -999)
+            };
+
+            wd_footer.Controls.AddRange(new Control[] {
+                wd_media,
+            });
 
             m_tab_WordDetail.Controls.AddRange(new Control[] {
                 wd_content,
                 wd_header,
+                wd_footer,
             });
 
             wd_header.Controls.AddRange(new Control[] {
@@ -499,16 +536,13 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 wd_word_speak,
             });
 
-            wd_text_detail = new TextBox()
-            {
-                Dock = DockStyle.Fill,
-                BorderStyle = BorderStyle.None,
-                Multiline = true,
-                ScrollBars = ScrollBars.Vertical,
-                //BackColor = Color.Yellow,
-                Font = font_Title,
-            };
-            wd_content.Controls.Add(wd_text_detail);
+        }
+
+        private void f_wd_word_detail_speakClick(object sender, MouseEventArgs e)
+        {
+            string url = api_media.f_word_speak_getURL(m_word_current);
+            if (!string.IsNullOrEmpty(url))
+                wd_media.URL = url;
         }
 
         void f_word_detail_Active()
