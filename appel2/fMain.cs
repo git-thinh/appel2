@@ -129,6 +129,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
         Label m_word_TotalItems;
 
         IconButton word_Translater;
+        Label word_current_label;
 
         #endregion
 
@@ -235,7 +236,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
             word_Translater = new IconButton()
             {
-                IconType = IconType.android_done_all,
+                IconType = IconType.ios_paper_outline,
                 Dock = DockStyle.Right,
                 ToolTipText = "Translater",
                 InActiveColor = Color.DimGray,
@@ -252,16 +253,67 @@ writeline and then it's just   going to print out hello on the screen   can't do
                     }
                 }
             };
+
+            IconButton w_ico_list_selected = new IconButton()
+            {
+                Dock = DockStyle.Right,
+                IconType = IconType.android_done_all,
+                ToolTipText = "List words selected",
+            };
+            w_ico_list_selected.MouseClick += f_word_list_selected_Click;
+            IconButton w_ico_repeat = new IconButton(22)
+            {
+                Dock = DockStyle.Left,
+                IconType = IconType.android_sync,
+                ToolTipText = "Repeat Play"
+            };
+            w_ico_repeat.MouseClick += f_word_speak_repeat_Click;
+
+            IconButton w_ico_prev = new IconButton(19)
+            {
+                Dock = DockStyle.Left,
+                IconType = IconType.ios_arrow_back
+            };
+            w_ico_prev.MouseClick += f_word_speak_prev_Click;
+            IconButton w_ico_play = new IconButton()
+            {
+                Dock = DockStyle.Left,
+                IconType = IconType.ios_play_outline
+            };
+            w_ico_play.MouseClick += f_word_speak_play_Click;
+            IconButton w_ico_next = new IconButton(19)
+            {
+                Dock = DockStyle.Left,
+                IconType = IconType.ios_arrow_next
+            };
+            w_ico_next.MouseClick += f_word_speak_next_Click;
+            word_current_label = new Label()
+            {
+                Dock = DockStyle.Left,
+                AutoSize = true,
+                //BackColor = Color.DimGray,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font = font_Title,
+            };
+
             m_word_Footer.Controls.AddRange(new Control[] {
                 #region
                  
-                //btn_bookmark,
-                //new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
-                //btn_tags,
-                //new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
+                word_current_label,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 2 },
+                w_ico_repeat,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 2 },
+                w_ico_next,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 2 },
+                w_ico_play,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 2 },
+                w_ico_prev,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 2 },
                 m_word_Input,
 
                 word_Translater,
+                new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
+                w_ico_list_selected,
                 new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
                 btn_add_playlist,
                 new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
@@ -295,6 +347,26 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 #endregion
             });
 
+        }
+
+        private void f_word_speak_prev_Click(object sender, MouseEventArgs e)
+        { 
+        }
+
+        private void f_word_speak_next_Click(object sender, MouseEventArgs e)
+        {
+        }
+
+        private void f_word_speak_play_Click(object sender, MouseEventArgs e)
+        {
+        }
+
+        private void f_word_speak_repeat_Click(object sender, MouseEventArgs e)
+        {
+        }
+
+        private void f_word_list_selected_Click(object sender, MouseEventArgs e)
+        {
         }
 
         private void f_word_playList_updateClick(object sender, MouseEventArgs e)
@@ -393,10 +465,12 @@ writeline and then it's just   going to print out hello on the screen   can't do
         {
             Control lbl = (Control)sender;
             string text = lbl.Text;
-            m_word_current = text;
 
             if (lbl.BackColor == Color.White)
             {
+                m_word_current = text;
+                word_current_label.Text = text;
+
                 lbl.BackColor = Color.Orange;
                 if (m_word_selected.IndexOf(text) == -1)
                     m_word_selected.Add(text);
@@ -406,6 +480,15 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 lbl.BackColor = Color.White;
                 if (m_word_selected.IndexOf(text) != -1)
                     m_word_selected.Remove(text);
+
+                m_word_current = string.Empty;
+                word_current_label.Text = string.Empty;
+
+                if (m_word_selected.Count > 0)
+                {
+                    m_word_current = m_word_selected[m_word_selected.Count - 1];
+                    word_current_label.Text = m_word_selected[m_word_selected.Count - 1];
+                }
             }
         }
 
@@ -502,10 +585,11 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 ScrollBars = ScrollBars.Vertical,
                 //BackColor = Color.Yellow,
                 Font = font_Title,
-            };            
+            };
             wd_content.Controls.Add(wd_text_detail);
 
-            wd_footer = new Panel() {
+            wd_footer = new Panel()
+            {
                 Dock = DockStyle.Bottom,
                 Height = 45,
                 BackColor = Color.DimGray,

@@ -530,6 +530,7 @@
 
         ios_analytics_outline = 0xf3cd,
 
+        repeat = 0xf1fe,
         ios_arrow_back = 0xf3cf,
         ios_arrow_next = 0xf3d1, 
 
