@@ -639,9 +639,24 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         private void f_wd_word_detail_speakClick(object sender, MouseEventArgs e)
         {
-            string url = api_media.f_word_speak_getURL(m_word_current);
-            if (!string.IsNullOrEmpty(url))
-                wd_media.URL = url;
+            //string url = api_media.f_word_speak_getURL(m_word_current);
+            //if (!string.IsNullOrEmpty(url))
+            //    wd_media.URL = url;
+            if (!string.IsNullOrEmpty(m_word_current))
+            {
+                string[] urls = api_media.f_word_speak_getURLs(m_word_current);
+                var playlist = wd_media.playlistCollection.newPlaylist("playlist_" + m_word_current);
+
+                for (int Count = 0; Count < urls.Length; Count++)
+                {
+                    var media = wd_media.newMedia(urls[Count]);
+                    playlist.appendItem(media);
+                }
+
+                wd_media.currentPlaylist = playlist;
+
+                wd_media.Ctlcontrols.play();
+            }
         }
 
         void f_word_detail_Active()

@@ -398,6 +398,55 @@ namespace HtmlAgilityPack
                 string s = null;
                 foreach (HtmlNode node in ChildNodes)
                     s += node.InnerText;
+
+                return s;
+            }
+        }
+
+
+        /// <summary>
+        /// Gets or Sets the text between the start and end tags of the object.
+        /// </summary>
+        public virtual string InnerText_NewLine
+        {
+            get
+            {
+                if (!_ownerdocument.BackwardCompatibility)
+                {
+                    if (HasChildNodes)
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        AppendInnerText(sb);
+                        return sb.ToString();
+                    }
+
+                    return GetCurrentNodeText();
+                }
+
+                if (_nodetype == HtmlNodeType.Text)
+                    return ((HtmlTextNode)this).Text;
+
+                // Don't display comment or comment child nodes
+                if (_nodetype == HtmlNodeType.Comment)
+                    return "";
+
+                // note: right now, this method is *slow*, because we recompute everything.
+                // it could be optimized like innerhtml
+                if (!HasChildNodes)
+                    return string.Empty;
+
+                string s = string.Empty;
+                foreach (HtmlNode node in ChildNodes)
+                {
+                    if (!string.IsNullOrEmpty(node.InnerText))
+                    {
+                        if (s.Length == 0)
+                            s = node.InnerText.Trim();
+                        else
+                            s += Environment.NewLine + node.InnerText.Trim();
+                    }
+                }
+
                 return s;
             }
         }
@@ -2305,7 +2354,7 @@ namespace HtmlAgilityPack
 
         public string getAttribute(string attrName)
         {
-            return Attributes.getAttribute(attrName); 
+            return Attributes.getAttribute(attrName);
         }
 
         private bool IsEmpty(IEnumerable en)

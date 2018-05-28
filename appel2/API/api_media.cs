@@ -828,13 +828,17 @@ namespace appel
 
         #region [ WORD ]
 
+        static readonly string file_word_mean_en = Path.Combine(path_data, "word-en.bin");
         static readonly string file_word_mean_vi = Path.Combine(path_data, "word-vi.bin");
         static readonly string file_word_pronunciation = Path.Combine(path_data, "word-pro.bin");
+        static readonly string file_word_sentence = Path.Combine(path_data, "word-sen.bin");
+        static readonly string file_word_mp3 = Path.Combine(path_data, "word-mp3.bin");
 
         static ConcurrentDictionary<string, string> dicWordPronunciation = null;
         static ConcurrentDictionary<string, string> dicWordMeaningVi = null;
         static ConcurrentDictionary<string, string> dicWordMeaningEn = null;
         static ConcurrentDictionary<string, List<string>> dicWordSentence = null;
+        static ConcurrentDictionary<string, List<string>> dicWordMp3 = null;
 
         public static void f_word_Init()
         {
@@ -842,14 +846,27 @@ namespace appel
             dicWordPronunciation = new ConcurrentDictionary<string, string>();
             dicWordMeaningEn = new ConcurrentDictionary<string, string>();
             dicWordSentence = new ConcurrentDictionary<string, List<string>>();
+            dicWordMp3 = new ConcurrentDictionary<string, List<string>>();
 
             if (File.Exists(file_word_mean_vi))
                 using (var file = File.OpenRead(file_word_mean_vi))
                     dicWordMeaningVi = Serializer.Deserialize<ConcurrentDictionary<string, string>>(file);
 
+            if (File.Exists(file_word_mean_en))
+                using (var file = File.OpenRead(file_word_mean_en))
+                    dicWordMeaningEn = Serializer.Deserialize<ConcurrentDictionary<string, string>>(file);
+
             if (File.Exists(file_word_pronunciation))
                 using (var file = File.OpenRead(file_word_pronunciation))
                     dicWordPronunciation = Serializer.Deserialize<ConcurrentDictionary<string, string>>(file);
+
+            if (File.Exists(file_word_sentence))
+                using (var file = File.OpenRead(file_word_sentence))
+                    dicWordSentence = Serializer.Deserialize<ConcurrentDictionary<string, List<string>>>(file);
+
+            if (File.Exists(file_word_mp3))
+                using (var file = File.OpenRead(file_word_mp3))
+                    dicWordMp3 = Serializer.Deserialize<ConcurrentDictionary<string, List<string>>>(file);
         }
 
         private static void f_word_mean_vi_writeFile()
@@ -858,12 +875,30 @@ namespace appel
                 Serializer.Serialize<ConcurrentDictionary<string, string>>(file, dicWordMeaningVi);
         }
 
+        private static void f_word_mean_en_writeFile()
+        {
+            using (var file = File.Create(file_word_mean_en))
+                Serializer.Serialize<ConcurrentDictionary<string, string>>(file, dicWordMeaningEn);
+        }
+
+        private static void f_word_sentence_writeFile()
+        {
+            using (var file = File.Create(file_word_sentence))
+                Serializer.Serialize<ConcurrentDictionary<string, List<string>>>(file, dicWordSentence);
+        }
+
+        private static void f_word_mp3_writeFile()
+        {
+            using (var file = File.Create(file_word_mp3))
+                Serializer.Serialize<ConcurrentDictionary<string, List<string>>>(file, dicWordMp3);
+        }
+
         private static void f_word_pronunciation_writeFile()
         {
             using (var file = File.Create(file_word_pronunciation))
                 Serializer.Serialize<ConcurrentDictionary<string, string>>(file, dicWordPronunciation);
         }
-        
+
         private void f_word_MEDIA_KEY_WORD_TRANSLATER(msg m)
         {
             if (m.Input != null)
@@ -1012,7 +1047,31 @@ namespace appel
             }
             return string.Empty;
         }
-         
+
+        public static string[] f_word_speak_getURLs(string word_en)
+        {
+            if (!string.IsNullOrEmpty(word_en))
+            {
+                if (word_en[word_en.Length - 1] == 's')
+                    word_en = word_en.Substring(0, word_en.Length - 1);
+                List<string> urls = new List<string>();
+                if (dicWordMp3.TryGetValue(word_en, out urls))
+                {
+                    return urls.ToArray();
+                }
+                else
+                {
+                    string url = string.Empty;
+                    //url = "https://s3.amazonaws.com/audio.oxforddictionaries.com/en/mp3/you_gb_1.mp3";
+                    //url = "https://ssl.gstatic.com/dictionary/static/sounds/oxford/you--_gb_1.mp3";
+                    //url = "https://ssl.gstatic.com/dictionary/static/sounds/20160317/you--_gb_1.mp3"; 
+                    url = string.Format("https://ssl.gstatic.com/dictionary/static/sounds/oxford/{0}--_gb_1.mp3", word_en);
+                    return new string[] { url };
+                }
+            }
+            return new string[] { };
+        }
+
         static HttpClient web_word_pronunciation = new HttpClient();
         private static string f_word_speak_getPronunciationFromCambridge(string word_en)
         {
@@ -1028,7 +1087,7 @@ namespace appel
             return string.Empty;
         }
 
-        private static string f_word_speak_getPronunciationFromOxford(string word_en)
+        private static string f_word_speak_getPronunciationFromOxford(string word_en, bool has_update_file_if_new)
         {
             string requestUri = string.Format("https://www.oxfordlearnersdictionaries.com/definition/english/{0}?q={0}", word_en);
             using (var response = web_word_pronunciation.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead).Result)
@@ -1037,27 +1096,106 @@ namespace appel
                     return string.Empty;
 
                 response.EnsureSuccessStatusCode();
-                string htm = response.Content.ReadAsStringAsync().Result, pro = string.Empty, type= string.Empty;
-                //if (htm.Contains(@"<span class=""wrap"">/</span>"))
-                //    pro = "/" + htm.Split(new string[] { @"<span class=""wrap"">/</span>" }, StringSplitOptions.None)[1].Split('<')[0].Trim() + "/";
-                //if (htm.Contains(@"<span class=""pos"">"))
-                //    type = " " + htm.Split(new string[] { @"<span class=""pos"">" }, StringSplitOptions.None)[1].Split('<')[0].Trim();
+                string htm = response.Content.ReadAsStringAsync().Result,
+                    pro = string.Empty, type = string.Empty, mean_en = word_en.ToUpper();
 
                 HtmlNode nodes = f_word_speak_getPronunciationFromOxford_Nodes(htm);
                 pro = nodes.QuerySelectorAll("span[class=\"phon\"]").Select(x => x.InnerText).Where(x => !string.IsNullOrEmpty(x)).Take(1).SingleOrDefault();
                 type = nodes.QuerySelectorAll("span[class=\"pos\"]").Select(x => x.InnerText).Where(x => !string.IsNullOrEmpty(x)).Take(1).SingleOrDefault();
 
+                string[] uns = nodes.QuerySelectorAll("span[class=\"un\"]").Select(x => x.InnerText_NewLine).Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                string[] mens = nodes.QuerySelectorAll("span[class=\"vp-g\"]").Select(x => x.InnerText).Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                string[] idoms = nodes.QuerySelectorAll("span[class=\"idm-g\"]").Select(x => x.InnerText_NewLine).Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                string[] defines = nodes.QuerySelectorAll("li[class=\"sn-g\"]").Select(x => x.InnerText_NewLine).Where(x => !string.IsNullOrEmpty(x)).ToArray();
+
+                if (mens.Length > 0)
+                    mean_en += "\r\n\r\n[VERB]\r\n" + string.Join(Environment.NewLine, mens).Replace("//", "/");
+
+                if (defines.Length > 0)
+                    mean_en += "\r\n\r\n[DEFINE]\r\n" + string.Join(Environment.NewLine, string.Join(Environment.NewLine, defines).Split(new char[] { '\r', '\n', '.' }).Select(x => x.Trim()).Where(x => x.Length > 0).ToArray())
+                        .Replace("\r\n[", ". ").Replace("]", ":")
+                        .Replace("1\r\n", "1, ")
+                        .Replace("2\r\n", "2, ")
+                        .Replace("3\r\n", "3, ")
+                        .Replace("4\r\n", "4, ")
+                        .Replace("5\r\n", "5, ")
+                        .Replace("6\r\n", "6, ")
+                        .Replace("7\r\n", "7, ")
+                        .Replace("8\r\n", "8, ")
+                        .Replace("9\r\n", "9, ");
+
+                if (uns.Length > 0)
+                    mean_en += "\r\n\r\n[NOTE]\r\n" + string.Join(Environment.NewLine, string.Join(Environment.NewLine, uns).Split(new char[] { '\r', '\n', '.' }).Select(x => x.Trim()).Where(x => x.Length > 0).ToArray());
+
+                if (idoms.Length > 0)
+                    mean_en += "\r\n\r\n[IDOM]\r\n" + string.Join(Environment.NewLine, string.Join(Environment.NewLine, idoms).Split(new char[] { '\r', '\n', '.' }).Select(x => x.Trim()).Where(x => x.Length > 0).ToArray());
+                 
+                if (!string.IsNullOrEmpty(mean_en))
+                {
+
+                }
+
                 if (pro == null) pro = string.Empty;
                 if (type == null) type = string.Empty; else type = " " + type;
                 if (pro.StartsWith("BrE")) pro = pro.Substring(3).Trim();
+                pro = pro.Replace("//", "/");
+
+                string[] mp3 = nodes.QuerySelectorAll("div[data-src-mp3]")
+                    .Select(x => x.GetAttributeValue("data-src-mp3", string.Empty))
+                    .Where(x => !string.IsNullOrEmpty(x))
+                    .Distinct()
+                    .ToArray();
+                if (mp3.Length > 0)
+                {
+                    List<string> lss = new List<string>();
+                    bool has = dicWordMp3.TryGetValue(word_en, out lss);
+                    if (lss == null) lss = new List<string>();
+
+                    lss.AddRange(mp3);
+                    lss = lss.Distinct().ToList();
+                    if (has)
+                        dicWordMp3[word_en] = lss;
+                    else
+                        dicWordMp3.TryAdd(word_en, lss);
+
+                    if (has_update_file_if_new)
+                    {
+                        new Thread(new ThreadStart(() =>
+                        {
+                            f_word_mp3_writeFile();
+                        })).Start();
+                    }
+                }
 
                 string[] sens = nodes.QuerySelectorAll("span[class=\"x\"]").Select(x => x.InnerText).Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                if (sens.Length > 0)
+                {
+                    List<string> lss = new List<string>() { };
+                    bool has = dicWordSentence.TryGetValue(word_en, out lss);
+                    if (lss == null) lss = new List<string>();
+                    lss.AddRange(sens);
+                    lss = lss.Distinct().ToList();
+
+                    if (has)
+                        dicWordSentence[word_en] = lss;
+                    else
+                        dicWordSentence.TryAdd(word_en, lss);
+
+                    if (has_update_file_if_new)
+                    {
+                        new Thread(new ThreadStart(() =>
+                        {
+                            f_word_sentence_writeFile();
+                        })).Start();
+                    }
+                }
 
                 return string.Format("{0}{1}", pro, type).Trim();
             }
         }
 
-        private static HtmlNode f_word_speak_getPronunciationFromOxford_Nodes(string s) {
+        private static HtmlNode f_word_speak_getPronunciationFromOxford_Nodes(string s)
+        {
             s = Regex.Replace(s, @"<script[^>]*>[\s\S]*?</script>", string.Empty);
             s = Regex.Replace(s, @"<style[^>]*>[\s\S]*?</style>", string.Empty);
             s = Regex.Replace(s, @"<noscript[^>]*>[\s\S]*?</noscript>", string.Empty);
@@ -1085,9 +1223,10 @@ namespace appel
             }
             else
             {
-                //pro = f_word_speak_getPronunciationFromCambridge(word_en);
-                pro = f_word_speak_getPronunciationFromOxford(word_en);
-                if (!string.IsNullOrEmpty(pro)) {
+                //pro = f_word_speak_getPronunciationFromCambridge(word_en, has_update_file_if_new);
+                pro = f_word_speak_getPronunciationFromOxford(word_en, has_update_file_if_new);
+                if (!string.IsNullOrEmpty(pro))
+                {
                     dicWordPronunciation.TryAdd(word_en, pro);
                     if (has_update_file_if_new)
                         new Thread(new ThreadStart(() => { f_word_pronunciation_writeFile(); })).Start();
