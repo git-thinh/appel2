@@ -367,6 +367,20 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         private void f_word_list_selected_Click(object sender, MouseEventArgs e)
         {
+            IconButton el = (IconButton)sender;
+            if (el.InActiveColor == Color.Orange)
+            {
+                el.InActiveColor = Color.DimGray;
+                f_media_loadWord();
+            }
+            else
+            {
+                if (m_word_selected.Count > 0)
+                {
+                    el.InActiveColor = Color.Orange;
+                    f_word_draw_Items(m_word_selected.Select(x => new oWordCount() { word = x }).ToArray());
+                }
+            }
         }
 
         private void f_word_playList_updateClick(object sender, MouseEventArgs e)
