@@ -13,6 +13,7 @@ using System.Threading;
 using System.Windows.Forms;
 using YoutubeExplode;
 using YoutubeExplode.Models;
+using YYProject.RichEdit;
 
 namespace appel
 {
@@ -534,13 +535,13 @@ writeline and then it's just   going to print out hello on the screen   can't do
         Label wd_word_name = null;
         Label wd_word_pronunciation = null;
         Label wd_word_meaning = null;
-        TextBox wd_text_detail = null;
+        RichTextBoxEx wd_text_detail = null;
 
         IconButton wd_word_speak = null;
 
         AxWindowsMediaPlayer wd_media;
         Panel wd_footer;
-
+         
         void f_word_detail_Init()
         {
             wd_header = new Panel()
@@ -593,15 +594,15 @@ writeline and then it's just   going to print out hello on the screen   can't do
             };
             wd_word_speak.MouseClick += f_wd_word_detail_speakClick;
 
-            wd_text_detail = new TextBox()
+            wd_text_detail = new RichTextBoxEx()
             {
                 Dock = DockStyle.Fill,
                 BorderStyle = BorderStyle.None,
                 Multiline = true,
-                ScrollBars = ScrollBars.Vertical,
+                ScrollBars = RichTextBoxScrollBars.Vertical,
                 //BackColor = Color.Yellow,
-                Font = font_TextView,
-            };
+                Font = font_TextView, 
+            }; 
             wd_content.Controls.Add(wd_text_detail);
 
             wd_footer = new Panel()
@@ -677,7 +678,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 string[] sentences = api_media.f_media_getSentencesByWord(m_media_current_id, m_word_current);
                 if (sentences.Length > 0)
                     wd_text_detail.Text = string.Join(Environment.NewLine + Environment.NewLine, sentences);
-
+                 
                 new Thread(new ThreadStart(() =>
                 {
                     string s = api_media.f_word_speak_getPronunciation(m_word_current, false);
@@ -686,9 +687,20 @@ writeline and then it's just   going to print out hello on the screen   can't do
                         if (s.Contains('⌐') && s.Contains('┘'))
                             s = string.Join(string.Empty, s.Split(new char[] { '⌐', '┘' }).Where((x, k) => k != 1).ToArray());
 
+                        if (s.Contains('/'))
+                        {
+                            wd_word_pronunciation.crossThreadPerformSafely(() =>
+                            {
+                                wd_word_pronunciation.Text = s.Split('/')[1];
+                            });
+                        }
+
                         wd_text_detail.crossThreadPerformSafely(() =>
                         {
                             wd_text_detail.Text = s;
+                            wd_text_detail.SelectAll();
+                            wd_text_detail.SelectionParaSpacing = new YYProject.RichEdit.RTBParaSpacing(0, 150);
+                            wd_text_detail.Select(0, 0);
                         });
                     }
                 })).Start();
@@ -2051,5 +2063,5 @@ writeline and then it's just   going to print out hello on the screen   can't do
         }
 
     }
-
+     
 }
