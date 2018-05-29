@@ -20,107 +20,107 @@
         var googletag = googletag || {};
         googletag.cmd = googletag.cmd || [];
         var dfpSlots = {};
-        (function() {
+        (function () {
             var gads = document.createElement('script');
             gads.async = true;
             gads.type = 'text/javascript';
             var useSSL = 'https:' == document.location.protocol;
-            gads.src = (useSSL ? 'https:' : 'http:') +'//www.googletagservices.com/tag/js/gpt.js';
+            gads.src = (useSSL ? 'https:' : 'http:') + '//www.googletagservices.com/tag/js/gpt.js';
             var node = document.getElementsByTagName('script')[0];
             node.parentNode.insertBefore(gads, node);
         })();
-        googletag.cmd.push(function() {
-                                                                                        var mapping_topslot_a = googletag.sizeMapping()
+        googletag.cmd.push(function () {
+            var mapping_topslot_a = googletag.sizeMapping()
 
-                                                            .addSize([1203, 0], [])  // hd (CSS min-width: 1220)
-                                                                                                                    .addSize([745, 0], [728, 90]) // tablet (CSS min-width: 762)
-                                                            .addSize([0, 0], [320, 50])    // mobile
-                                .build();
-                            dfpSlots["topslot_a"] = googletag.defineSlot('/70903302/topslot', [728, 90], 'ad_topslot_a')
-                                                          .defineSizeMapping(mapping_topslot_a)
-                                                                                                                        .setTargeting('vp', 'top')
-                                                                                                                        .setTargeting('hp', 'center')
-                                                                                                                    .addService(googletag.pubads());
-                                                                                                                            var mapping_topslot_b = googletag.sizeMapping()
+                .addSize([1203, 0], [])  // hd (CSS min-width: 1220)
+                .addSize([745, 0], [728, 90]) // tablet (CSS min-width: 762)
+                .addSize([0, 0], [320, 50])    // mobile
+                .build();
+            dfpSlots["topslot_a"] = googletag.defineSlot('/70903302/topslot', [728, 90], 'ad_topslot_a')
+                .defineSizeMapping(mapping_topslot_a)
+                .setTargeting('vp', 'top')
+                .setTargeting('hp', 'center')
+                .addService(googletag.pubads());
+            var mapping_topslot_b = googletag.sizeMapping()
 
-                                                            .addSize([1203, 0], [728, 90])  // hd (CSS min-width: 1220)
-                                                                                                                    .addSize([0, 0], [])    // mobile
-                                .build();
-                            dfpSlots["topslot_b"] = googletag.defineSlot('/70903302/topslot', [], 'ad_topslot_b')
-                                                          .defineSizeMapping(mapping_topslot_b)
-                                                                                                                        .setTargeting('vp', 'top')
-                                                                                                                        .setTargeting('hp', 'center')
-                                                                                                                    .addService(googletag.pubads());
-                                                                                                                            var mapping_btmslot_a = googletag.sizeMapping()
+                .addSize([1203, 0], [728, 90])  // hd (CSS min-width: 1220)
+                .addSize([0, 0], [])    // mobile
+                .build();
+            dfpSlots["topslot_b"] = googletag.defineSlot('/70903302/topslot', [], 'ad_topslot_b')
+                .defineSizeMapping(mapping_topslot_b)
+                .setTargeting('vp', 'top')
+                .setTargeting('hp', 'center')
+                .addService(googletag.pubads());
+            var mapping_btmslot_a = googletag.sizeMapping()
 
-                                                                                                                    .addSize([745, 0], [300, 250]) // tablet (CSS min-width: 762)
-                                                            .addSize([0, 0], [])    // mobile
-                                .build();
-                            dfpSlots["btmslot_a"] = googletag.defineSlot('/70903302/btmslot', [300, 250], 'ad_btmslot_a')
-                                                          .defineSizeMapping(mapping_btmslot_a)
-                                                                                                                        .setTargeting('vp', 'btm')
-                                                                                                                        .setTargeting('hp', 'center')
-                                                                                                                    .addService(googletag.pubads());
-                                                                                                                            var mapping_btmslot_b = googletag.sizeMapping()
+                .addSize([745, 0], [300, 250]) // tablet (CSS min-width: 762)
+                .addSize([0, 0], [])    // mobile
+                .build();
+            dfpSlots["btmslot_a"] = googletag.defineSlot('/70903302/btmslot', [300, 250], 'ad_btmslot_a')
+                .defineSizeMapping(mapping_btmslot_a)
+                .setTargeting('vp', 'btm')
+                .setTargeting('hp', 'center')
+                .addService(googletag.pubads());
+            var mapping_btmslot_b = googletag.sizeMapping()
 
-                                                                                                                    .addSize([745, 0], []) // tablet (CSS min-width: 762)
-                                                            .addSize([0, 0], [300, 250])    // mobile
-                                .build();
-                            dfpSlots["btmslot_b"] = googletag.defineSlot('/70903302/btmslot', [], 'ad_btmslot_b')
-                                                          .defineSizeMapping(mapping_btmslot_b)
-                                                                                                                        .setTargeting('vp', 'btm')
-                                                                                                                        .setTargeting('hp', 'center')
-                                                                                                                    .addService(googletag.pubads());
-                                                                                                                            var mapping_houseslot1_a = googletag.sizeMapping()
+                .addSize([745, 0], []) // tablet (CSS min-width: 762)
+                .addSize([0, 0], [300, 250])    // mobile
+                .build();
+            dfpSlots["btmslot_b"] = googletag.defineSlot('/70903302/btmslot', [], 'ad_btmslot_b')
+                .defineSizeMapping(mapping_btmslot_b)
+                .setTargeting('vp', 'btm')
+                .setTargeting('hp', 'center')
+                .addService(googletag.pubads());
+            var mapping_houseslot1_a = googletag.sizeMapping()
 
-                                                                                                                    .addSize([0, 0], [180, 150])    // mobile
-                                .build();
-                            dfpSlots["houseslot1_a"] = googletag.defineSlot('/70903302/houseslot1', [180, 150], 'ad_houseslot1_a')
-                                                          .defineSizeMapping(mapping_houseslot1_a)
-                                                                                                                        .setTargeting('vp', 'btm')
-                                                                                                                        .setTargeting('hp', 'right')
-                                                                                                                    .addService(googletag.pubads());
-                                                                                                                            var mapping_leftslot_a = googletag.sizeMapping()
+                .addSize([0, 0], [180, 150])    // mobile
+                .build();
+            dfpSlots["houseslot1_a"] = googletag.defineSlot('/70903302/houseslot1', [180, 150], 'ad_houseslot1_a')
+                .defineSizeMapping(mapping_houseslot1_a)
+                .setTargeting('vp', 'btm')
+                .setTargeting('hp', 'right')
+                .addService(googletag.pubads());
+            var mapping_leftslot_a = googletag.sizeMapping()
 
-                                                                                                                    .addSize([745, 0], [160, 600]) // tablet (CSS min-width: 762)
-                                                            .addSize([0, 0], [])    // mobile
-                                .build();
-                            dfpSlots["leftslot_a"] = googletag.defineSlot('/70903302/leftslot', [160, 600], 'ad_leftslot_a')
-                                                          .defineSizeMapping(mapping_leftslot_a)
-                                                                                                                        .setTargeting('vp', 'top')
-                                                                                                                        .setTargeting('hp', 'left')
-                                                                                                                    .addService(googletag.pubads());
-                                                                                                                                                            googletag.pubads().setTargeting("old_l", "en");
-                                                                            googletag.pubads().setTargeting("old_pr", "free");
-                                                                            googletag.pubads().setTargeting("old_pc", "dictionary");
-                                                                            googletag.pubads().setTargeting("old_dc", "english");
-                                                                            googletag.pubads().setTargeting("old_ei", "forget");
+                .addSize([745, 0], [160, 600]) // tablet (CSS min-width: 762)
+                .addSize([0, 0], [])    // mobile
+                .build();
+            dfpSlots["leftslot_a"] = googletag.defineSlot('/70903302/leftslot', [160, 600], 'ad_leftslot_a')
+                .defineSizeMapping(mapping_leftslot_a)
+                .setTargeting('vp', 'top')
+                .setTargeting('hp', 'left')
+                .addService(googletag.pubads());
+            googletag.pubads().setTargeting("old_l", "en");
+            googletag.pubads().setTargeting("old_pr", "free");
+            googletag.pubads().setTargeting("old_pc", "dictionary");
+            googletag.pubads().setTargeting("old_dc", "english");
+            googletag.pubads().setTargeting("old_ei", "forget");
 
-             googletag.pubads().setCategoryExclusion('wprod');  googletag.pubads().setCategoryExclusion('lcp');
+            googletag.pubads().setCategoryExclusion('wprod'); googletag.pubads().setCategoryExclusion('lcp');
             googletag.pubads().enableSingleRequest();
             googletag.pubads().collapseEmptyDivs(false);
             googletag.enableServices();
         });
-            function getDeviceByResolution() {
-                var res = null;
-                if (window.matchMedia("(max-width: 761px)").matches)
-                    res = "mobile";
-                else if (window.matchMedia("(min-width: 762px) and (max-width: 928px)").matches)
-                    res = "tablet";
-                else if (window.matchMedia("(min-width: 1220px)").matches)
-                    res = "hd";
-                else
-                    res = "desktop";
-                return res;
+        function getDeviceByResolution() {
+            var res = null;
+            if (window.matchMedia("(max-width: 761px)").matches)
+                res = "mobile";
+            else if (window.matchMedia("(min-width: 762px) and (max-width: 928px)").matches)
+                res = "tablet";
+            else if (window.matchMedia("(min-width: 1220px)").matches)
+                res = "hd";
+            else
+                res = "desktop";
+            return res;
+        }
+        var curResolution = getDeviceByResolution();
+        window.onresize = function () {
+            var newResolution = getDeviceByResolution();
+            if (newResolution != curResolution) {
+                curResolution = newResolution;
+                googletag.pubads().refresh();
             }
-            var curResolution = getDeviceByResolution();
-            window.onresize = function() {
-                var newResolution = getDeviceByResolution();
-                if (newResolution != curResolution) {
-                                        curResolution = newResolution;
-                    googletag.pubads().refresh();
-                }
-            };
+        };
     </script>
     <!--[if gte IE 7 ]>
         <link href="https://www.oxfordlearnersdictionaries.com/external/styles/oxford-ie.css?version=1.6.27" rel="stylesheet" type="text/css" />
@@ -131,76 +131,76 @@
     <script type='text/javascript'>
         var arrayFn = [];
         var dictCodesArr = new Array();
-                /*english
-         * OALD9
-         * free
-         * false || true*/
-            dictCodesArr["english"] = {
-                url : 'english',
-                name : 'English',
-                description : 'Search OALD',
-                                    free: true
-                            };
-                /*american_english
-         * OAAD,OALD9
-         * free
-         * false || true*/
-            dictCodesArr["american_english"] = {
-                url : 'american_english',
-                name : 'American English',
-                description : 'Search OAAD',
-                                    free: true
-                            };
-                /*academic
-         * OLDAE
-         * free
-         * false || false*/
-            dictCodesArr["academic"] = {
-                url : 'academic',
-                name : 'Academic English',
-                description : 'Search OLDAE',
-                                    free: false
-                            };
-                /*collocations
-         * OCOLL
-         * free
-         * false || false*/
-            dictCodesArr["collocations"] = {
-                url : 'collocations',
-                name : 'Collocations',
-                description : 'Search Oxford Collocations Dictionary',
-                                    free: false
-                            };
-                /*practical-english-usage
-         * PEU
-         * free
-         * false || false*/
-            dictCodesArr["practical-english-usage"] = {
-                url : 'practical-english-usage',
-                name : 'Practical English Usage',
-                description : 'Search PEU Index',
-                                    free: false
-                            };
-                /*schulwoerterbuch_German-English
-         * SWB
-         * free
-         * false || false*/
-            dictCodesArr["schulwoerterbuch_German-English"] = {
-                url : 'schulwoerterbuch_German-English',
-                name : 'German-English',
-                description : 'Search Das Oxford Schulw\u00F6rterbuch',
-                                    free: false
-                            };
-                /*schulwoerterbuch_English-German
-         * SWB
-         * free
-         * false || false*/
-            dictCodesArr["schulwoerterbuch_English-German"] = {
-                url : 'schulwoerterbuch_English-German',
-                name : 'English-German',
-                description : 'Search Das Oxford Schulw\u00F6rterbuch',
-                                    free: false
-                            };
+        /*english
+* OALD9
+* free
+* false || true*/
+        dictCodesArr["english"] = {
+            url: 'english',
+            name: 'English',
+            description: 'Search OALD',
+            free: true
+        };
+        /*american_english
+* OAAD,OALD9
+* free
+* false || true*/
+        dictCodesArr["american_english"] = {
+            url: 'american_english',
+            name: 'American English',
+            description: 'Search OAAD',
+            free: true
+        };
+        /*academic
+* OLDAE
+* free
+* false || false*/
+        dictCodesArr["academic"] = {
+            url: 'academic',
+            name: 'Academic English',
+            description: 'Search OLDAE',
+            free: false
+        };
+        /*collocations
+* OCOLL
+* free
+* false || false*/
+        dictCodesArr["collocations"] = {
+            url: 'collocations',
+            name: 'Collocations',
+            description: 'Search Oxford Collocations Dictionary',
+            free: false
+        };
+        /*practical-english-usage
+* PEU
+* free
+* false || false*/
+        dictCodesArr["practical-english-usage"] = {
+            url: 'practical-english-usage',
+            name: 'Practical English Usage',
+            description: 'Search PEU Index',
+            free: false
+        };
+        /*schulwoerterbuch_German-English
+* SWB
+* free
+* false || false*/
+        dictCodesArr["schulwoerterbuch_German-English"] = {
+            url: 'schulwoerterbuch_German-English',
+            name: 'German-English',
+            description: 'Search Das Oxford Schulw\u00F6rterbuch',
+            free: false
+        };
+        /*schulwoerterbuch_English-German
+* SWB
+* free
+* false || false*/
+        dictCodesArr["schulwoerterbuch_English-German"] = {
+            url: 'schulwoerterbuch_English-German',
+            name: 'English-German',
+            description: 'Search Das Oxford Schulw\u00F6rterbuch',
+            free: false
+        };
     </script>
 
 </head>
@@ -318,7 +318,7 @@
                 </div>        <div class="responsive_hide_on_hd responsive_center_on_smartphone" id="leaderboardOthers">
                     <div id='ad_topslot_a' class='am-default'>
                         <script type='text/javascript'>
-            googletag.cmd.push(function() { googletag.display('ad_topslot_a'); });
+                            googletag.cmd.push(function () { googletag.display('ad_topslot_a'); });
                         </script>
                     </div>
                 </div>
@@ -326,7 +326,7 @@
                     <div class="responsive_entry_left">
                         <div id='ad_leftslot_a' class='am-default'>
                             <script type='text/javascript'>
-            googletag.cmd.push(function() { googletag.display('ad_leftslot_a'); });
+                                googletag.cmd.push(function () { googletag.display('ad_leftslot_a'); });
                             </script>
                         </div>
                     </div>
@@ -335,7 +335,7 @@
                         <div class="responsive_display_on_hd" id="leaderboardHD">
                             <div id='ad_topslot_b' class='am-default'>
                                 <script type='text/javascript'>
-            googletag.cmd.push(function() { googletag.display('ad_topslot_b'); });
+                                    googletag.cmd.push(function () { googletag.display('ad_topslot_b'); });
                                 </script>
                             </div>
                         </div>
@@ -408,24 +408,24 @@
 
 
                                         <script language="javascript" type="text/javascript">
-    var contextId= (location.hash != "" ? location.hash : null);
-    // global variable that contains the path to external files
-    // and used by the lightbox script
-    var lightboxImageLoading = "https://www.oxfordlearnersdictionaries.com/external/images/lightbox-ico-loading.gif?version=1.6.27";
-    var lightboxImageBtnPrev = "https://www.oxfordlearnersdictionaries.com/external/images/lightbox-btn-prev.gif?version=1.6.27";
-    var lightboxImageBtnNext = "https://www.oxfordlearnersdictionaries.com/external/images/lightbox-btn-next.gif?version=1.6.27";
-    var lightboxImageBtnClose = "https://www.oxfordlearnersdictionaries.com/external/images/lightbox-btn-close.gif?version=1.6.27";
-    var lightboxImageBlank = "https://www.oxfordlearnersdictionaries.com/external/images/lightbox-blank.gif?version=1.6.27";
-    if (document.readyState != 'loading'){
-        initEntry('See more', 'See less');
-    } else if (document.addEventListener) {
-      document.addEventListener('DOMContentLoaded', function(){initEntry('See more', 'See less');});
-    } else {
-      document.attachEvent('onreadystatechange', function() {
-        if (document.readyState != 'loading')
-            initEntry('See more', 'See less');
-      });
-    }
+                                            var contextId = (location.hash != "" ? location.hash : null);
+                                            // global variable that contains the path to external files
+                                            // and used by the lightbox script
+                                            var lightboxImageLoading = "https://www.oxfordlearnersdictionaries.com/external/images/lightbox-ico-loading.gif?version=1.6.27";
+                                            var lightboxImageBtnPrev = "https://www.oxfordlearnersdictionaries.com/external/images/lightbox-btn-prev.gif?version=1.6.27";
+                                            var lightboxImageBtnNext = "https://www.oxfordlearnersdictionaries.com/external/images/lightbox-btn-next.gif?version=1.6.27";
+                                            var lightboxImageBtnClose = "https://www.oxfordlearnersdictionaries.com/external/images/lightbox-btn-close.gif?version=1.6.27";
+                                            var lightboxImageBlank = "https://www.oxfordlearnersdictionaries.com/external/images/lightbox-blank.gif?version=1.6.27";
+                                            if (document.readyState != 'loading') {
+                                                initEntry('See more', 'See less');
+                                            } else if (document.addEventListener) {
+                                                document.addEventListener('DOMContentLoaded', function () { initEntry('See more', 'See less'); });
+                                            } else {
+                                                document.attachEvent('onreadystatechange', function () {
+                                                    if (document.readyState != 'loading')
+                                                        initEntry('See more', 'See less');
+                                                });
+                                            }
                                         </script>
                                         <div id="entryContent" class="oald">
                                             <div class="entry" sum="3569" dpsid="u4cdebea65f7df6b4.743b4102.13cbabdc422.348d" id="forget">
@@ -434,7 +434,7 @@
                                                         <div class="top-g" dpsid="u4cdebea65f7df6b4.743b4102.13cbabdc422.348f" id="forget__2">
                                                             <div class="webtop-g">
                                                                 <a class="oxford3000" href="https://www.oxfordlearnersdictionaries.com/wordlist/english/oxford3000/"> </a><span class="z"> </span><h2 class="h">forget</h2><span class="z"> </span><span class="pos">verb</span>
-                                                            </div> <span class="pos-g" dpsid="u4cdebea65f7df6b4.743b4102.13cbabdc422.3499" id="forget__10"><span class="pos" id="forget__11" dpsid="u4cdebea65f7df6b4.743b4102.13cbabdc422.349a">verb</span></span> <div class="pron-gs ei-g" eid="forget__12"><span class="pron-g" geo="br" id="forget__13" trans="ald8"><span class="prefix"><span class="blue">BrE</span></span> <span class="phon" eid="forget__14" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8dc"><span class="bre">BrE</span><span class="separator">/</span><span class="wrap">/</span><span class="ptl" id="forget__15" psg="ald8computed" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8dd">fəˈɡ</span>et<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-uk icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/f/for/forge/forget__gb_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron_ogg/f/for/forge/forget__gb_1.ogg" title=" pronunciation=pronunciation English"=English" style="cursor: pointer" valign="top"> </div></span><span class="sep">;</span> <span class="pron-g" geo="n_am" id="forget__16" trans="ald8"><span class="prefix"><span class="red">NAmE</span></span> <span class="phon" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8e0" eid="forget__17"><span class="name">NAmE</span><span class="separator">/</span><span class="wrap">/</span><span class="ptl" id="forget__18" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8e1" psg="ald8book">fərˈɡ</span>et<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-us icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/us_pron/f/for/forge/forget__us_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/us_pron_ogg/f/for/forge/forget__us_1.ogg" title=" pronunciation=pronunciation American"=American" style="cursor: pointer" valign="top"> </div></span></div><span class="collapse" title="Verb Forms"><span class="unbox" unbox="verbforms" id="forget__19" dpsref="u4cdebea65f7df6b4.32994981.14e72d235b2.77c8" psg="u4cdebea65f7df6b4.743b4102.13cbabdc422.349c" dpsresource="VERB_FORMS" dpsid="u4cdebea65f7df6b4.52a0ebc2.14e966d023b.-6ea0"><span class="heading">Verb Forms</span><span class="body"><span class="vp-g" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8a6" form="root" id="forget__20"><span class="vp" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8a7" id="forget__21"> <span class="prefix">present simple I / you / we / they</span> forget</span> <div class="pron-gs ei-g" eid="forget__22" verbform="y"><span class="pron-g" trans="ald8" geo="br" id="forget__23"><span class="prefix"><span class="blue">BrE</span></span> <span class="phon" eid="forget__24" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8aa"><span class="bre">BrE</span><span class="separator">/</span><span class="wrap">/</span><span class="ptl" id="forget__25" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8ab" psg="ald8computed">fəˈɡ</span>et<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-uk icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/f/for/forge/forget__gb_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron_ogg/f/for/forge/forget__gb_1.ogg" title=" pronunciation=pronunciation English"=English" style="cursor: pointer" valign="top"> </div></span><span class="sep">;</span> <span class="pron-g" trans="ald8" id="forget__26" geo="n_am"><span class="prefix"><span class="red">NAmE</span></span> <span class="phon" eid="forget__27" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8ae"><span class="name">NAmE</span><span class="separator">/</span><span class="wrap">/</span><span class="ptl" psg="ald8book" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8af" id="forget__28">fərˈɡ</span>et<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-us icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/us_pron/f/for/forge/forget__us_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/us_pron_ogg/f/for/forge/forget__us_1.ogg" title=" pronunciation=pronunciation American"=American" style="cursor: pointer" valign="top"> </div></span></div></span><span class="vp-g" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8b1" id="forget__29" form="thirdps"><span class="vp" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8b2" id="forget__30"> <span class="prefix">he / she / it</span> forgets</span> <div class="pron-gs ei-g" verbform="y" eid="forget__31"><span class="pron-g" trans="ald8" geo="br" id="forget__32"><span class="prefix"><span class="blue">BrE</span></span> <span class="phon" eid="forget__33" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8b5"><span class="bre">BrE</span><span class="separator">/</span><span class="wrap">/</span>fəˈɡets<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-uk icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/f/for/forge/forgets__gb_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron_ogg/f/for/forge/forgets__gb_1.ogg" title=" pronunciation=pronunciation English"=English" style="cursor: pointer" valign="top"> </div></span><span class="sep">;</span> <span class="pron-g" trans="ald8" geo="n_am" id="forget__34"><span class="prefix"><span class="red">NAmE</span></span> <span class="phon" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8b8" eid="forget__35"><span class="name">NAmE</span><span class="separator">/</span><span class="wrap">/</span>fərˈɡets<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-us icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/us_pron/f/for/forge/forgets__us_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/us_pron_ogg/f/for/forge/forgets__us_1.ogg" title=" pronunciation=pronunciation American"=American" style="cursor: pointer" valign="top"> </div></span></div></span><span class="vp-g" id="forget__36" form="past" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8ba"><span class="vp" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8bb" id="forget__37"> <span class="prefix">past simple</span> forgot</span> <div class="pron-gs ei-g" eid="forget__38" verbform="y"><span class="pron-g" geo="br" id="forget__39" trans="ald8"><span class="prefix"><span class="blue">BrE</span></span> <span class="phon" eid="forget__40" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8be"><span class="bre">BrE</span><span class="separator">/</span><span class="wrap">/</span>fəˈɡɒt<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-uk icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/f/for/forgo/forgot__gb_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron_ogg/f/for/forgo/forgot__gb_1.ogg" title=" pronunciation=pronunciation English"=English" style="cursor: pointer" valign="top"> </div></span><span class="sep">;</span> <span class="pron-g" geo="n_am" id="forget__41" trans="ald8"><span class="prefix"><span class="red">NAmE</span></span> <span class="phon" eid="forget__42" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8c1"><span class="name">NAmE</span><span class="separator">/</span><span class="wrap">/</span>fərˈɡɑːt<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-us icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/us_pron/f/for/forgo/forgot__us_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/us_pron_ogg/f/for/forgo/forgot__us_1.ogg" title=" pronunciation=pronunciation American"=American" style="cursor: pointer" valign="top"> </div></span></div></span><span class="vp-g" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8c3" id="forget__43" form="pastpart"><span class="vp" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8c4" id="forget__44"> <span class="prefix">past participle</span> forgotten</span> <div class="pron-gs ei-g" verbform="y" eid="forget__45"><span class="pron-g" geo="br" id="forget__46" trans="ald8"><span class="prefix"><span class="blue">BrE</span></span> <span class="phon" eid="forget__47" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8c7"><span class="bre">BrE</span><span class="separator">/</span><span class="wrap">/</span>fəˈɡɒtn<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-uk icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/f/for/forgo/forgotten__gb_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron_ogg/f/for/forgo/forgotten__gb_1.ogg" title=" pronunciation=pronunciation English"=English" style="cursor: pointer" valign="top"> </div></span><span class="sep">;</span> <span class="pron-g" geo="n_am" id="forget__48" trans="ald8"><span class="prefix"><span class="red">NAmE</span></span> <span class="phon" eid="forget__49" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8ca"><span class="name">NAmE</span><span class="separator">/</span><span class="wrap">/</span>fərˈɡɑːtn<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-us icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/us_pron/f/for/forgo/forgotten__us_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/us_pron_ogg/f/for/forgo/forgotten__us_1.ogg" title=" pronunciation=pronunciation American"=American" style="cursor: pointer" valign="top"> </div></span></div></span><span class="vp-g" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8cc" form="prespart" id="forget__50"><span class="vp" id="forget__51" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8cd"> <span class="prefix">-ing form</span> forgetting</span> <div class="pron-gs ei-g" eid="forget__52" verbform="y"><span class="pron-g" geo="br" id="forget__53" trans="ald8"><span class="prefix"><span class="blue">BrE</span></span> <span class="phon" eid="forget__54" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8d0"><span class="bre">BrE</span><span class="separator">/</span><span class="wrap">/</span>fəˈɡetɪŋ<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-uk icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/f/for/forge/forgetting__gb_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron_ogg/f/for/forge/forgetting__gb_1.ogg" title=" pronunciation=pronunciation English"=English" style="cursor: pointer" valign="top"> </div></span><span class="sep">;</span> <span class="pron-g" trans="ald8" geo="n_am" id="forget__55"><span class="prefix"><span class="red">NAmE</span></span> <span class="phon" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8d3" eid="forget__56"><span class="name">NAmE</span><span class="separator">/</span><span class="wrap">/</span>fərˈɡetɪŋ<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-us icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/us_pron/f/for/forge/forgetting__us_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/us_pron_ogg/f/for/forge/forgetting__us_1.ogg" title=" pronunciation=pronunciation American"=American" style="cursor: pointer" valign="top"> </div></span></div></span></span></span></span><div class="clear"> </div>
+                                                            </div> <span class="pos-g" dpsid="u4cdebea65f7df6b4.743b4102.13cbabdc422.3499" id="forget__10"><span class="pos" id="forget__11" dpsid="u4cdebea65f7df6b4.743b4102.13cbabdc422.349a">verb</span></span> <div class="pron-gs ei-g" eid="forget__12"><span class="pron-g" geo="br" id="forget__13" trans="ald8"><span class="prefix"><span class="blue">BrE</span></span> <span class="phon" eid="forget__14" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8dc"><span class="bre">BrE</span><span class="separator">/</span><span class="wrap">/</span><span class="ptl" id="forget__15" psg="ald8computed" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8dd">fəˈɡ</span>et<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-uk icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/f/for/forge/forget__gb_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron_ogg/f/for/forge/forget__gb_1.ogg" title=" pronunciation English" style="cursor: pointer" valign="top"> </div></span><span class="sep">;</span> <span class="pron-g" geo="n_am" id="forget__16" trans="ald8"><span class="prefix"><span class="red">NAmE</span></span> <span class="phon" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8e0" eid="forget__17"><span class="name">NAmE</span><span class="separator">/</span><span class="wrap">/</span><span class="ptl" id="forget__18" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8e1" psg="ald8book">fərˈɡ</span>et<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-us icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/us_pron/f/for/forge/forget__us_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/us_pron_ogg/f/for/forge/forget__us_1.ogg" title=" pronunciation American" style="cursor: pointer" valign="top"> </div></span></div><span class="collapse" title="Verb Forms"><span class="unbox" unbox="verbforms" id="forget__19" dpsref="u4cdebea65f7df6b4.32994981.14e72d235b2.77c8" psg="u4cdebea65f7df6b4.743b4102.13cbabdc422.349c" dpsresource="VERB_FORMS" dpsid="u4cdebea65f7df6b4.52a0ebc2.14e966d023b.-6ea0"><span class="heading">Verb Forms</span><span class="body"><span class="vp-g" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8a6" form="root" id="forget__20"><span class="vp" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8a7" id="forget__21"> <span class="prefix">present simple I / you / we / they</span> forget</span> <div class="pron-gs ei-g" eid="forget__22" verbform="y"><span class="pron-g" trans="ald8" geo="br" id="forget__23"><span class="prefix"><span class="blue">BrE</span></span> <span class="phon" eid="forget__24" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8aa"><span class="bre">BrE</span><span class="separator">/</span><span class="wrap">/</span><span class="ptl" id="forget__25" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8ab" psg="ald8computed">fəˈɡ</span>et<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-uk icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/f/for/forge/forget__gb_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron_ogg/f/for/forge/forget__gb_1.ogg" title=" pronunciation English" style="cursor: pointer" valign="top"> </div></span><span class="sep">;</span> <span class="pron-g" trans="ald8" id="forget__26" geo="n_am"><span class="prefix"><span class="red">NAmE</span></span> <span class="phon" eid="forget__27" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8ae"><span class="name">NAmE</span><span class="separator">/</span><span class="wrap">/</span><span class="ptl" psg="ald8book" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8af" id="forget__28">fərˈɡ</span>et<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-us icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/us_pron/f/for/forge/forget__us_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/us_pron_ogg/f/for/forge/forget__us_1.ogg" title=" pronunciation American" style="cursor: pointer" valign="top"> </div></span></div></span><span class="vp-g" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8b1" id="forget__29" form="thirdps"><span class="vp" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8b2" id="forget__30"> <span class="prefix">he / she / it</span> forgets</span> <div class="pron-gs ei-g" verbform="y" eid="forget__31"><span class="pron-g" trans="ald8" geo="br" id="forget__32"><span class="prefix"><span class="blue">BrE</span></span> <span class="phon" eid="forget__33" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8b5"><span class="bre">BrE</span><span class="separator">/</span><span class="wrap">/</span>fəˈɡets<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-uk icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/f/for/forge/forgets__gb_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron_ogg/f/for/forge/forgets__gb_1.ogg" title=" pronunciation English" style="cursor: pointer" valign="top"> </div></span><span class="sep">;</span> <span class="pron-g" trans="ald8" geo="n_am" id="forget__34"><span class="prefix"><span class="red">NAmE</span></span> <span class="phon" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8b8" eid="forget__35"><span class="name">NAmE</span><span class="separator">/</span><span class="wrap">/</span>fərˈɡets<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-us icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/us_pron/f/for/forge/forgets__us_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/us_pron_ogg/f/for/forge/forgets__us_1.ogg" title=" pronunciation American" style="cursor: pointer" valign="top"> </div></span></div></span><span class="vp-g" id="forget__36" form="past" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8ba"><span class="vp" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8bb" id="forget__37"> <span class="prefix">past simple</span> forgot</span> <div class="pron-gs ei-g" eid="forget__38" verbform="y"><span class="pron-g" geo="br" id="forget__39" trans="ald8"><span class="prefix"><span class="blue">BrE</span></span> <span class="phon" eid="forget__40" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8be"><span class="bre">BrE</span><span class="separator">/</span><span class="wrap">/</span>fəˈɡɒt<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-uk icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/f/for/forgo/forgot__gb_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron_ogg/f/for/forgo/forgot__gb_1.ogg" title=" pronunciation English" style="cursor: pointer" valign="top"> </div></span><span class="sep">;</span> <span class="pron-g" geo="n_am" id="forget__41" trans="ald8"><span class="prefix"><span class="red">NAmE</span></span> <span class="phon" eid="forget__42" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8c1"><span class="name">NAmE</span><span class="separator">/</span><span class="wrap">/</span>fərˈɡɑːt<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-us icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/us_pron/f/for/forgo/forgot__us_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/us_pron_ogg/f/for/forgo/forgot__us_1.ogg" title=" pronunciation American" style="cursor: pointer" valign="top"> </div></span></div></span><span class="vp-g" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8c3" id="forget__43" form="pastpart"><span class="vp" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8c4" id="forget__44"> <span class="prefix">past participle</span> forgotten</span> <div class="pron-gs ei-g" verbform="y" eid="forget__45"><span class="pron-g" geo="br" id="forget__46" trans="ald8"><span class="prefix"><span class="blue">BrE</span></span> <span class="phon" eid="forget__47" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8c7"><span class="bre">BrE</span><span class="separator">/</span><span class="wrap">/</span>fəˈɡɒtn<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-uk icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/f/for/forgo/forgotten__gb_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron_ogg/f/for/forgo/forgotten__gb_1.ogg" title=" pronunciation English" style="cursor: pointer" valign="top"> </div></span><span class="sep">;</span> <span class="pron-g" geo="n_am" id="forget__48" trans="ald8"><span class="prefix"><span class="red">NAmE</span></span> <span class="phon" eid="forget__49" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8ca"><span class="name">NAmE</span><span class="separator">/</span><span class="wrap">/</span>fərˈɡɑːtn<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-us icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/us_pron/f/for/forgo/forgotten__us_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/us_pron_ogg/f/for/forgo/forgotten__us_1.ogg" title=" pronunciation American" style="cursor: pointer" valign="top"> </div></span></div></span><span class="vp-g" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8cc" form="prespart" id="forget__50"><span class="vp" id="forget__51" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8cd"> <span class="prefix">-ing form</span> forgetting</span> <div class="pron-gs ei-g" eid="forget__52" verbform="y"><span class="pron-g" geo="br" id="forget__53" trans="ald8"><span class="prefix"><span class="blue">BrE</span></span> <span class="phon" eid="forget__54" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8d0"><span class="bre">BrE</span><span class="separator">/</span><span class="wrap">/</span>fəˈɡetɪŋ<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-uk icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/f/for/forge/forgetting__gb_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/uk_pron_ogg/f/for/forge/forgetting__gb_1.ogg" title=" pronunciation English" style="cursor: pointer" valign="top"> </div></span><span class="sep">;</span> <span class="pron-g" trans="ald8" geo="n_am" id="forget__55"><span class="prefix"><span class="red">NAmE</span></span> <span class="phon" dpsid="u8d6a85d5560ad4c2.-4a916db6.161fc2a26ab.8d3" eid="forget__56"><span class="name">NAmE</span><span class="separator">/</span><span class="wrap">/</span>fərˈɡetɪŋ<span class="wrap">/</span><span class="separator">/</span></span><div class="sound audio_play_button pron-us icon-audio" data-src-mp3="https://www.oxfordlearnersdictionaries.com/media/english/us_pron/f/for/forge/forgetting__us_1.mp3" data-src-ogg="https://www.oxfordlearnersdictionaries.com/media/english/us_pron_ogg/f/for/forge/forgetting__us_1.ogg" title=" pronunciation American" style="cursor: pointer" valign="top"> </div></span></div></span></span></span></span><div class="clear"> </div>
                                                             <div class="btn icon-left-colapse wl-add"><a id="add-to-mywordlist-link" href="https://www.oxfordlearnersdictionaries.com/mywordlist/">Add to my wordlist</a></div><a class="responsive_display_inline_on_smartphone link-right" href="#relatedentries">jump to other results</a><br />
                                                         </div>
                                                     </div>
@@ -555,7 +555,7 @@
                                     <div class="responsive_hide_on_smartphone responsive_center" id="btmOthers">
                                         <div id='ad_btmslot_a' class='am-default'>
                                             <script type='text/javascript'>
-            googletag.cmd.push(function() { googletag.display('ad_btmslot_a'); });
+                                                googletag.cmd.push(function () { googletag.display('ad_btmslot_a'); });
                                             </script>
                                         </div>
                                     </div>
@@ -566,11 +566,11 @@
                                 <div class="responsive_row">
                                     <div class="premium-box premium_english" id="otherLinksBox">
                                         <script type="text/javascript">
-        var otherLinksFold = (document.cookie.indexOf("otherLinksFold") != -1);
-        if(otherLinksFold) {
-            var element = document.getElementById("otherLinksBox");
-            element.className += ' data-fold';
-        }
+                                            var otherLinksFold = (document.cookie.indexOf("otherLinksFold") != -1);
+                                            if (otherLinksFold) {
+                                                var element = document.getElementById("otherLinksBox");
+                                                element.className += ' data-fold';
+                                            }
                                         </script>
                                         <div class="premium-title">
                                             <i class="premium-box-toggle icon"></i>
@@ -605,7 +605,7 @@
                                 <div class='responsive_center_on_smartphone'>
                                     <div id='ad_houseslot1_a' class='am-default'>
                                         <script type='text/javascript'>
-            googletag.cmd.push(function() { googletag.display('ad_houseslot1_a'); });
+                                            googletag.cmd.push(function () { googletag.display('ad_houseslot1_a'); });
                                         </script>
                                     </div>
                                 </div>             <div class="responsive_row nearby">
@@ -746,7 +746,7 @@
                                 <div class="responsive_display_on_smartphone responsive_center_on_smartphone" id="btmSmartphone">
                                     <div id='ad_btmslot_b' class='am-default'>
                                         <script type='text/javascript'>
-            googletag.cmd.push(function() { googletag.display('ad_btmslot_b'); });
+                                            googletag.cmd.push(function () { googletag.display('ad_btmslot_b'); });
                                         </script>
                                     </div>
                                 </div>
@@ -815,42 +815,44 @@
             <script language="JavaScript" type="text/javascript" src="https://www.oxfordlearnersdictionaries.com/external/scripts/jquery.lightbox-0.5.min.js?version=1.6.27"></script>
             <script language="javascript" type="text/javascript">
 
-        $(document).ready(function() { setupDoubleClick('https://www.oxfordlearnersdictionaries.com/', 'english', false, 'main-container', null, null, null); });
-        $('img.over').each(function(){
-            var t=$(this);
-            var src1= t.attr('src'); // initial src
-            var newSrc = src1.substring(0, src1.lastIndexOf('.')); // let's get file name without extension
-            t.hover(function(){
-                $(this).attr('src', newSrc+ '-over.' + /[^.]+$/.exec(src1)); //last part is for extension
-            }, function(){
-                $(this).attr('src', newSrc + '.' + /[^.]+$/.exec(src1)); //removing '-over' from the name
-            });
-        });
+                $(document).ready(function () { setupDoubleClick('https://www.oxfordlearnersdictionaries.com/', 'english', false, 'main-container', null, null, null); });
+                $('img.over').each(function () {
+                    var t = $(this);
+                    var src1 = t.attr('src'); // initial src
+                    var newSrc = src1.substring(0, src1.lastIndexOf('.')); // let's get file name without extension
+                    t.hover(function () {
+                        $(this).attr('src', newSrc + '-over.' + /[^.]+$/.exec(src1)); //last part is for extension
+                    }, function () {
+                        $(this).attr('src', newSrc + '.' + /[^.]+$/.exec(src1)); //removing '-over' from the name
+                    });
+                });
             </script>
             <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
 
             <script language="javascript" type="text/javascript" src="https://www.oxfordlearnersdictionaries.com/external/scripts/responsive.js?version=1.6.27"></script>
             <script type='text/javascript'>
-        $(document).ready(function() {
-            for(var i = 0; i<arrayFn.length;i++){
-                arrayFn[i].call();
-            }
-        });
+                $(document).ready(function () {
+                    for (var i = 0; i < arrayFn.length; i++) {
+                        arrayFn[i].call();
+                    }
+                });
             </script>
             <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+                (function (i, s, o, g, r, a, m) {
+                i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date(); a = s.createElement(o),
+                    m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+                })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
 
-  ga('create', 'UA-13175707-1',
-     {
-        'siteSpeedSampleRate': 10
-     });
-  ga('send', 'pageview');
+                ga('create', 'UA-13175707-1',
+                    {
+                        'siteSpeedSampleRate': 10
+                    });
+                ga('send', 'pageview');
             </script>
 
-            <script type="text/javascript">_qoptions={ qacct:"p-cfSla1Cke_iBQ" };</script>
+            <script type="text/javascript">_qoptions = { qacct: "p-cfSla1Cke_iBQ" };</script>
             <script type="text/javascript" src="https://secure.quantserve.com/quant.js"></script>
             <noscript><img src="https://pixel.quantserve.com/pixel/p-cfSla1Cke_iBQ.gif" style="display: none;" border="0" height="1" width="1" alt="Quantcast" /></noscript>
 

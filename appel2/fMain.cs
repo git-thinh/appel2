@@ -1179,9 +1179,9 @@ writeline and then it's just   going to print out hello on the screen   can't do
                     Tag = media.Id
                 };
 
-                Bitmap img = api_media.f_image_getCache(media.Id);
-                if (img != null)
-                    pic.Image = img;
+                //Bitmap img = api_media.f_image_getCache(media.Id);
+                //if (img != null)
+                //    pic.Image = img;
 
                 Color bgColor = media.Id == m_media_current_id ? Color.Orange : Color.LightGray;
 

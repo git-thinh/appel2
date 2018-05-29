@@ -405,6 +405,9 @@
     <Content Include="..\Buildx86\cambridge-hello.html">
       <Link>cambridge-hello.html</Link>
     </Content>
+    <Content Include="..\Buildx86\forget.txt">
+      <Link>forget.txt</Link>
+    </Content>
     <Content Include="favicon.ico" />
     <Content Include="LIB\Gma.System.MouseKeyHook\HotKeys\ReadMe.txt" />
     <Content Include="LIB\ProtoBuf\_ReadMe.txt" />
