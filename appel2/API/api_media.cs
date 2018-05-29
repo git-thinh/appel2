@@ -1087,6 +1087,8 @@ namespace appel
             return string.Empty;
         }
 
+        const char heading_char = '▪'; // ■
+        const string heading_text = "\r\n▪ ";
         private static string f_word_speak_getPronunciationFromOxford(string word_en, bool has_update_file_if_new)
         {
             if (word_en[word_en.Length - 1] == 's') word_en = word_en.Substring(0, word_en.Length - 1);
@@ -1115,7 +1117,7 @@ namespace appel
                 {
                     if (pro.StartsWith("BrE")) pro = pro.Substring(3).Trim();
                     pro = pro.Replace("//", "/");
-                    mean_en += "\r\n■ PRONUNCIATION: " + pro;
+                    mean_en += "\r\n PRONUNCIATION: " + pro;
                 }
 
                 List<string> ls_Verb_Group = new List<string>();
@@ -1125,11 +1127,11 @@ namespace appel
                     ls_Verb_Group.Add(a[a.Length - 1]);
                 }
                 if(ls_Verb_Group.Count > 0)
-                    mean_en += "\r\n■ REF: " + string.Join("; ", ls_Verb_Group.ToArray());
+                    mean_en += heading_text + "REF: " + string.Join("; ", ls_Verb_Group.ToArray());
 
 
                 if (pro_s.Length > 0)
-                    mean_en += "\r\n" + string.Join(Environment.NewLine, pro_s).Replace("//", "/");
+                    mean_en += "\r\n" + string.Join(Environment.NewLine, pro_s).Replace("//", "/").Trim();
 
                 string[] mp3 = nodes.QuerySelectorAll("div[data-src-mp3]")
                     .Select(x => x.GetAttributeValue("data-src-mp3", string.Empty))
@@ -1166,7 +1168,7 @@ namespace appel
 
                 if (defines.Length > 0)
                 {
-                    mean_en += "\r\n■ DEFINE:\r\n" +
+                    mean_en += heading_text + "DEFINE:\r\n" +
                         string.Join(Environment.NewLine,
                             string.Join(Environment.NewLine, defines)
                                 .Split(new char[] { '\r', '\n' })
@@ -1198,10 +1200,10 @@ namespace appel
                 }
 
                 if (uns.Length > 0)
-                    mean_en += "\r\n■ NOTE:\r\n" + string.Join(Environment.NewLine, string.Join(Environment.NewLine, uns).Split(new char[] { '\r', '\n' }).Select(x => x.Replace(".", ".\r\n").Trim()).Where(x => x.Length > 0).ToArray());
+                    mean_en += heading_text + "NOTE:\r\n" + string.Join(Environment.NewLine, string.Join(Environment.NewLine, uns).Split(new char[] { '\r', '\n' }).Select(x => x.Replace(".", ".\r\n").Trim()).Where(x => x.Length > 0).ToArray());
 
                 if (idoms.Length > 0)
-                    mean_en += "\r\n■ IDOM:\r\n" + string.Join(Environment.NewLine, string.Join(Environment.NewLine, idoms).Split(new char[] { '\r', '\n' }).Select(x => x.Replace(".", ".\r\n").Trim()).Where(x => x.Length > 0).ToArray());
+                    mean_en += heading_text + "IDOM:\r\n" + string.Join(Environment.NewLine, string.Join(Environment.NewLine, idoms).Split(new char[] { '\r', '\n' }).Select(x => x.Replace(".", ".\r\n").Trim()).Where(x => x.Length > 0).ToArray());
 
                 mean_en = Regex.Replace(mean_en, "[ ]{2,}", " ").Replace("\r\n’", "’");
 
@@ -1241,7 +1243,7 @@ namespace appel
                 if (sens.Length > 0)
                 {
                     string sen_text = string.Join(Environment.NewLine, sens);
-                    mean_en += "\r\n■ EXAMPLE:\r\n" + sen_text;
+                    mean_en += heading_text + "EXAMPLE:\r\n" + sen_text;
 
                     ////List<string> lss = new List<string>() { };
                     ////bool has = dicWordSentence.TryGetValue(word_en, out lss);
