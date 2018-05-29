@@ -21,6 +21,7 @@ namespace appel
         #region [ VARIABLE ] 
 
         readonly Font font_Title = new Font("Arial", 11f, FontStyle.Regular);
+        readonly Font font_TextView = new Font("Courier New", 11f, FontStyle.Regular);
 
         IconButton btn_exit;
         IconButton btn_mini;
@@ -599,7 +600,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 Multiline = true,
                 ScrollBars = ScrollBars.Vertical,
                 //BackColor = Color.Yellow,
-                Font = font_Title,
+                Font = font_TextView,
             };
             wd_content.Controls.Add(wd_text_detail);
 
@@ -679,11 +680,17 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
                 new Thread(new ThreadStart(() =>
                 {
-                    string pronunciation = api_media.f_word_speak_getPronunciation(m_word_current, false);
-                    wd_word_pronunciation.crossThreadPerformSafely(() =>
+                    string s = api_media.f_word_speak_getPronunciation(m_word_current, false);
+                    if (!string.IsNullOrEmpty(s))
                     {
-                        wd_word_pronunciation.Text = pronunciation;
-                    });
+                        if (s.Contains('⌐') && s.Contains('┘'))
+                            s = string.Join(string.Empty, s.Split(new char[] { '⌐', '┘' }).Where((x, k) => k != 1).ToArray());
+
+                        wd_text_detail.crossThreadPerformSafely(() =>
+                        {
+                            wd_text_detail.Text = s;
+                        });
+                    }
                 })).Start();
             }
         }

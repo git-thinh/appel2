@@ -1263,7 +1263,8 @@ namespace appel
 
                 }
 
-                return pro;
+                mean_en = mean_en.Replace("See full entry", string.Empty);
+                return mean_en;
             }
         }
 
