@@ -871,20 +871,36 @@ namespace appel
                     text = File.ReadAllText(fs[i]);
                     if (text.Contains('/'))
                         pronunciation = text.Split('/')[1];
+
                     if (text.Contains(pronun_head))
+                    {
                         wlink = text
                             .Split(new string[] { pronun_head, Environment.NewLine })[1].Split(';')
                             .Select(x => x.Trim().ToLower())
                             .ToArray();
+                        if (wlink.Length > 0)
+                        {
+                            for (int k = 0; k < wlink.Length; k++)
+                                if (!dicWordLink.ContainsKey(wlink[k]))
+                                    dicWordLink.TryAdd(wlink[k], word);
+                        }
+                    }
 
                     dicWord.TryAdd(word, text);
                     dicWordPronunciation.TryAdd(word, pronunciation);
 
-                    if (wlink.Length > 0)
-                    {
-                        for (int k = 0; k < wlink.Length; k++)
-                            if (!dicWordLink.ContainsKey(wlink[k]))
-                                dicWordLink.TryAdd(wlink[k], word);
+                    if (text.Contains('{') && text.Contains('}')) {
+                        var mp3s = text
+                            .Split(new char[] { '{', '}' })[1]
+                            .Split(new string[] { Environment.NewLine }, StringSplitOptions.None)
+                            .Select(x=>x.Trim())
+                            .Where(x=>x.Length > 0)
+                            .ToList();
+                        if (mp3s.Count > 0)
+                        {
+                            if (!dicWordMp3.ContainsKey(word))
+                                dicWordMp3.TryAdd(word, mp3s);
+                        }
                     }
                 }
             }

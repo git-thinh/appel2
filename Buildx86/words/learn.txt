@@ -1,0 +1,129 @@
+LEARN (verb)
+# REF: learn; learns; learnt; learnt; learned; learned; learning
+Present simple I / you / we / they learn
+He / she / it learns
+Past simple learnt
+Past participle learnt
+Past simple learned
+Past participle learned
+V-ing form learning
+{
+Https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/l/lea/learn/learn__gb_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/us_pron/l/lea/learn/learn__us_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/l/lea/learn/learns__gb_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/us_pron/l/lea/learn/learns__us_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/l/lea/learn/learnt__gb_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/us_pron/l/lea/learn/learnt__us_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/l/lea/learn/learned__gb_2.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/us_pron/l/lea/learn/learned__us_2.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/l/lea/learn/learning__gb_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/us_pron/l/lea/learn/learning__us_1.mp3
+}
+
+# DEFINE:
+
++ Transitive, intransitive:
+To gain knowledge or skill by studying, from experience, from being taught, etc.
+Learn something to learn a language/a musical instrument/a skill learn something from somebody/something I learned a lot from my father.
+Learn something from doing something You can learn a great deal just from watching other players.
+Learn (about something) She's very keen to learn about Japanese culture.
+The book is about how children learn.
+Learn to do something He's learning to dance.
+Learn how, what, etc Today we learnt how to use the new software.
+He's still learning how to dance.
+Vocabulary BuildingLearninglearnHe's learning Spanish/to swim.
+StudyShe studied chemistry for three years.
+Revise (British English) (North American English) review)In this class we'll revise/review what we did last week.
+Practise (British English (North American English practice)If you practise speaking English, you'll soon improve.
+RehearseWe only had two weeks to rehearse the play.
+Oxford Collocations Dictionary adverba lot, quickly, soon, verb + learnneed to, be eager to, want to, prepositionabout, from, through, 
+See related entries: Teaching and learning
+
++ Intransitive, transitive:
+To become aware of something by hearing about it from somebody else
+Synonym discover
+Learn of/about something I learnt of her arrival from a close friend.
+Learn (that) We were very surprised to learn (that) she had got married again.
+Learn who, what, etc We only learned who the new teacher was a few days ago.
+Learn something How did they react when they learned the news? it is learned that It has been learned that 500 jobs are to be lost at the factory.
+Oxford Collocations Dictionary verb + learnbe astonished to, be astounded to, be intrigued to, prepositionof 
+
++ Transitive:
+Learn something
+To study and repeat something in order to be able to remember it
+Synonym memorize
+We have to learn one of Hamlet's speeches for school tomorrow.
+Oxford Collocations Dictionary adverba lot, quickly, soon, verb + learnneed to, be eager to, want to, prepositionabout, from, through, 
+
++ Intransitive, transitive:
+To gradually change your attitudes about something so that you behave in a different way
+Learn (from something) I'm sure she'll learn from her mistakes.
+Learn (that) He'll just have to learn (that) he can't always have his own way.
+Learn to do something I soon learned not to ask too many questions.
+# IDOM:
+Know/learn/find something to your cost
+Add to my wordlistjump to other results
+To know something because of something unpleasant that has happened to you He's a ruthless businessman, as I know to my cost.
+Learn (something) the hard way
+Add to my wordlistjump to other results
+To find out how to behave by learning from your mistakes or from unpleasant experiences, rather than from being told
+Learn your lesson
+Add to my wordlistjump to other results
+To learn what to do or not to do in the future because you have had a bad experience in the past
+Show somebody/know/learn the ropes
+Add to my wordlistjump to other results
+(informal) to show somebody/know/learn how a particular job should be done
+You live and learn
+Add to my wordlistjump to other results
+Used to express surprise at something new or unexpected you have been told
+# EXAMPLE:
+- to learn a language/a musical instrument/a skill
+- I learned a lot from my father.
+- You can learn a great deal just from watching other players.
+- She's very keen to learn about Japanese culture.
+- The book is about how children learn.
+- He's learning to dance.
+- Today we learnt how to use the new software.
+- He's still learning how to dance.
+- He's learning Spanish/to swim.
+- She studied chemistry for three years.
+- In this class we'll revise/review what we did last week.
+- If you practise speaking English, you'll soon improve.
+- We only had two weeks to rehearse the play.
+- I learnt of her arrival from a close friend.
+- We were very surprised to learn (that) she had got married again.
+- We only learned who the new teacher was a few days ago.
+- How did they react when they learned the news?
+- It has been learned that 500 jobs are to be lost at the factory.
+- We have to learn one of Hamlet's speeches for school tomorrow.
+- I'm sure she'll learn from her mistakes.
+- He'll just have to learn (that) he can't always have his own way.
+- I soon learned not to ask too many questions.
+- Children learn very quickly.
+- He was eager to learn all she could teach him.
+- I was surprised to learn that he was only 23.
+- I've got a lot to learn, haven't I?
+- She learned from watching others.
+- Some people never learn, do they?
+- The children learn about art by painting.
+- They soon learn that bad behaviour is a sure-fire way of getting attention.
+- We first learned of the problem from her school.
+- You still have a lot to learn.
+- learning about art
+- Did you ever learn any languages?
+- Everyone learns in a slightly different way.
+- He learned to ride when he was about three years old.
+- He'll just have to learn (that) he can't always have his own way.
+- I learned of her arrival from a close friend.
+- I'll need to learn how to use the new software.
+- I'm sure she'll learn from her mistakes.
+- I've forgotten most of what I learned at school.
+- It's a bit overwhelming at first but don't worry, you'll soon learn.
+- Most of the kids here are eager to learn.
+- She's still quite young and she's got a lot to learn.
+- She's very interested in learning more about Japanese culture.
+- We have to learn one of Hamlet's speeches for school tomorrow.
+- We were very surprised to learn that she had got married again.
+- You can learn a great deal just from watching the other players.
+- You'll have to learn your lines by next week.
+- He's a ruthless businessman, as I know to my cost.

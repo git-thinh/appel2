@@ -713,13 +713,13 @@ writeline and then it's just   going to print out hello on the screen   can't do
                         if (s.Contains('{') && s.Contains('}'))
                             s = string.Join(string.Empty, s.Split(new char[] { '{', '}' }).Where((x, k) => k != 1).ToArray());
 
-                        if (s.Contains('/'))
-                        {
-                            wd_word_pronunciation.crossThreadPerformSafely(() =>
-                            {
-                                wd_word_pronunciation.Text = s.Split('/')[1];
-                            });
-                        }
+                        //if (s.Contains('/'))
+                        //{
+                        //    wd_word_pronunciation.crossThreadPerformSafely(() =>
+                        //    {
+                        //        wd_word_pronunciation.Text = s.Split('/')[1];
+                        //    });
+                        //}
 
                         wd_text_detail.crossThreadPerformSafely(() =>
                         {
