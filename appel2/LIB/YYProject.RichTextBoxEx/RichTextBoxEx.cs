@@ -104,7 +104,7 @@ namespace YYProject.RichEdit
         [Browsable(true), DefaultValue(false), Category("VerticalWriting"), Description("Controls weather the text in the text box is written vertically.")]
         public Boolean VerticalWriting
         {
-            get => _VerticalWriting;
+            get { return _VerticalWriting; }
             set
             {
                 if (value != _VerticalWriting)
@@ -127,7 +127,7 @@ namespace YYProject.RichEdit
         [Browsable(true), DefaultValue(RTBReadOnlyMode.Not), Category("ReadOnly"), Description("Indicates the read-only mode of the text in the text box.")]
         public new RTBReadOnlyMode ReadOnly
         {
-            get => _ReadOnly;
+            get { return _ReadOnly; }
             set
             {
                 if (value < RTBReadOnlyMode.Not || value > RTBReadOnlyMode.ViewOnly)

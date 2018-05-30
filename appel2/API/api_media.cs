@@ -570,16 +570,16 @@ namespace appel
 
                                     if (dicMediaImage.ContainsKey(mediaId))
                                     {
-                                        string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "photo");
-                                        if (Directory.Exists(dir) == false) Directory.CreateDirectory(dir);
-                                        string filename = Path.Combine(dir, mediaId.ToString() + ".jpg");
-                                        if (!File.Exists(filename))
-                                        {
-                                            Bitmap bitmap = null;
-                                            if (dicMediaImage.TryGetValue(mediaId, out bitmap) && bitmap != null)
-                                                //bitmap.Save(filename, ImageFormat.Jpeg);
-                                                dicMediaImage.TryRemove(mediaId, out bitmap);
-                                        }
+                                        //string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "photo");
+                                        //if (Directory.Exists(dir) == false) Directory.CreateDirectory(dir);
+                                        //string filename = Path.Combine(dir, mediaId.ToString() + ".jpg");
+                                        //if (!File.Exists(filename))
+                                        //{
+                                        Bitmap bitmap = null;
+                                        if (dicMediaImage.TryGetValue(mediaId, out bitmap) && bitmap != null)
+                                            //bitmap.Save(filename, ImageFormat.Jpeg);
+                                            dicMediaImage.TryRemove(mediaId, out bitmap);
+                                        //}
                                     }
 
                                     notification_toMain(new appel.msg()
@@ -828,13 +828,20 @@ namespace appel
 
         #region [ WORD ]
 
+        const char heading_char = '#'; // ■ ≡ ¶ ■
+        const string heading_text = "\r\n# ";
+
+        static ConcurrentDictionary<string, string> dicWord = null;
+        static ConcurrentDictionary<string, string> dicWordPronunciation = null;
+        static ConcurrentDictionary<string, string> dicWordRoot = null;
+
         static readonly string file_word_mean_en = Path.Combine(path_data, "word-en.bin");
         static readonly string file_word_mean_vi = Path.Combine(path_data, "word-vi.bin");
         static readonly string file_word_pronunciation = Path.Combine(path_data, "word-pro.bin");
         static readonly string file_word_sentence = Path.Combine(path_data, "word-sen.bin");
         static readonly string file_word_mp3 = Path.Combine(path_data, "word-mp3.bin");
 
-        static ConcurrentDictionary<string, string> dicWordPronunciation = null;
+
         static ConcurrentDictionary<string, string> dicWordMeaningVi = null;
         static ConcurrentDictionary<string, string> dicWordMeaningEn = null;
         static ConcurrentDictionary<string, List<string>> dicWordSentence = null;
@@ -842,11 +849,50 @@ namespace appel
 
         public static void f_word_Init()
         {
+            dicWord = new ConcurrentDictionary<string, string>();
+            dicWordRoot = new ConcurrentDictionary<string, string>();
             dicWordMeaningVi = new ConcurrentDictionary<string, string>();
             dicWordPronunciation = new ConcurrentDictionary<string, string>();
-            dicWordMeaningEn = new ConcurrentDictionary<string, string>();
             dicWordSentence = new ConcurrentDictionary<string, List<string>>();
             dicWordMp3 = new ConcurrentDictionary<string, List<string>>();
+
+            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "words");
+            if (Directory.Exists(dir) == false) Directory.CreateDirectory(dir);
+            else
+            {
+                string[] fs = Directory.GetFiles(dir, "*.txt"),
+                wlink = new string[] { };
+                string word = string.Empty,
+                text = string.Empty,
+                pronunciation = string.Empty,
+                pronun_head = heading_char.ToString() + " REF:";
+
+                for (int i = 0; i < fs.Length; i++)
+                {
+                    word = Path.GetFileName(fs[i]);
+                    word = word.Substring(0, word.Length - 4).Trim().ToLower();
+                    text = File.ReadAllText(fs[i]);
+                    if (text.Contains('/'))
+                        pronunciation = text.Split('/')[1];
+                    if (text.Contains(pronun_head))
+                        wlink = text
+                            .Split(new string[] { pronun_head, Environment.NewLine })[1].Split(';')
+                            .Select(x => x.Trim().ToLower())
+                            .ToArray();
+
+                    dicWord.TryAdd(word, text);
+                    dicWordPronunciation.TryAdd(word, pronunciation);
+
+                    if (wlink.Length > 0)
+                    {
+                        for (int k = 0; k < wlink.Length; k++)
+                            if (!dicWordRoot.ContainsKey(wlink[k]))
+                                dicWordRoot.TryAdd(wlink[k], word);
+                    }
+                }
+            }
+
+            dicWordMeaningEn = new ConcurrentDictionary<string, string>();
 
             if (File.Exists(file_word_mean_vi))
                 using (var file = File.OpenRead(file_word_mean_vi))
@@ -1087,8 +1133,6 @@ namespace appel
             return string.Empty;
         }
 
-        const char heading_char = '▪'; // ■
-        const string heading_text = "\r\n▪ ";
         private static string f_word_speak_getPronunciationFromOxford(string word_en, bool has_update_file_if_new)
         {
             if (word_en[word_en.Length - 1] == 's') word_en = word_en.Substring(0, word_en.Length - 1);
@@ -1107,7 +1151,8 @@ namespace appel
                 pro = nodes.QuerySelectorAll("span[class=\"phon\"]").Select(x => x.InnerText).Where(x => !string.IsNullOrEmpty(x)).Take(1).SingleOrDefault();
                 type = nodes.QuerySelectorAll("span[class=\"pos\"]").Select(x => x.InnerText).Where(x => !string.IsNullOrEmpty(x)).Take(1).SingleOrDefault();
                 string[] pro_s = nodes.QuerySelectorAll("span[class=\"vp-g\"]").Select(x => x.InnerText).Where(x => !string.IsNullOrEmpty(x))
-                    .Select(x => x.Replace(" BrE BrE", " = UK: ").Replace("; NAmE NAmE", "US: ")).ToArray();
+                    .Select(x => x.Replace(" BrE BrE", " = UK: ").Replace("; NAmE NAmE", "US: ").Replace("//", "/")).ToArray();
+                string[] word_links = pro_s.Select(x=>x.Split('=')[0].Trim()).ToArray();
                 if (pro == null) pro = string.Empty;
 
                 if (type != null && type.Length > 0)
@@ -1122,16 +1167,17 @@ namespace appel
 
                 List<string> ls_Verb_Group = new List<string>();
                 var wgs = nodes.QuerySelectorAll("span[class=\"vp\"]").Select(x => x.InnerText_NewLine).Where(x => !string.IsNullOrEmpty(x)).ToArray();
-                foreach (string wi in wgs) {
+                foreach (string wi in wgs)
+                {
                     string[] a = wi.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
                     ls_Verb_Group.Add(a[a.Length - 1]);
                 }
-                if(ls_Verb_Group.Count > 0)
+                if (ls_Verb_Group.Count > 0)
                     mean_en += heading_text + "REF: " + string.Join("; ", ls_Verb_Group.ToArray());
 
 
-                if (pro_s.Length > 0)
-                    mean_en += "\r\n" + string.Join(Environment.NewLine, pro_s).Replace("//", "/").Trim();
+                if (word_links.Length > 0)
+                    mean_en += "\r\n" + string.Join(Environment.NewLine, word_links).Trim();
 
                 string[] mp3 = nodes.QuerySelectorAll("div[data-src-mp3]")
                     .Select(x => x.GetAttributeValue("data-src-mp3", string.Empty))
@@ -1140,7 +1186,7 @@ namespace appel
                     .ToArray();
                 if (mp3.Length > 0)
                 {
-                    mean_en += "\r\n⌐\r\n" + string.Join(Environment.NewLine, mp3) + "\r\n┘\r\n";
+                    mean_en += "\r\n[{\r\n" + string.Join(Environment.NewLine, mp3) + "\r\n}]\r\n";
 
                     List<string> lss = new List<string>();
                     bool has = dicWordMp3.TryGetValue(word_en, out lss);
@@ -1153,13 +1199,13 @@ namespace appel
                     else
                         dicWordMp3.TryAdd(word_en, lss);
 
-                    if (has_update_file_if_new)
-                    {
-                        new Thread(new ThreadStart(() =>
-                        {
-                            f_word_mp3_writeFile();
-                        })).Start();
-                    }
+                    //if (has_update_file_if_new)
+                    //{
+                    //    new Thread(new ThreadStart(() =>
+                    //    {
+                    //        f_word_mp3_writeFile();
+                    //    })).Start();
+                    //}
                 }
 
                 string[] uns = nodes.QuerySelectorAll("span[class=\"un\"]").Select(x => x.InnerText_NewLine).Where(x => !string.IsNullOrEmpty(x)).ToArray();
@@ -1178,25 +1224,25 @@ namespace appel
                                 .Replace("\r\n[", ". ")
                                 .Replace("]", ":")
 
-                                .Replace("1\r\n", "\r\n▫ ")
-                                .Replace("2\r\n", "\r\n▫ ")
-                                .Replace("3\r\n", "\r\n▫ ")
-                                .Replace("4\r\n", "\r\n▫ ")
-                                .Replace("5\r\n", "\r\n▫ ")
-                                .Replace("6\r\n", "\r\n▫ ")
-                                .Replace("7\r\n", "\r\n▫ ")
-                                .Replace("8\r\n", "\r\n▫ ")
-                                .Replace("9\r\n", "\r\n▫ ")
+                                .Replace("1\r\n", "\r\n- ")
+                                .Replace("2\r\n", "\r\n- ")
+                                .Replace("3\r\n", "\r\n- ")
+                                .Replace("4\r\n", "\r\n- ")
+                                .Replace("5\r\n", "\r\n- ")
+                                .Replace("6\r\n", "\r\n- ")
+                                .Replace("7\r\n", "\r\n- ")
+                                .Replace("8\r\n", "\r\n- ")
+                                .Replace("9\r\n", "\r\n- ")
 
-                                .Replace("1.", "\r\n□ ")
-                                .Replace("2.", "\r\n□ ")
-                                .Replace("3.", "\r\n□ ")
-                                .Replace("4.", "\r\n□ ")
-                                .Replace("5.", "\r\n□ ")
-                                .Replace("6.", "\r\n□ ")
-                                .Replace("7.", "\r\n□ ")
-                                .Replace("8.", "\r\n□ ")
-                                .Replace("9.", "\r\n□ ");
+                                .Replace("1.", "\r\n+ ")
+                                .Replace("2.", "\r\n+ ")
+                                .Replace("3.", "\r\n+ ")
+                                .Replace("4.", "\r\n+ ")
+                                .Replace("5.", "\r\n+ ")
+                                .Replace("6.", "\r\n+ ")
+                                .Replace("7.", "\r\n+ ")
+                                .Replace("8.", "\r\n+ ")
+                                .Replace("9.", "\r\n+ ");
                 }
 
                 if (uns.Length > 0)
@@ -1233,12 +1279,12 @@ namespace appel
                         })).Start();
                     }
                 }
-                
+
                 string[] sens = nodes.QuerySelectorAll("span[class=\"x\"]")
                     .Where(x => !string.IsNullOrEmpty(x.InnerText))
                     .Select(x => x.InnerText.Trim())
                     .Where(x => x.Length > 0)
-                    .Select(x => "• " + x)
+                    .Select(x => "- " + x)
                     .ToArray();
                 if (sens.Length > 0)
                 {
@@ -1268,6 +1314,16 @@ namespace appel
 
                 mean_en = mean_en
                     .Replace("See full entry", string.Empty);
+
+                mean_en = Regex.Replace(mean_en, "[^0-9a-zA-Z'#+-.]+", " ").ToLower();
+                mean_en = Regex.Replace(mean_en, "[ ]{2,}", " ").ToLower();
+
+                new Thread(new ParameterizedThreadStart((object obj) =>
+                {
+                    Tuple<string, string> it = (Tuple<string, string>)obj;
+                    f_word_write_textFile(it.Item1, it.Item2);
+                })).Start(new Tuple<string, string>(word_en, mean_en));
+
                 return mean_en;
             }
         }
@@ -1311,6 +1367,16 @@ namespace appel
                 }
             }
             return pro;
+        }
+
+        private static void f_word_write_textFile(string word_en, string content)
+        {
+            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "words");
+            if (Directory.Exists(dir) == false) Directory.CreateDirectory(dir);
+            string file = Path.Combine(dir, word_en + ".txt");
+
+            using (var sw = new StreamWriter(File.Open(file, FileMode.OpenOrCreate), Encoding.ASCII))
+                sw.WriteLine(content);
         }
 
         #endregion

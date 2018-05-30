@@ -106,8 +106,8 @@ namespace YYProject.RichEdit
             if (value is String)
             {
                 String[] v = ((String)value).Split(',');
-
-                if (Int32.TryParse(v[1], out var s))
+                Int32 s;
+                if (Int32.TryParse(v[1], out s))
                 {
                     return new RTBParaSpacing(Int32.Parse(v[0]), Int32.Parse(v[1]));
                 }
@@ -134,8 +134,9 @@ namespace YYProject.RichEdit
             if (destinationType == typeof(InstanceDescriptor))
             {
                 ConstructorInfo constructorInfo;
-                if (value is RTBParaSpacing v)
+                if (value is RTBParaSpacing)
                 {
+                    RTBParaSpacing v = (RTBParaSpacing)value;
                     constructorInfo = typeof(RTBParaSpacing).GetConstructor(new[] { typeof(Int32), typeof(Int32) });
                     return new InstanceDescriptor(constructorInfo, new object[] { v.Before, v.After });
                 }
