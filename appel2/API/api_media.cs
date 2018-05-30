@@ -1136,7 +1136,8 @@ namespace appel
         private static string f_word_speak_getPronunciationFromOxford(string word_en, bool has_update_file_if_new)
         {
             if (word_en[word_en.Length - 1] == 's') word_en = word_en.Substring(0, word_en.Length - 1);
-
+            string mean_en = string.Empty;
+            
             string requestUri = string.Format("https://www.oxfordlearnersdictionaries.com/definition/english/{0}?q={0}", word_en);
             using (var response = web_word_pronunciation.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead).Result)
             {
@@ -1145,7 +1146,8 @@ namespace appel
 
                 response.EnsureSuccessStatusCode();
                 string htm = response.Content.ReadAsStringAsync().Result,
-                    pro = string.Empty, type = string.Empty, mean_en = word_en.ToUpper();
+                    pro = string.Empty, type = string.Empty;
+                mean_en = word_en.ToUpper();
 
                 HtmlNode nodes = f_word_speak_getPronunciationFromOxford_Nodes(htm);
                 pro = nodes.QuerySelectorAll("span[class=\"phon\"]").Select(x => x.InnerText).Where(x => !string.IsNullOrEmpty(x)).Take(1).SingleOrDefault();
@@ -1353,6 +1355,11 @@ namespace appel
 
         public static string f_word_speak_getPronunciation(string word_en, bool has_update_file_if_new = false)
         {
+            if (File.Exists("words/" + word_en + ".txt"))
+            {
+                return File.ReadAllText("words/" + word_en + ".txt");
+            }
+
             string pro = string.Empty;
             if (dicWordPronunciation.ContainsKey(word_en))
             {

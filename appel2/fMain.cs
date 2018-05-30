@@ -604,6 +604,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 Font = font_TextView, 
             }; 
             wd_content.Controls.Add(wd_text_detail);
+            wd_text_detail.MouseClick += f_wd_text_detail_Click;
+
 
             wd_footer = new Panel()
             {
@@ -636,6 +638,30 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
                 wd_word_speak,
             });
+
+        }
+
+        private void f_wd_text_detail_Click(object sender, MouseEventArgs e)
+        {
+            //int firstcharindex = wd_text_detail.GetFirstCharIndexOfCurrentLine();
+            //int currentline = wd_text_detail.GetLineFromCharIndex(firstcharindex);
+            //if (wd_text_detail.Lines.Length >= currentline)
+            //{
+            //    string currentlinetext = wd_text_detail.Lines[currentline];
+            //    wd_text_detail.Select(firstcharindex, currentlinetext.Length);
+            //    wd_text_detail.SelectionBackColor = Color.Orange;
+            //}
+
+            int index = wd_text_detail.GetCharIndexFromPosition(e.Location);
+            int line = wd_text_detail.GetLineFromCharIndex(index);
+            int lineStart = wd_text_detail.GetFirstCharIndexFromLine(line);
+            int lineEnd = wd_text_detail.GetFirstCharIndexFromLine(line + 1);
+            if (lineEnd == -1) {
+                lineEnd = wd_text_detail.TextLength;
+            }
+            wd_text_detail.SelectionStart = lineStart;
+            wd_text_detail.SelectionLength = lineEnd - lineStart;
+
 
         }
 
@@ -684,8 +710,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
                     string s = api_media.f_word_speak_getPronunciation(m_word_current, false);
                     if (!string.IsNullOrEmpty(s))
                     {
-                        if (s.Contains('⌐') && s.Contains('┘'))
-                            s = string.Join(string.Empty, s.Split(new char[] { '⌐', '┘' }).Where((x, k) => k != 1).ToArray());
+                        if (s.Contains('{') && s.Contains('}'))
+                            s = string.Join(string.Empty, s.Split(new char[] { '{', '}' }).Where((x, k) => k != 1).ToArray());
 
                         if (s.Contains('/'))
                         {

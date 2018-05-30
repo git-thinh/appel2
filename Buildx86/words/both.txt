@@ -1,0 +1,54 @@
+BOTH (determiner)
+{
+Https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/b/bot/both_/both__gb_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/us_pron/b/bot/both_/both__us_1.mp3
+}
+
+# DEFINE:
+
+- Used with plural nouns to mean "the two" or "the one as well as the other"
+Both women were French.
+Both the women were French.
+Both of the women were French.
+I talked to the women.
+Both of them were French/They were both French.
+I liked them both.
+We were both tired.
+Both of us were tired.
+We have both seen the movie.
+I have two sisters.
+Both of them live in London/They both live in London.
+Both (my) sisters live in London.
+
+- Both and
+Not only but also
+Both his mother and his father will be there.
+For this job you will need a good knowledge of both Italian and Spanish.
+Language BanksimilarlyMaking comparisonsThis chart provides a comparison of the ways that teenage boys and girls in the UK spend their free time.
+In many cases, the results for boys and girls are virtually the same/identical.
+In many cases, the results for boys are virtually the same as/identical to the results for girls.
+Both boys and girls spend the bulk of their free time with friends.
+Most of the boys do more than two hours of sport a week, as do many of the girls.
+Like many of the girls, most of the boys spend a large part of their free time using the Internet.
+The girls particularly enjoy using social networking websites.
+Similarly, nearly all the boys said they spent at least two to three hours a week on these sites.
+# EXAMPLE:
+- Both women were French.
+- Both the women were French.
+- Both of the women were French.
+- I talked to the women. Both of them were French/They were both French.
+- I liked them both.
+- We were both tired.
+- Both of us were tired.
+- We have both seen the movie.
+- I have two sisters. Both of them live in London/They both live in London.
+- Both (my) sisters live in London.
+- Both his mother and his father will be there.
+- For this job you will need a good knowledge of both Italian and Spanish.
+- This chart provides a comparison of the ways that teenage boys and girls in the UK spend their free time.
+- In many cases, the results for boys and girls are virtually the same/identical.
+- In many cases, the results for boys are virtually the same as/identical to the results for girls.
+- Both boys and girls spend the bulk of their free time with friends.
+- Most of the boys do more than two hours of sport a week, as do many of the girls.
+- Like many of the girls, most of the boys spend a large part of their free time using the Internet.
+- The girls particularly enjoy using social networking websites. Similarly, nearly all the boys said they spent at least two to three hours a week on these sites.
