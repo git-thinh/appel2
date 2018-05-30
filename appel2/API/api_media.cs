@@ -1162,7 +1162,6 @@ namespace appel
                 {
                     if (pro.StartsWith("BrE")) pro = pro.Substring(3).Trim();
                     pro = pro.Replace("//", "/");
-                    mean_en += "\r\n PRONUNCIATION: " + pro;
                 }
 
                 List<string> ls_Verb_Group = new List<string>();
@@ -1177,7 +1176,7 @@ namespace appel
 
 
                 if (word_links.Length > 0)
-                    mean_en += "\r\n" + string.Join(Environment.NewLine, word_links).Trim();
+                    mean_en += "\r\n" + string.Join(Environment.NewLine, word_links).Replace("-ing", "V-ing").Trim();
 
                 string[] mp3 = nodes.QuerySelectorAll("div[data-src-mp3]")
                     .Select(x => x.GetAttributeValue("data-src-mp3", string.Empty))
@@ -1186,7 +1185,7 @@ namespace appel
                     .ToArray();
                 if (mp3.Length > 0)
                 {
-                    mean_en += "\r\n[{\r\n" + string.Join(Environment.NewLine, mp3) + "\r\n}]\r\n";
+                    mean_en += "\r\n{\r\n" + string.Join(Environment.NewLine, mp3) + "\r\n}\r\n";
 
                     List<string> lss = new List<string>();
                     bool has = dicWordMp3.TryGetValue(word_en, out lss);
@@ -1258,7 +1257,7 @@ namespace appel
                     .Select(x => x.Trim())
                     .Select(x => x.Length > 0 ?
                         (
-                            (x[0] == '□' || x[0] == '▫') ?
+                            (x[0] == '+' || x[0] == '-') ?
                                 (x[0].ToString() + " " + x[2].ToString().ToUpper() + x.Substring(3))
                                     : (x[0].ToString().ToUpper() + x.Substring(1))
                         ) : x)
@@ -1312,11 +1311,12 @@ namespace appel
 
                 }
 
-                mean_en = mean_en
-                    .Replace("See full entry", string.Empty);
+                mean_en = mean_en.Replace("See full entry", string.Empty).Replace(Environment.NewLine, "|");
+                mean_en = Regex.Replace(mean_en, @"[^\x20-\x7E]", string.Empty);
 
-                mean_en = Regex.Replace(mean_en, "[^0-9a-zA-Z'#+-.]+", " ").ToLower();
-                mean_en = Regex.Replace(mean_en, "[ ]{2,}", " ").ToLower();
+                mean_en = mean_en.Replace("|", Environment.NewLine);
+                //mean_en = Regex.Replace(mean_en, @"[^0-9a-zA-Z;,|{}():/'#+-._\r\n]+!\?", " ");
+                mean_en = Regex.Replace(mean_en, "[ ]{2,}", " ");
 
                 new Thread(new ParameterizedThreadStart((object obj) =>
                 {
