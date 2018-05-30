@@ -1,0 +1,488 @@
+KNOW (verb)
+# REF: know; knows; knew; known; knowing
+Present simple I / you / we / they know
+He / she / it knows
+Past simple knew
+Past participle known
+Knowing
+{
+Https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/k/kno/know_/know__gb_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/us_pron/k/kno/know_/know__us_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/k/kno/knows/knows__gb_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/us_pron/k/kno/knows/knows__us_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/k/kne/knew_/knew__gb_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/us_pron/k/kne/knew_/knew__us_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/k/kno/known/known__gb_2.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/us_pron/k/kno/known/known__us_2.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/k/kno/knowi/knowing__gb_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/us_pron/k/kno/knowi/knowing__us_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/i/i_k/i_kno/i_know_1_gb_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/us_pron/i/i_k/i_kno/i_know_1_us_1.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/uk_pron/i/i_k/i_kno/i_know_1_gb_2.mp3
+Https://www.oxfordlearnersdictionaries.com/media/english/us_pron/i/i_k/i_kno/i_know_1_us_2.mp3
+}
+
+# DEFINE:
+
++ Transitive, intransitive:
+To have information in your mind as a result of experience or because you have learned or been told it
+Know something Do you know his address? The cause of the fire is not yet known.
+All I know is that she used to work in a bank (= I have no other information about her).
+Know (that) I know (that) people's handwriting changes as they get older.
+It is known that It is widely known that CFCs can damage the ozone layer.
+Know where, what, etc I knew where he was hiding.
+I didn't know what he was talking about.
+Know (of/about something) "You've got a flat tyre." "I know." "What's the answer?" "I don't know." "There's no one in." "How do you know?" You know about Amanda's baby, don't you? I don't know about you, but I'm ready for something to eat.
+I know of at least two people who did the same thing.
+Is anyone else coming?" "Not that I know of." "Isn't that his car?" "I wouldn't know.
+/How should I know?" (= I don't know and I am not the person you should ask.
+) (informal) "What are you two whispering about?" "You don't want to know" (= because you would be shocked or wouldn't approve).
+Know to do something Does he know to come here (= that he should come here) first? know somebody/something to be/do something We know her to be honest.
+Two women are known to have died.
+Express YourselfSaying that you don't know something or giving yourself time to thinkThere are various ways of telling people that you haven't got the information they are asking for:I really don't know.
+I'm afraid I don't have the faintest idea.
+Sorry, I have absolutely no idea.
+Has anyone left a message? No, not to my knowledge/not as far as I know.
+Well, that's a good question.
+Yes, that's an interesting point/idea.
+Well, let me seeLet me think about that for a moment.
+See also need-to-know
+Express YourselfAsking for informationWhen you want to find something out, it sounds more polite if you can phrase your questions in an indirect way:Could you tell me the best way to get to Paddington station, please?Do you happen to know whether Amy Brown works here?I wonder whether/if you can help me.
+I'm trying to find out which number to call for reservations.
+Oxford Collocations Dictionary adverbfull well, perfectly well, very well, verb + knowlet somebody prepositionabout, of phrasesbe widely known, know a lot, nothing, very little, etc.
+, you never know, 
+
++ Transitive, intransitive:
+To realize, understand or be aware of something
+Know (that) As soon as I walked in the room I knew (that) something was wrong.
+She knew she was dying.
+Know what, how, etc I knew perfectly well what she meant.
+I know exactly how you feel.
+Know (something) This case is hopeless and he knows it (= although he will not admit it).
+Martin was lying all the time." "I should have known."
+Oxford Collocations Dictionary adverbexactly, precisely, immediately, phrasesthe next thing I, he, etc.
+Knew 
+
++ Transitive, intransitive:
+To feel certain about something
+Know (that) He knew (that) he could trust her.
+I know it's here somewhere! I know things will turn out all right.
+I don't know that I can finish it by next week.
+I just knew that it was something I wanted to do.
+Know (something) "You were rightsomeone's been spreading rumours about you." "I knew it!" "She's the worst player in the team." "Oh, I don't know (= I am not sure that I agree)she played well yesterday."
+See also don't-know
+Oxford Collocations Dictionary adverbexactly, precisely, immediately, phrasesthe next thing I, he, etc.
+Knew 
+
++ Transitive:
+Know somebody/something
+To be familiar with a person, place, thing, etc.
+I've known David for 20 years.
+Do you two know each other (= have you met before)? She was a secretary when I first knew her.
+She's very nice when you get to know her.
+Knowing Ben, we could be waiting a long time (= it is typical of him to be late).
+This man is known to the police (= as a criminal).
+I don't know anyone in Oxford.
+I know Paris well.
+Do you know the play (= have you seen or read it before)? The new rules could mean the end of football as we know it (= in the form that we are familiar with).
+Oxford Collocations Dictionary adverbwell, poorly, barely, verb + knowget to prepositionfor phrasesbe known to somebody, be widely known 
+
++ Transitive, usually passive:
+To think that somebody/something is a particular type of person or thing or has particular characteristics
+Know somebody/something as something It's known as the most dangerous part of the city.
+Know somebody/something for something She is best known for her work on the human brain.
+Know somebody/something to be/do something He's known to be an outstanding physicist.
+
++ Transitive:
+Know somebody/something as something. usually passive:
+To give somebody/something a particular name or title
+The drug is commonly known as Ecstasy.
+Peter Wilson, also known as "the Tiger"
+Oxford Collocations Dictionary adverbcommonly, popularly, affectionately, prepositionto 
+
++ Transitive:
+Know somebody/something
+To be able to recognize somebody/something
+I couldn't see who was speaking, but I knew the voice.
+She knows a bargain when she sees one.
+Synonymsidentifyknow recognize name make somebody/something outThese words all mean to be able to see or hear somebody/something and especially to be able to say who or what they are.
+Identify to be able to say who or what somebody/something is:She was able to identify her attacker.
+Know to be able to say who or what something is when you see or hear it because you have seen or heard it before Know is used especially to talk about sounds that seem familiar and when somebody recognizes the quality or opportunity that somebody/something represents:I couldn't see who was speaking, but I knew the voice.
+She knows a bargain when she sees one.
+Recognize to know who somebody is or what something is when you see or hear them/it, because you have seen or heard them/it before:I recognized him as soon as he came in the room.
+Name to say the name of somebody/something in order to show that you know who/what they are:The victim has not yet been named.
+Make somebody/something out to manage to see or hear somebody/something that is not very clear:I could just make out a figure in the darkness.
+Patternsto identify/know/recognize somebody/something by somethingto identify/recognize/name somebody/something as somebody/somethingto identify/know/recognize/make out who/what/howto easily/barely/just identify/recognize/make out somebody/something
+
++ Transitive:
+Know somebody/something from somebody/something
+To be able to distinguish one person or thing from another
+Synonym differentiate
+I hope we have taught our children to know right from wrong.
+
++ Transitive:
+To have learned a skill or language and be able to use it
+Know something Do you know any Japanese? know how, what, etc Do you know how to use spreadsheets?
+10. transitive:
+(only used in the perfect tenses)
+To have seen, heard or experienced something
+Know somebody/something (to) do something I've never known it (to) snow in July before.
+Be known to do something He has been known to spend all morning in the bathroom.
+1
++ Transitive:
+Know something
+To have personal experience of something
+He has known both poverty and wealth.
+She may be successful now, but she has known what it is like to be poor.
+
+- Used to emphasize that you do not know something
+God knows what else they might find.
+Where are they?" "Goodness knows."
+Some people may find the use of God knows offensive.
+
+- Used to emphasize the truth of what you are saying
+She ought to pass the examgoodness knows she's been working hard enough.
+
+- BrE BrE//a n//; NAmE NAmE//a no//
+Used to agree with somebody or to show sympathy
+What a ridiculous situation!" "I know."
+
+- BrE BrE//a n//; NAmE NAmE//a no//
+Used to introduce a new idea or suggestion
+I know, let's see what's on at the theatre.
+
+- Used when you are thinking of what to say next
+Well, you know, it's difficult to explain.
+
+- Used to show that what you are referring to is known or understood by the person you are speaking to
+Guess who I've just seen? Maggie! You knowJim's wife.
+You know that restaurant round the corner? It's closed down.
+
+- Used to emphasize something that you are saying
+I'm not stupid, you know.
+# NOTE:
+Know
+Is used especially to talk about sounds that seem familiar and when somebody recognizes the quality or opportunity that somebody/something represents:
+I couldn't see who was speaking, but I knew the voice.
+She knows a bargain when she sees one.
+Some people may find the use of
+God knows
+Offensive.
+Some people may find the use of
+Lord
+In these expressions offensive.
+# IDOM:
+As far as I know, as far as I can remember, see, tell, etc.
+Add to my wordlistjump to other results
+Used to say that you think you know, remember, understand, etc.
+Something but you cannot be completely sure, especially because you do not know all the facts As far as we knew, there was no cause for concern.
+As far as I can see, you've done nothing wrong.
+She lived in Chicago, as far as I can remember.
+Before you know where you are
+Add to my wordlistjump to other results
+Very quickly or suddenly We were whisked off in a taxi before we knew where we were.
+See related entries: Excitement
+Be not to know
+Add to my wordlistjump to other results
+To have no way of realizing or being aware that you have done something wrong "I'm sorry, I called when you were in bed." "Don't worryyou weren't to know."
+Better the devil you know (than the devil you don't)
+Add to my wordlistjump to other results
+(saying) used to say that it is easier and wiser to stay in a bad situation that you know and can deal with rather than change to a new situation which may be much worse
+For all you, I, they, etc.
+Know
+Add to my wordlistjump to other results
+(informal) used to emphasize that you do not know something and that it is not important to you She could be dead for all I know.
+Have/know all the answers
+Add to my wordlistjump to other results
+(informal, often disapproving) to be confident that you know something, especially when you actually do not He thinks he knows all the answers.
+Have/know something off pat (British English) (North American English have/know something down pat)
+Add to my wordlistjump to other results
+To know something perfectly so that you can repeat it at any time without having to think about it He had all the answers off pat.
+Have seen/known better days
+Add to my wordlistjump to other results
+(humorous) to be in poor condition Our car has seen better days!
+I don't know how, why, etc
+Add to my wordlistjump to other results
+(informal) used to criticize somebody's behaviour I don't know how you can say things like that.
+If (the) truth be known/told
+Add to my wordlistjump to other results
+Used to tell somebody the true facts about a situation, especially when these are not known by other people
+Know something as well as I do
+Add to my wordlistjump to other results
+Used to criticize somebody by saying that they should realize or understand something You know as well as I do that you're being unreasonable.
+Know somebody/something backwards
+Add to my wordlistjump to other results
+(informal, especially British English) to know somebody/something extremely well She must know the play backwards by now.
+Know best
+Add to my wordlistjump to other results
+To know what should be done, etc.
+Better than other people The doctor told you to stay in bed, and she knows best.
+Know better (than that/than to do something)
+Add to my wordlistjump to other results
+To be sensible enough not to do something He knows better than to judge by appearances.
+Know somebody by sight
+Add to my wordlistjump to other results
+To recognize somebody without knowing them well
+Know different/otherwise
+Add to my wordlistjump to other results
+(informal) to have information or evidence that the opposite is true He says he doesn't care about what the critics write, but I know different.
+Know full well
+Add to my wordlistjump to other results
+To be very aware of a fact and unable to deny or ignore it He knew full well what she thought of it.
+Know somebody/something inside out, know somebody/something like the back of your hand
+Add to my wordlistjump to other results
+(informal) to be very familiar with somebody/something This is where I grew up.
+I know this area like the back of my hand.
+Know your own mind
+Add to my wordlistjump to other results
+To have very firm ideas about what you want to do
+Know your stuff
+Add to my wordlistjump to other results
+(informal) to know a lot about a particular subject or job
+Know/tell somebody a thing or two (about somebody/something)
+Add to my wordlistjump to other results
+(informal) to know/tell somebody some useful, interesting or surprising information about somebody/something She's been married five times, so she knows a thing or two about men!
+Know/learn/find something to your cost
+Add to my wordlistjump to other results
+To know something because of something unpleasant that has happened to you He's a ruthless businessman, as I know to my cost.
+Know your way around
+Add to my wordlistjump to other results
+To be familiar with a place, subject, etc.
+Know what you're talking about
+Add to my wordlistjump to other results
+(informal) to have knowledge about something from your own experience I've lived in China, so I know what I'm talking about.
+Know which side your bread is buttered
+Add to my wordlistjump to other results
+(informal) to know where you can get an advantage for yourself
+Let it be known/make it known that
+Add to my wordlistjump to other results
+(formal) to make sure that people are informed about something, especially by getting somebody else to tell them The President has let it be known that he does not intend to run for election again.
+Let somebody know
+Add to my wordlistjump to other results
+To tell somebody about something I don't know if I can come, but I'll let you know tomorrow.
+Let me know how I can help.
+Lord knows
+Add to my wordlistjump to other results
+Used to emphasize what you are saying Lord knows, I tried to teach her.
+Lord (only) knows (what, where, why, etc.
+)
+Add to my wordlistjump to other results
+(informal) used to say that you do not know the answer to something "Why did she say that?" "Lord knows!" Some people may find the use of Lord in these expressions offensive.
+Make yourself known to somebody
+Add to my wordlistjump to other results
+To introduce yourself to somebody I made myself known to the hotel manager.
+Not know any better
+Add to my wordlistjump to other results
+To behave badly, usually because you have not been taught the correct way to behave Don't blame the childrenthey don't know any better.
+Not know your arse from your elbow
+Add to my wordlistjump to other results
+(British English, taboo, slang) to be very stupid or completely lacking in skill
+Not know beans about something
+Add to my wordlistjump to other results
+(North American English, informal) to know nothing about a subject I don't know beans about making movies.
+Not know the first thing about somebody/something
+Add to my wordlistjump to other results
+To know nothing at all about somebody/something I'm afraid I don't know the first thing about cars.
+Not know, etc.
+The first thing about something/somebody
+Add to my wordlistjump to other results
+To know nothing at all about something/somebody We've lived next to him for years, but we still don't know the first thing about him.
+Not know somebody from Adam
+Add to my wordlistjump to other results
+(informal) to not know at all who somebody is
+Not know what hit you
+Add to my wordlistjump to other results
+(informal) to be so surprised by something that you do not know how to react
+Not know where to look
+Add to my wordlistjump to other results
+(informal) to feel great embarrassment and not know how to react
+Not know whether you're coming or going
+Add to my wordlistjump to other results
+(informal) to be so excited or confused that you cannot behave or think in a sensible way
+Not know you are born
+Add to my wordlistjump to other results
+(British English, informal) to have an easy life without realizing how easy it is You people without kids don't know you're born.
+Old enough to know better
+Add to my wordlistjump to other results
+Old enough to behave in a more sensible way than you actually did
+Show somebody/know/learn the ropes
+Add to my wordlistjump to other results
+(informal) to show somebody/know/learn how a particular job should be done
+There's no knowing
+Add to my wordlistjump to other results
+Used to say that it is impossible to say what might happen There's no knowing how he'll react.
+What does know?
+Add to my wordlistjump to other results
+Used to say that somebody knows nothing about the subject you are talking about What does he know about football, anyway?
+What do you know?
+Add to my wordlistjump to other results
+(informal) used to express surprise Well, what do you know? Look who's here!
+You know something/what?
+Add to my wordlistjump to other results
+(informal) used to introduce an interesting or surprising opinion, piece of news, etc.
+You know something? I've never really enjoyed Christmas.
+You know who/what
+Add to my wordlistjump to other results
+(informal) used to refer to somebody/something without mentioning a name
+You never know
+Add to my wordlistjump to other results
+(informal) used to say that you can never be certain about what will happen in the future, especially when you are suggesting that something good might happen
+# EXAMPLE:
+- Do you know his address?
+- The cause of the fire is not yet known.
+- All I know is that she used to work in a bank (= I have no other information about her).
+- I know (that) people's handwriting changes as they get older.
+- It is widely known that CFCs can damage the ozone layer.
+- I knew where he was hiding.
+- I didn't know what he was talking about.
+- "You've got a flat tyre." "I know."
+- "What's the answer?" "I don't know."
+- "There's no one in." "How do you know?"
+- You know about Amanda's baby, don't you?
+- I don't know about you, but I'm ready for something to eat.
+- I know of at least two people who did the same thing.
+- "Is anyone else coming?" "Not that I know of."
+- "Isn't that his car?" "I wouldn't know./How should I know?" (= I don't know and I am not the person you should ask.)
+- "What are you two whispering about?" "You don't want to know" (= because you would be shocked or wouldn't approve).
+- Does he know to come here (= that he should come here) first?
+- We know her to be honest.
+- Two women are known to have died.
+- I really don't know.
+- I'm afraid I don't have the faintest idea.
+- Sorry, I have absolutely no idea.
+- Has anyone left a message? No, not to my knowledge/not as far as I know.
+- Well, that's a good question.
+- Yes, that's an interesting point/idea.
+- Well, let me see
+- Let me think about that for a moment.
+- Could you tell me the best way to get to Paddington station, please?
+- Do you happen to know whether Amy Brown works here?
+- I wonder whether/if you can help me. I'm trying to find out which number to call for reservations.
+- As soon as I walked in the room I knew (that) something was wrong.
+- She knew she was dying.
+- I knew perfectly well what she meant.
+- I know exactly how you feel.
+- This case is hopeless and he knows it (= although he will not admit it).
+- "Martin was lying all the time." "I should have known."
+- He knew (that) he could trust her.
+- I know it's here somewhere!
+- I know things will turn out all right.
+- I don't know that I can finish it by next week.
+- I just knew that it was something I wanted to do.
+- "You were rightsomeone's been spreading rumours about you." "I knew it!"
+- "She's the worst player in the team." "Oh, I don't know (= I am not sure that I agree)she played well yesterday."
+- I've known David for 20 years.
+- Do you two know each other (= have you met before)?
+- She was a secretary when I first knew her.
+- She's very nice when you get to know her.
+- Knowing Ben, we could be waiting a long time (= it is typical of him to be late).
+- This man is known to the police (= as a criminal).
+- I don't know anyone in Oxford.
+- I know Paris well.
+- Do you know the play (= have you seen or read it before)?
+- The new rules could mean the end of football as we know it (= in the form that we are familiar with).
+- It's known as the most dangerous part of the city.
+- She is best known for her work on the human brain.
+- He's known to be an outstanding physicist.
+- The drug is commonly known as Ecstasy.
+- Peter Wilson, also known as "the Tiger"
+- I couldn't see who was speaking, but I knew the voice.
+- She knows a bargain when she sees one.
+- She was able to identify her attacker.
+- I couldn't see who was speaking, but I knew the voice.
+- She knows a bargain when she sees one.
+- I recognized him as soon as he came in the room.
+- The victim has not yet been named.
+- I could just make out a figure in the darkness.
+- I hope we have taught our children to know right from wrong.
+- Do you know any Japanese?
+- Do you know how to use spreadsheets?
+- I've never known it (to) snow in July before.
+- He has been known to spend all morning in the bathroom.
+- He has known both poverty and wealth.
+- She may be successful now, but she has known what it is like to be poor.
+- But I hardly know the woman!
+- He is internationally known for his work with vaccines.
+- He knew instinctively where he would find her.
+- He knows a lot about early music.
+- He was known as Bonzo to his friends.
+- I don't know John very well.
+- I don't know for certain, but I think she lives in the next town.
+- I don't know of anyone who might be interested in the job.
+- I don't know them personally.
+- I honestly don't know what they mean to do.
+- I instantly knew what the call was about.
+- I just knew there would be problems.
+- If I'd known beforehand how bad it would be, I wouldn't have gone.
+- Iran was formerly known as Persia.
+- It is widely known that CFCs can damage the ozone layer.
+- Please let me know if there's anything I can do to help.
+- Please let me know= tell me if there's anything I can do to help.
+- She's very nice when you get to know her
+- The drug is variously known as crack or freebase.
+- The next thing I knew, I was waking up in hospital.
+- The properties of this substance are poorly known.
+- This man is known to the police.
+- Xinjiang was formerly known as eastern Turkestan.
+- You know very well what I'm talking about!
+- parts of the body known collectively as the sensory system
+- "He's feeling really down." " I know."
+- "Martin was lying all along." "I should have known."
+- "She's the worst player in the team." "Oh, I don't know she played well yesterday."
+- "You were rightsomeone's been spreading rumours about you." " I knew it!"
+- He knew he was dying.
+- He knew that he could trust her.
+- He knows this city better than anyone.
+- I couldn't see who was speaking, but I knew the voice.
+- I don't know that I can finish it by next week.
+- I know it's here somewhere!
+- If only we'd known you were having so many problems!
+- If you don't know how to fill in the forms, just ask.
+- She knew deep down that she would never see him again.
+- She thought she would never know the joy of seeing a child grow up in her care.
+- This case is hopeless and he knows it.
+- You know perfectly well what she meant.
+- As far as we knew, there was no cause for concern.
+- As far as I can see, you've done nothing wrong.
+- She lived in Chicago, as far as I can remember.
+- We were whisked off in a taxi before we knew where we were.
+- "I'm sorry, I called when you were in bed." "Don't worryyou weren't to know."
+- She could be dead for all I know.
+- God knows what else they might find.
+- "Where are they?" "Goodness knows."
+- She ought to pass the examgoodness knows she's been working hard enough.
+- He thinks he knows all the answers.
+- He had all the answers off pat.
+- Our car has seen better days!
+- I don't know how you can say things like that.
+- "What a ridiculous situation!" "I know."
+- I know, let's see what's on at the theatre.
+- You know as well as I do that you're being unreasonable.
+- She must know the play backwards by now.
+- The doctor told you to stay in bed, and she knows best.
+- He knows better than to judge by appearances.
+- He says he doesn't care about what the critics write, but I know different.
+- He knew full well what she thought of it.
+- This is where I grew up. I know this area like the back of my hand.
+- She's been married five times, so she knows a thing or two about men!
+- He's a ruthless businessman, as I know to my cost.
+- I've lived in China, so I know what I'm talking about.
+- The President has let it be known that he does not intend to run for election again.
+- I don't know if I can come, but I'll let you know tomorrow.
+- Let me know how I can help.
+- Lord knows, I tried to teach her.
+- "Why did she say that?" "Lord knows!"
+- I made myself known to the hotel manager.
+- Don't blame the childrenthey don't know any better.
+- I don't know beans about making movies.
+- I'm afraid I don't know the first thing about cars.
+- We've lived next to him for years, but we still don't know the first thing about him.
+- You people without kids don't know you're born.
+- There's no knowing how he'll react.
+- What does he know about football, anyway?
+- Well, what do you know? Look who's here!
+- Well, you know, it's difficult to explain.
+- Guess who I've just seen? Maggie! You knowJim's wife.
+- You know that restaurant round the corner? It's closed down.
+- I'm not stupid, you know.
+- You know something? I've never really enjoyed Christmas.

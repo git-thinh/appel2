@@ -830,29 +830,26 @@ namespace appel
 
         const char heading_char = '#'; // ■ ≡ ¶ ■
         const string heading_text = "\r\n# ";
+        static HttpClient web_word_pronunciation = new HttpClient();
 
         static ConcurrentDictionary<string, string> dicWord = null;
         static ConcurrentDictionary<string, string> dicWordPronunciation = null;
-        static ConcurrentDictionary<string, string> dicWordRoot = null;
+        static ConcurrentDictionary<string, string> dicWordLink = null;
+        static ConcurrentDictionary<string, string> dicWordMeanVi = null;
 
-        static readonly string file_word_mean_en = Path.Combine(path_data, "word-en.bin");
-        static readonly string file_word_mean_vi = Path.Combine(path_data, "word-vi.bin");
-        static readonly string file_word_pronunciation = Path.Combine(path_data, "word-pro.bin");
-        static readonly string file_word_sentence = Path.Combine(path_data, "word-sen.bin");
-        static readonly string file_word_mp3 = Path.Combine(path_data, "word-mp3.bin");
-
-
-        static ConcurrentDictionary<string, string> dicWordMeaningVi = null;
-        static ConcurrentDictionary<string, string> dicWordMeaningEn = null;
         static ConcurrentDictionary<string, List<string>> dicWordSentence = null;
         static ConcurrentDictionary<string, List<string>> dicWordMp3 = null;
 
+        static readonly string file_word_mean_vi = Path.Combine(path_data, "word-vi.bin");
+        static readonly string file_word_pronunciation = Path.Combine(path_data, "word-pro.bin");
+        
         public static void f_word_Init()
         {
             dicWord = new ConcurrentDictionary<string, string>();
-            dicWordRoot = new ConcurrentDictionary<string, string>();
-            dicWordMeaningVi = new ConcurrentDictionary<string, string>();
             dicWordPronunciation = new ConcurrentDictionary<string, string>();
+            dicWordLink = new ConcurrentDictionary<string, string>();
+            dicWordMeanVi = new ConcurrentDictionary<string, string>();
+
             dicWordSentence = new ConcurrentDictionary<string, List<string>>();
             dicWordMp3 = new ConcurrentDictionary<string, List<string>>();
 
@@ -886,59 +883,27 @@ namespace appel
                     if (wlink.Length > 0)
                     {
                         for (int k = 0; k < wlink.Length; k++)
-                            if (!dicWordRoot.ContainsKey(wlink[k]))
-                                dicWordRoot.TryAdd(wlink[k], word);
+                            if (!dicWordLink.ContainsKey(wlink[k]))
+                                dicWordLink.TryAdd(wlink[k], word);
                     }
                 }
             }
-
-            dicWordMeaningEn = new ConcurrentDictionary<string, string>();
-
+            
             if (File.Exists(file_word_mean_vi))
                 using (var file = File.OpenRead(file_word_mean_vi))
-                    dicWordMeaningVi = Serializer.Deserialize<ConcurrentDictionary<string, string>>(file);
-
-            if (File.Exists(file_word_mean_en))
-                using (var file = File.OpenRead(file_word_mean_en))
-                    dicWordMeaningEn = Serializer.Deserialize<ConcurrentDictionary<string, string>>(file);
-
+                    dicWordMeanVi = Serializer.Deserialize<ConcurrentDictionary<string, string>>(file);
+            
             if (File.Exists(file_word_pronunciation))
                 using (var file = File.OpenRead(file_word_pronunciation))
                     dicWordPronunciation = Serializer.Deserialize<ConcurrentDictionary<string, string>>(file);
-
-            if (File.Exists(file_word_sentence))
-                using (var file = File.OpenRead(file_word_sentence))
-                    dicWordSentence = Serializer.Deserialize<ConcurrentDictionary<string, List<string>>>(file);
-
-            if (File.Exists(file_word_mp3))
-                using (var file = File.OpenRead(file_word_mp3))
-                    dicWordMp3 = Serializer.Deserialize<ConcurrentDictionary<string, List<string>>>(file);
         }
 
         private static void f_word_mean_vi_writeFile()
         {
             using (var file = File.Create(file_word_mean_vi))
-                Serializer.Serialize<ConcurrentDictionary<string, string>>(file, dicWordMeaningVi);
+                Serializer.Serialize<ConcurrentDictionary<string, string>>(file, dicWordMeanVi);
         }
-
-        private static void f_word_mean_en_writeFile()
-        {
-            using (var file = File.Create(file_word_mean_en))
-                Serializer.Serialize<ConcurrentDictionary<string, string>>(file, dicWordMeaningEn);
-        }
-
-        private static void f_word_sentence_writeFile()
-        {
-            using (var file = File.Create(file_word_sentence))
-                Serializer.Serialize<ConcurrentDictionary<string, List<string>>>(file, dicWordSentence);
-        }
-
-        private static void f_word_mp3_writeFile()
-        {
-            using (var file = File.Create(file_word_mp3))
-                Serializer.Serialize<ConcurrentDictionary<string, List<string>>>(file, dicWordMp3);
-        }
-
+        
         private static void f_word_pronunciation_writeFile()
         {
             using (var file = File.Create(file_word_pronunciation))
@@ -952,7 +917,7 @@ namespace appel
                 long mediaId = (long)m.Input;
                 oWordCount[] a = f_media_getWords(mediaId);
 
-                var akey = dicWordMeaningVi.Keys.ToArray();
+                var akey = dicWordMeanVi.Keys.ToArray();
 
                 string[] ws = a.OrderByDescending(x => x.count)
                         .Where(x => x.word.Length > 3)
@@ -1008,9 +973,9 @@ namespace appel
                         {
                             for (int i = 0; i < ms.Length; i++)
                             {
-                                if (!dicWordMeaningVi.ContainsKey(ws[i]))
+                                if (!dicWordMeanVi.ContainsKey(ws[i]))
                                 {
-                                    dicWordMeaningVi.TryAdd(ws[i], ms[i]);
+                                    dicWordMeanVi.TryAdd(ws[i], ms[i]);
                                 }
                             }
 
@@ -1066,10 +1031,10 @@ namespace appel
 
         public static string f_word_meaning_Vi(string word_en)
         {
-            if (dicWordMeaningVi.ContainsKey(word_en))
+            if (dicWordMeanVi.ContainsKey(word_en))
             {
                 string vi = string.Empty;
-                if (dicWordMeaningVi.TryGetValue(word_en, out vi))
+                if (dicWordMeanVi.TryGetValue(word_en, out vi))
                     return vi;
             }
             return string.Empty;
@@ -1118,7 +1083,6 @@ namespace appel
             return new string[] { };
         }
 
-        static HttpClient web_word_pronunciation = new HttpClient();
         private static string f_word_speak_getPronunciationFromCambridge(string word_en)
         {
             string requestUri = string.Format("https://dictionary.cambridge.org/dictionary/english/{0}", word_en);
@@ -1199,14 +1163,6 @@ namespace appel
                         dicWordMp3[word_en] = lss;
                     else
                         dicWordMp3.TryAdd(word_en, lss);
-
-                    //if (has_update_file_if_new)
-                    //{
-                    //    new Thread(new ThreadStart(() =>
-                    //    {
-                    //        f_word_mp3_writeFile();
-                    //    })).Start();
-                    //}
                 }
 
                 string[] uns = nodes.QuerySelectorAll("span[class=\"un\"]").Select(x => x.InnerText_NewLine).Where(x => !string.IsNullOrEmpty(x)).ToArray();
@@ -1264,23 +1220,7 @@ namespace appel
                                     : (x[0].ToString().ToUpper() + x.Substring(1))
                         ) : x)
                     .ToArray());
-
-                if (!string.IsNullOrEmpty(mean_en))
-                {
-                    if (dicWordMeaningEn.ContainsKey(mean_en))
-                        dicWordMeaningEn[word_en] = mean_en;
-                    else
-                        dicWordMeaningEn.TryAdd(word_en, mean_en);
-
-                    if (has_update_file_if_new)
-                    {
-                        new Thread(new ThreadStart(() =>
-                        {
-                            f_word_mean_en_writeFile();
-                        })).Start();
-                    }
-                }
-
+                
                 string[] sens = nodes.QuerySelectorAll("span[class=\"x\"]")
                     .Where(x => !string.IsNullOrEmpty(x.InnerText))
                     .Select(x => x.InnerText.Trim())
@@ -1291,26 +1231,6 @@ namespace appel
                 {
                     string sen_text = string.Join(Environment.NewLine, sens);
                     mean_en += heading_text + "EXAMPLE:\r\n" + sen_text;
-
-                    ////List<string> lss = new List<string>() { };
-                    ////bool has = dicWordSentence.TryGetValue(word_en, out lss);
-                    ////if (lss == null) lss = new List<string>();
-                    ////lss.AddRange(sens);
-                    ////lss = lss.Distinct().ToList();
-
-                    ////if (has)
-                    ////    dicWordSentence[word_en] = lss;
-                    ////else
-                    ////    dicWordSentence.TryAdd(word_en, lss);
-
-                    ////if (has_update_file_if_new)
-                    ////{
-                    ////    new Thread(new ThreadStart(() =>
-                    ////    {
-                    ////        f_word_sentence_writeFile();
-                    ////    })).Start();
-                    ////}
-
                 }
 
                 mean_en = mean_en.Replace("See full entry", string.Empty).Replace(Environment.NewLine, "|")
