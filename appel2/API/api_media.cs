@@ -1311,7 +1311,11 @@ namespace appel
 
                 }
 
-                mean_en = mean_en.Replace("See full entry", string.Empty).Replace(Environment.NewLine, "|");
+                mean_en = mean_en.Replace("See full entry", string.Empty).Replace(Environment.NewLine, "|")
+                    .Replace("’ ", @""" ").Replace(".’", @".""").Replace("’|", @"""|")
+                    .Replace(" ‘", @" """)
+                    .Replace("’", @"'");
+
                 mean_en = Regex.Replace(mean_en, @"[^\x20-\x7E]", string.Empty);
 
                 mean_en = mean_en.Replace("|", Environment.NewLine);
