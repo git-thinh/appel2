@@ -1432,6 +1432,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         long m_search_item_current_id = 0;
         string m_search_item_current_text = string.Empty;
+        bool m_search_caption = false;
 
         private msg m_search_current_msg = null;
         private TextBox m_search_Input;
@@ -1494,6 +1495,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
             IconButton btn_stop_search = new IconButton(16) { IconType = IconType.stop, Dock = DockStyle.Left, ToolTipText = "Stop Search" };
             IconButton btn_user = new IconButton(22) { IconType = IconType.person, Dock = DockStyle.Left, ToolTipText = "User" };
             IconButton btn_channel = new IconButton(22) { IconType = IconType.android_desktop, Dock = DockStyle.Left, ToolTipText = "Channel" };
+            IconButton btn_caption_filter = new IconButton(22) { IconType = IconType.closed_captioning, Dock = DockStyle.Left, ToolTipText = "Filter by caption|CC" };
 
             IconButton btn_next = new IconButton(16) { IconType = IconType.ios_arrow_back, Dock = DockStyle.Right };
             IconButton btn_prev = new IconButton(16) { IconType = IconType.ios_arrow_next, Dock = DockStyle.Right };
@@ -1529,16 +1531,30 @@ writeline and then it's just   going to print out hello on the screen   can't do
             };
             btn_next.Click += f_search_goPageNextClick;
             btn_prev.Click += f_search_goPagePrevClick;
-
-
+            
+            btn_save.MouseClick += f_search_saveItemSelected;
+            btn_remove.MouseClick += f_search_removeCacheAll;
+            btn_stop_search.MouseClick += (se, ev) =>
+            {
+                app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_ONLINE_STOP });
+            };
+            btn_caption_filter.MouseClick += (se, ev) => {
+                if (m_search_caption) {
+                    m_search_caption = false;
+                    btn_caption_filter.InActiveColor = Color.DimGray;
+                } else {
+                    m_search_caption = true;
+                    btn_caption_filter.InActiveColor = Color.Orange;
+                }
+            };
             m_search_Message.MouseMove += f_form_move_MouseDown;
             m_search_Footer.Controls.AddRange(new Control[] {
                 #region
 
                 m_search_Message,
                 //btn_channel,
-                //new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
-                //btn_user,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
+                btn_caption_filter,
                 new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 btn_stop_search,
                 new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
@@ -1550,7 +1566,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 //new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
                 //btn_folder,
                 //new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
-                //btn_tags_filter,
+                //btn_caption_filter,
                 //new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
                 btn_remove,
                 new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
@@ -1581,12 +1597,6 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
                 #endregion
             });
-            btn_save.MouseClick += f_search_saveItemSelected;
-            btn_remove.MouseClick += f_search_removeCacheAll;
-            btn_stop_search.MouseClick += (se, ev) =>
-            {
-                app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_ONLINE_STOP });
-            };
         }
 
         private void f_search_removeCacheAll(object sender, MouseEventArgs e)
@@ -1666,7 +1676,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 if (key.Length > 1)
                 {
                     m_search_Message.Text = "Finding [" + key + "] ...";
-                    app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH_ONLINE, key);
+                    app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_ONLINE, Input = key, Log = (m_search_caption ? "CC" : "") });
                 }
                 else
                     m_search_Message.Text = "Length of keywords must be greater than 1 characters.";

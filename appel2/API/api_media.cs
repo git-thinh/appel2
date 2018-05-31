@@ -20,6 +20,7 @@ using YoutubeExplode.Internal;
 using System.Text.RegularExpressions;
 using System.Web;
 using HtmlAgilityPack;
+using YoutubeExplode.Models.ClosedCaptions;
 
 namespace appel
 {
@@ -30,6 +31,7 @@ namespace appel
         static readonly string path_data = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
 
         public bool Open { set; get; } = false;
+        public bool SearchMediaCaptionCC { set; get; } = false;
 
         #endregion
 
@@ -708,7 +710,7 @@ namespace appel
                                     if (stop_search) break;
 
                                     page_query++;
-                                    aIDs = f_media_searchYoutubeOnline(_client, input, page_query, hasCC_Subtitle);
+                                    aIDs = f_media_searchYoutubeOnline(_client, input, page_query);
                                     lsSearch.AddRange(aIDs);
 
                                     //if (aIDs.Length > 0)
@@ -770,10 +772,11 @@ namespace appel
 
                             if (!string.IsNullOrEmpty(input))
                             {
+                                SearchMediaCaptionCC = m.Log == "CC" ? true : false;
+
                                 var _client = new YoutubeClient();
-                                bool hasCC_Subtitle = true;
                                 int page_query = 1;
-                                long[] aIDs = f_media_searchYoutubeOnline(_client, input, page_query, hasCC_Subtitle);
+                                long[] aIDs = f_media_searchYoutubeOnline(_client, input, page_query);
                                 lsSearch.AddRange(aIDs);
 
                                 //while (lsSearch.Count < 10)
@@ -842,7 +845,7 @@ namespace appel
 
         static readonly string file_word_mean_vi = Path.Combine(path_data, "word-vi.bin");
         static readonly string file_word_pronunciation = Path.Combine(path_data, "word-pro.bin");
-        
+
         public static void f_word_Init()
         {
             dicWord = new ConcurrentDictionary<string, string>();
@@ -889,12 +892,13 @@ namespace appel
                     dicWord.TryAdd(word, text);
                     dicWordPronunciation.TryAdd(word, pronunciation);
 
-                    if (text.Contains('{') && text.Contains('}')) {
+                    if (text.Contains('{') && text.Contains('}'))
+                    {
                         var mp3s = text
                             .Split(new char[] { '{', '}' })[1]
                             .Split(new string[] { Environment.NewLine }, StringSplitOptions.None)
-                            .Select(x=>x.Trim())
-                            .Where(x=>x.Length > 0)
+                            .Select(x => x.Trim())
+                            .Where(x => x.Length > 0)
                             .ToList();
                         if (mp3s.Count > 0)
                         {
@@ -904,11 +908,11 @@ namespace appel
                     }
                 }
             }
-            
+
             if (File.Exists(file_word_mean_vi))
                 using (var file = File.OpenRead(file_word_mean_vi))
                     dicWordMeanVi = Serializer.Deserialize<ConcurrentDictionary<string, string>>(file);
-            
+
             if (File.Exists(file_word_pronunciation))
                 using (var file = File.OpenRead(file_word_pronunciation))
                     dicWordPronunciation = Serializer.Deserialize<ConcurrentDictionary<string, string>>(file);
@@ -919,7 +923,7 @@ namespace appel
             using (var file = File.Create(file_word_mean_vi))
                 Serializer.Serialize<ConcurrentDictionary<string, string>>(file, dicWordMeanVi);
         }
-        
+
         private static void f_word_pronunciation_writeFile()
         {
             using (var file = File.Create(file_word_pronunciation))
@@ -1117,7 +1121,7 @@ namespace appel
         {
             if (word_en[word_en.Length - 1] == 's') word_en = word_en.Substring(0, word_en.Length - 1);
             string mean_en = string.Empty;
-            
+
             string requestUri = string.Format("https://www.oxfordlearnersdictionaries.com/definition/english/{0}?q={0}", word_en);
             using (var response = web_word_pronunciation.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead).Result)
             {
@@ -1134,7 +1138,7 @@ namespace appel
                 type = nodes.QuerySelectorAll("span[class=\"pos\"]").Select(x => x.InnerText).Where(x => !string.IsNullOrEmpty(x)).Take(1).SingleOrDefault();
                 string[] pro_s = nodes.QuerySelectorAll("span[class=\"vp-g\"]").Select(x => x.InnerText).Where(x => !string.IsNullOrEmpty(x))
                     .Select(x => x.Replace(" BrE BrE", " = UK: ").Replace("; NAmE NAmE", "US: ").Replace("//", "/")).ToArray();
-                string[] word_links = pro_s.Select(x=>x.Split('=')[0].Trim()).ToArray();
+                string[] word_links = pro_s.Select(x => x.Split('=')[0].Trim()).ToArray();
                 if (pro == null) pro = string.Empty;
 
                 if (type != null && type.Length > 0)
@@ -1236,7 +1240,7 @@ namespace appel
                                     : (x[0].ToString().ToUpper() + x.Substring(1))
                         ) : x)
                     .ToArray());
-                
+
                 string[] sens = nodes.QuerySelectorAll("span[class=\"x\"]")
                     .Where(x => !string.IsNullOrEmpty(x.InnerText))
                     .Select(x => x.InnerText.Trim())
@@ -1621,10 +1625,10 @@ namespace appel
         }
 
         static WebClient client_img = new WebClient();
-        long[] f_media_searchYoutubeOnline(YoutubeClient _client, string query, int page, bool hasCC_Subtitle = true)
+        long[] f_media_searchYoutubeOnline(YoutubeClient _client, string query, int page)
         {
             string url = string.Format("https://www.youtube.com/search_ajax?style=json&search_query={0}&page={1}&hl=en", query, page);
-            if (hasCC_Subtitle) url += "&sp=EgIoAQ%253D%253D";
+            if (SearchMediaCaptionCC) url += "&sp=EgIoAQ%253D%253D";
 
             string raw = _client.GetStringAsync(url, false);
 
@@ -1650,14 +1654,24 @@ namespace appel
 
                 if (!dicMediaStore.ContainsKey(mi.Id) && !dicMediaSearch.ContainsKey(mi.Id))
                 {
-                    var cap = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
-                    if (cap.Count > 0)
+                    List<ClosedCaptionTrackInfo> cap = new List<ClosedCaptionTrackInfo>();
+
+                    if (SearchMediaCaptionCC)
+                        cap = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+
+                    if (SearchMediaCaptionCC == false || (SearchMediaCaptionCC && cap.Count > 0))
                     {
-                        var cen = cap.Where(x => x.Language.Code == "en").Take(1).SingleOrDefault();
-                        if (cen != null)
+                        ClosedCaptionTrackInfo cen = null;
+
+                        if (SearchMediaCaptionCC)
+                            cen = cap.Where(x => x.Language.Code == "en").Take(1).SingleOrDefault();
+
+                        if (SearchMediaCaptionCC == false || (SearchMediaCaptionCC == true && cen != null))
                         {
                             mi.Tags.Add(query);
-                            mi.SubtileEnglish = _client.GetStringAsync(cen.Url);
+
+                            if (SearchMediaCaptionCC == true && cen != null)
+                                mi.SubtileEnglish = _client.GetStringAsync(cen.Url);
 
                             var videoAuthor = videoJson["author"].Value<string>();
                             //var videoUploadDate = videoJson["added"].Value<string>().ParseDateTimeOffset("M/d/yy");
@@ -1689,8 +1703,7 @@ namespace appel
                             mi.Keywords = videoKeywords;
                             mi.Author = videoAuthor;
                             mi.UploadDate = int.Parse(videoUploadDate.ToString("yyMMdd"));
-
-
+                            
                             if (!dicMediaImage.ContainsKey(mi.Id))
                             {
                                 using (Stream stream = client_img.OpenRead(string.Format("https://img.youtube.com/vi/{0}/default.jpg", videoId)))
