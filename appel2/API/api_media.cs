@@ -182,6 +182,8 @@ namespace appel
                                     if (cen != null)
                                     {
                                         mi.SubtileEnglish = _client.GetStringAsync(cen.Url);
+                                         
+                                        f_media_writeFile(); 
 
                                         m.KEY = _API.MEDIA_KEY_WORD_LIST;
                                         m.Log = ((int)MEDIA_TAB.TAB_STORE).ToString();
@@ -1536,8 +1538,11 @@ namespace appel
 
         private void f_media_writeFile()
         {
-            using (var file = File.Create(file_media))
+            using (var file = File.OpenWrite(file_media))
+            {
                 Serializer.Serialize<ConcurrentDictionary<long, oMedia>>(file, dicMediaStore);
+                file.Close();
+            }
         }
 
         public static Bitmap f_image_getCache(long mediaId)

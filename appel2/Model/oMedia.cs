@@ -100,14 +100,12 @@ namespace appel
 
         #region [ SUBTITLE - CC ]
 
-        private string _subtileEnglish_Text = string.Empty;
-        private string[] _subtileEnglish_Sentences = null;
-
+        private string[] _subtileEnglish_Sentences = new string[] { };
         public string[] SubtileEnglish_Sentence
         {
             get
             {
-                if (_subtileEnglish_Sentences != null)
+                if (_subtileEnglish_Sentences.Length > 0)
                     return _subtileEnglish_Sentences;
 
                 if (string.IsNullOrEmpty(this.SubtileEnglish_Text)) return new string[] { };
@@ -234,6 +232,7 @@ namespace appel
             }//end get
         }
 
+        private string _subtileEnglish_Text = string.Empty;
         public string SubtileEnglish_Text
         {
             get
@@ -241,7 +240,8 @@ namespace appel
                 if (!string.IsNullOrEmpty(_subtileEnglish_Text))
                     return _subtileEnglish_Text;
 
-                if (string.IsNullOrEmpty(this.SubtileEnglish)) return string.Empty;
+                if (string.IsNullOrEmpty(this.SubtileEnglish))
+                    return string.Empty;
 
                 string text = this.SubtileEnglish;
                 if (!string.IsNullOrEmpty(text))
@@ -301,20 +301,16 @@ namespace appel
         //public List<oWordCount> Words = new List<oWordCount>();
         //public string Text = string.Empty;
 
-        private List<oWordCount> _Words = new List<oWordCount>();
-        public List<oWordCount> Words
+        //private List<oWordCount> _Words = new List<oWordCount>();
+        public oWordCount[] Words
         {
             get
             {
-                if (_Words.Count == 0)
-                {
-                    _Words = this.f_get_Words();
-                }
-                return _Words;
+                return this.f_get_Words(); 
             }
         }
 
-        private List<oWordCount> f_get_Words()
+        private oWordCount[] f_get_Words()
         {
             string content = this.f_get_Text();
 
@@ -327,20 +323,18 @@ namespace appel
                 .Select(x => new oWordCount() { count = x.Count(), word = x.Key })
                 //.OrderByDescending(x => x.count)
                 .OrderBy(x => x.word)
-                .ToList();
+                .ToArray();
         }
 
         #endregion
 
         #region [ TEXT ]
-
-        private string _Text = string.Empty;
+         
         public string Text
         {
             get
-            {
-                if (_Text == string.Empty) _Text = this.f_get_Text();
-                return _Text;
+            { 
+                return this.f_get_Text();
             }
         }
 

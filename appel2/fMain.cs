@@ -357,7 +357,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         private void f_word_caption_cc_download_analytic_Click(object sender, MouseEventArgs e)
         {
-            app.postToAPI(new msg() { });
+            app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_WORD_CAPTION_CC_DOWNLOAD_ANALYTIC, Input = m_media_current_id });
         }
 
         private void f_word_speak_prev_Click(object sender, MouseEventArgs e)
@@ -1875,6 +1875,13 @@ writeline and then it's just   going to print out hello on the screen   can't do
             if (m != null && m.Output != null)
             {
                 m_words = m.Output.Data as oWordCount[];
+                if (m_words != null && m_words.Length > 0)
+                {
+                    this.Invoke((Action)(() =>
+                    {
+                        f_word_goPage(1);
+                    }));
+                }
             }
         }
 
