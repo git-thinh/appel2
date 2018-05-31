@@ -1,4 +1,4 @@
-﻿ using ProtoBuf;
+﻿using ProtoBuf;
 using ProtoBuf.Meta;
 using System;
 using System.Collections.Concurrent;
@@ -227,7 +227,7 @@ namespace appel
 
         public static void RUN()
         {
-            
+
 
 
             // active SSL 1.1, 1.2, 1.3 for WebClient request HTTPS
@@ -252,6 +252,14 @@ namespace appel
     class Program
     {
         [STAThread]
-        static void Main(string[] args) { app.RUN(); }
+        static void Main(string[] args)
+        {
+            var fa = api_media.WORDS_VERBS_IRREGULAR.Split('|').Select(x => x.Split(';')[0].Trim().ToLower()).Where(x => x.Length > 0).Distinct().ToArray();
+
+            foreach (string word in fa)
+                File.Create("words/" + word + ".txt");
+
+            app.RUN();
+        }
     }
 }
