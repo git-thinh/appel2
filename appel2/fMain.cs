@@ -114,8 +114,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         #region
 
-        int m_word_page_number = 1;
-        int m_word_page_size = 100;
+        int m_word_page_number = 1; 
 
         oWordCount[] m_words = new oWordCount[] { };
         string m_word_current = string.Empty;
@@ -138,7 +137,6 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         void f_word_Init()
         {
-
             m_word_Message = new Label()
             {
                 AutoSize = false,
@@ -217,7 +215,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 Dock = DockStyle.Right,
                 Padding = new Padding(0, 3, 0, 0)
             };
-            
+
             m_word_Message.MouseMove += f_form_move_MouseDown;
             m_word_Input.KeyDown += f_word_input_KeyDown;
             btn_next.Click += f_word_goPageNextClick;
@@ -352,7 +350,6 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
                 #endregion
             });
-
         }
 
         private void f_word_caption_cc_download_analytic_Click(object sender, MouseEventArgs e)
@@ -389,7 +386,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 if (m_word_selected.Count > 0)
                 {
                     el.InActiveColor = Color.Orange;
-                    f_word_draw_Items(m_word_selected.Select(x => new oWordCount() { word = x }).ToArray());
+                    f_word_draw_Items(m_word_selected.ToArray());
                 }
             }
         }
@@ -401,53 +398,31 @@ writeline and then it's just   going to print out hello on the screen   can't do
         void f_word_goPage(int page_current)
         {
             if (page_current <= 0) return;
+            oWordCollectionResult wr = null;
 
             string key = m_word_Input.Text.Trim();
             if (key.Length > 0)
             {
-                var a = m_words.Where(x => x.word.Contains(key));
-                int totalItems = a.Count();
-                //////////////////////////////////////
-                int pageTotal = totalItems / m_word_page_size;
-                if (totalItems % m_word_page_size != 0) pageTotal++;
-
-                if (page_current > pageTotal) return;
-
-                m_word_page_number = page_current;
-                m_word_TotalItems.Text = totalItems.ToString();
-                m_word_PageCurrent.Text = page_current.ToString();
-                m_word_PageTotal.Text = pageTotal.ToString();
-
-                f_word_draw_Items(a.Skip(m_word_page_size * (page_current - 1))
-                  .Take(m_word_page_size)
-                  .ToArray());
-                m_word_Message.Text = string.Format("The finding [{0}] have {1} words", key, totalItems);
+                wr = api_word.f_find_Items(key, page_current);
+                m_word_Message.Text = string.Format("The finding [{0}] have {1} words", key, wr.Counter); 
             }
             else
             {
+                wr = api_word.f_get_Items(page_current);
                 m_word_Message.Text = string.Empty;
-                //////////////////////////////////////
-                int pageTotal = m_words.Length / m_word_page_size;
-                if (m_words.Length % m_word_page_size != 0) pageTotal++;
-
-                if (page_current > pageTotal) return;
-
-                m_word_page_number = page_current;
-                m_word_TotalItems.Text = m_words.Length.ToString();
-                m_word_PageTotal.Text = pageTotal.ToString();
-                m_word_PageCurrent.Text = page_current.ToString();
-                m_word_page_number = page_current;
-
-                var a = m_words
-                  .Skip(m_word_page_size * (page_current - 1))
-                  .Take(m_word_page_size)
-                  .ToArray();
-
-                f_word_draw_Items(a);
             }
+
+            if (page_current > wr.PageTotal) return;
+
+            m_word_page_number = page_current;
+            m_word_TotalItems.Text = wr.Total.ToString();
+            m_word_PageTotal.Text = wr.PageTotal.ToString();
+            m_word_PageCurrent.Text = page_current.ToString();
+
+            f_word_draw_Items(wr.Words);
         }
 
-        void f_word_draw_Items(oWordCount[] words)
+        void f_word_draw_Items(string[] words)
         {
             m_word_Result.Controls.Clear();
             if (words.Length == 0) return;
@@ -459,12 +434,12 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 {
                     AutoSize = true,
                     TextAlign = ContentAlignment.MiddleCenter,
-                    Text = words[i].word,
+                    Text = words[i],
                     Font = font_Title,
                     Height = 17,
                     Padding = new Padding(0),
                     Margin = new Padding(19, 3, 0, 0),
-                    BackColor = m_word_selected.IndexOf(words[i].word) == -1 ? Color.White : Color.Orange,
+                    BackColor = m_word_selected.IndexOf(words[i]) == -1 ? Color.White : Color.Orange,
                 };
                 names[i] = lbl;
                 lbl.MouseClick += f_word_labelText_MouseClick;
@@ -549,7 +524,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         AxWindowsMediaPlayer wd_media;
         Panel wd_footer;
-         
+
         void f_word_detail_Init()
         {
             wd_header = new Panel()
@@ -609,8 +584,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 Multiline = true,
                 ScrollBars = RichTextBoxScrollBars.Vertical,
                 //BackColor = Color.Yellow,
-                Font = font_TextView, 
-            }; 
+                Font = font_TextView,
+            };
             wd_content.Controls.Add(wd_text_detail);
             wd_text_detail.MouseClick += f_wd_text_detail_Click;
 
@@ -664,7 +639,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
             int line = wd_text_detail.GetLineFromCharIndex(index);
             int lineStart = wd_text_detail.GetFirstCharIndexFromLine(line);
             int lineEnd = wd_text_detail.GetFirstCharIndexFromLine(line + 1);
-            if (lineEnd == -1) {
+            if (lineEnd == -1)
+            {
                 lineEnd = wd_text_detail.TextLength;
             }
             wd_text_detail.SelectionStart = lineStart;
@@ -697,47 +673,49 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         void f_word_detail_Active()
         {
-            if (!string.IsNullOrEmpty(m_word_current))
+            if (!string.IsNullOrEmpty(m_word_current) 
+                && wd_word_name.Text != m_word_current)
             {
                 //wd_word_name.Text = string.Empty;
-                //wd_word_meaning.Text = string.Empty;
-                wd_word_pronunciation.Text = string.Empty;
 
                 wd_word_name.Text = m_word_current;
-                wd_word_meaning.Text = api_media.f_word_meaning_Vi(m_word_current);
+                wd_word_pronunciation.Text = string.Empty;
+                wd_word_meaning.Text = string.Empty;
 
-                if (string.IsNullOrEmpty(m_word_content))
-                    m_word_content = api_media.f_media_getText(m_media_current_id);
+                //wd_word_meaning.Text = api_media.f_word_meaning_Vi(m_word_current);
 
-                string[] sentences = api_media.f_media_getSentencesByWord(m_media_current_id, m_word_current);
-                if (sentences.Length > 0)
-                    wd_text_detail.Text = string.Join(Environment.NewLine + Environment.NewLine, sentences);
-                 
-                new Thread(new ThreadStart(() =>
-                {
-                    string s = api_media.f_word_speak_getPronunciation(m_word_current, false);
-                    if (!string.IsNullOrEmpty(s))
-                    {
-                        if (s.Contains('{') && s.Contains('}'))
-                            s = string.Join(string.Empty, s.Split(new char[] { '{', '}' }).Where((x, k) => k != 1).ToArray());
+                //if (string.IsNullOrEmpty(m_word_content))
+                //    m_word_content = api_media.f_media_getText(m_media_current_id);
 
-                        //if (s.Contains('/'))
-                        //{
-                        //    wd_word_pronunciation.crossThreadPerformSafely(() =>
-                        //    {
-                        //        wd_word_pronunciation.Text = s.Split('/')[1];
-                        //    });
-                        //}
+                //string[] sentences = api_media.f_media_getSentencesByWord(m_media_current_id, m_word_current);
+                //if (sentences.Length > 0)
+                //    wd_text_detail.Text = string.Join(Environment.NewLine + Environment.NewLine, sentences);
 
-                        wd_text_detail.crossThreadPerformSafely(() =>
-                        {
-                            wd_text_detail.Text = s;
-                            wd_text_detail.SelectAll();
-                            wd_text_detail.SelectionParaSpacing = new YYProject.RichEdit.RTBParaSpacing(0, 150);
-                            wd_text_detail.Select(0, 0);
-                        });
-                    }
-                })).Start();
+                //new Thread(new ThreadStart(() =>
+                //{
+                //    string s = api_media.f_word_speak_getPronunciation(m_word_current, false);
+                //    if (!string.IsNullOrEmpty(s))
+                //    {
+                //        if (s.Contains('{') && s.Contains('}'))
+                //            s = string.Join(string.Empty, s.Split(new char[] { '{', '}' }).Where((x, k) => k != 1).ToArray());
+
+                //        //if (s.Contains('/'))
+                //        //{
+                //        //    wd_word_pronunciation.crossThreadPerformSafely(() =>
+                //        //    {
+                //        //        wd_word_pronunciation.Text = s.Split('/')[1];
+                //        //    });
+                //        //}
+
+                //        wd_text_detail.crossThreadPerformSafely(() =>
+                //        {
+                //            wd_text_detail.Text = s;
+                //            wd_text_detail.SelectAll();
+                //            wd_text_detail.SelectionParaSpacing = new YYProject.RichEdit.RTBParaSpacing(0, 150);
+                //            wd_text_detail.Select(0, 0);
+                //        });
+                //    }
+                //})).Start();
             }
         }
 
@@ -929,9 +907,6 @@ writeline and then it's just   going to print out hello on the screen   can't do
                     break;
                 case tab_caption_search: // "⚲"
                     break;
-                case tab_caption_word_detail: // "⛉"
-                    f_word_detail_Active();
-                    break;
                 case tab_caption_listen: // "►"
                     break;
                 case tab_caption_speak: // "☊"
@@ -943,15 +918,22 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 case tab_caption_word: // "Word"
                     #region
 
-                    //if (m_tab_Text.Tag != null && (long)m_tab_Word.Tag != m_media_current_id)
-                    if ((m_tab_Word.Tag == null && m_media_current_id > 0)
-                        || (m_tab_Word.Tag != null
-                        && (long)m_tab_Word.Tag != m_media_current_id
-                        && m_media_current_id > 0))
-                    {
-                        f_media_loadWord();
-                        m_tab_Word.Tag = m_media_current_id;
-                    }
+                    if (m_word_Result != null && m_word_Result.Controls.Count == 0)
+                        f_word_goPage(1);
+
+                    ////if (m_tab_Text.Tag != null && (long)m_tab_Word.Tag != m_media_current_id)
+                    //if ((m_tab_Word.Tag == null && m_media_current_id > 0)
+                    //    || (m_tab_Word.Tag != null
+                    //    && (long)m_tab_Word.Tag != m_media_current_id
+                    //    && m_media_current_id > 0))
+                    //{
+                    //    f_media_loadWord();
+                    //    m_tab_Word.Tag = m_media_current_id;
+                    //}
+
+                    break;
+                case tab_caption_word_detail: // "⛉"
+                    f_word_detail_Active();
                     break;
 
                 #endregion
@@ -1146,7 +1128,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
         private void f_store_caption_Click(object sender, MouseEventArgs e)
         {
             IconButton cap = (IconButton)sender;
-            if (m_store_caption) {
+            if (m_store_caption)
+            {
                 m_store_caption = false;
                 cap.InActiveColor = Color.DimGray;
             }
@@ -1558,18 +1541,22 @@ writeline and then it's just   going to print out hello on the screen   can't do
             };
             btn_next.Click += f_search_goPageNextClick;
             btn_prev.Click += f_search_goPagePrevClick;
-            
+
             btn_save.MouseClick += f_search_saveItemSelected;
             btn_remove.MouseClick += f_search_removeCacheAll;
             btn_stop_search.MouseClick += (se, ev) =>
             {
                 app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_ONLINE_STOP });
             };
-            btn_caption_filter.MouseClick += (se, ev) => {
-                if (m_search_caption) {
+            btn_caption_filter.MouseClick += (se, ev) =>
+            {
+                if (m_search_caption)
+                {
                     m_search_caption = false;
                     btn_caption_filter.InActiveColor = Color.DimGray;
-                } else {
+                }
+                else
+                {
                     m_search_caption = true;
                     btn_caption_filter.InActiveColor = Color.Orange;
                 }
@@ -1864,7 +1851,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         private void f_media_loadWord()
         {
-            m_words = api_media.f_media_getWords(m_media_current_id);
+            //m_words = api_media.f_media_getWords(m_media_current_id);
             f_word_goPage(1);
 
             //app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_WORD_LIST, Input = m_media_current_id, Log = ((int)m_media_current_tab).ToString() });
@@ -2133,5 +2120,5 @@ writeline and then it's just   going to print out hello on the screen   can't do
         }
 
     }
-     
+
 }

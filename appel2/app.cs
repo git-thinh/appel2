@@ -89,7 +89,7 @@ namespace appel
             dicResponses = new ConcurrentDictionary<string, msg>();
             dicService = new ConcurrentDictionary<string, IthreadMsg>();
 
-            //dicService.TryAdd(_API.WORD, new threadMsg(new api_word()));
+            dicService.TryAdd(_API.WORD, new threadMsg(new api_word()));
             dicService.TryAdd(_API.MEDIA, new threadMsg(new api_media()));
         }
 
@@ -254,10 +254,10 @@ namespace appel
         [STAThread]
         static void Main(string[] args)
         {
-            var fa = api_media.WORDS_VERBS_IRREGULAR.Split('|').Select(x => x.Split(';')[0].Trim().ToLower()).Where(x => x.Length > 0).Distinct().ToArray();
+            //var fa = api_media.WORDS_VERBS_IRREGULAR.Split('|').Select(x => x.Split(';')[0].Trim().ToLower()).Where(x => x.Length > 0).Distinct().ToArray();
 
-            foreach (string word in fa)
-                File.Create("words/" + word + ".txt");
+            //foreach (string word in fa)
+            //    File.Create("words/" + word + ".txt");
 
             app.RUN();
         }

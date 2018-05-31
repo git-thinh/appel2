@@ -887,6 +887,24 @@ namespace appel
 
         #region [ WORD ]
 
+        //public static List<GRAMMAR> listGrammar = new List<GRAMMAR>()
+        //{
+        //    new GRAMMAR(){
+        //        Type = "too...for",
+        //        Example = "This structure is too easy for you to remember|He ran too fast for me to follow",
+        //        Explain = "quá....để cho ai làm gì...",
+        //        KeyWord = new string[]{ "too","for" },
+        //        Struct = "S + V + too + adj/adv + (for someone) + to do something"
+        //    },
+        //    new GRAMMAR(){
+        //        Type = "so...that",
+        //        Example = "This box is so heavy that I cannot take it|He speaks so soft that we can’t hear anything",
+        //        Explain = "quá... đến nỗi mà...",
+        //        KeyWord = new string[]{ "","" },
+        //        Struct = "S + V + so + adj/ adv + that + S + V"
+        //    }
+        //};
+
         /*
         WHO   (ai)
         WHOM  (ai)
