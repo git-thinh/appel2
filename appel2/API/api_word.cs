@@ -11,14 +11,15 @@ namespace appel
 {
     public class api_word : api_base, IAPI
     {
-        #region [ API ]
-
-        public bool Open { set; get; } = false;
-
         static ConcurrentDictionary<string, string> dicWordLink = null;
         static List<string> listWord = null;
         static readonly object _lock = new object();
         const int page_size_default = 100;
+
+        #region [ API ]
+
+        public bool Open { set; get; } = false;
+
 
         public void Init()
         {
