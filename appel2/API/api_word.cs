@@ -12,6 +12,7 @@ namespace appel
     public class api_word : api_base, IAPI
     {
         static ConcurrentDictionary<string, string> dicWordLink = null;
+        static ConcurrentDictionary<string, List<string>> dicPron = null;
         static List<string> listWord = null;
         static readonly object _lock = new object();
         const int page_size_default = 100;
@@ -37,6 +38,33 @@ namespace appel
             for (int i = 0; i < ws.Length; i++)
                 dicWordLink.TryAdd(ws[i], string.Empty);
 
+            dicPron = new ConcurrentDictionary<string, List<string>>(); 
+            foreach (string x in "i:; see, unique, feel" +
+            "|ɪ; wit, mystic, little" +
+            "|e; set, meant, bet" +
+            "|æ; pat, cash, bad" +
+            "|ɑ:; half, part, father" +
+            "|ɒ; not, what, cost" +
+            "|ɔ:; port, caught, all" +
+            "|ʊ; wood, could, put" +
+            "|u:; you, music, rude" +
+            "|ʌ; bus, come, but" +
+            "|ɜ:; beard, word, fur" +
+            "|ə; alone, butter" +
+            "|eɪ; lady, make" +
+            "|əʊ; go, home" +
+            "|aɪ; my, time" +
+            "|ɑʊ; now, round" +
+            "|ɔɪ; boy, noise" +
+            "|ɪə; here, beard" +
+            "|ɛə; fair, scarce" +
+            "|ɔə; more, board" +
+            "|ʊə; pure, your"
+            .Split('|'))
+                dicPron.TryAdd(x.Split(';')[0], x.Split(';')[1]
+                .Split(',')
+                .Select(xi => xi.Trim())
+                .ToList());
         }
 
         public msg Execute(msg m)
@@ -100,6 +128,12 @@ namespace appel
 
         #endregion
 
+    }
+
+    public class oPronExam
+    {
+        public string Pronunciation { set; get; }
+        public List<string> Words { set; get; }
     }
 
     public class oWordResult
