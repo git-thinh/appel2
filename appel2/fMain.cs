@@ -188,6 +188,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
             IconButton btn_prev = new IconButton(16) { IconType = IconType.ios_arrow_back, Dock = DockStyle.Right };
             IconButton btn_remove = new IconButton(22) { IconType = IconType.trash_a, Dock = DockStyle.Right, ToolTipText = "Clear words selected" };
             IconButton btn_add_playlist = new IconButton(22) { IconType = IconType.android_add, Dock = DockStyle.Right, ToolTipText = "Add to Playlist" };
+            IconButton btn_download_caption_cc = new IconButton(22) { IconType = IconType.ios_cloud_download, Dock = DockStyle.Right, ToolTipText = "Download caption|CC & analytic words" };
 
             m_word_PageCurrent = new Label()
             {
@@ -216,13 +217,13 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 Dock = DockStyle.Right,
                 Padding = new Padding(0, 3, 0, 0)
             };
-
-
+            
             m_word_Message.MouseMove += f_form_move_MouseDown;
             m_word_Input.KeyDown += f_word_input_KeyDown;
             btn_next.Click += f_word_goPageNextClick;
             btn_prev.Click += f_word_goPagePrevClick;
             btn_add_playlist.MouseClick += f_word_playList_updateClick;
+            btn_download_caption_cc.MouseClick += f_word_caption_cc_download_analytic_Click;
 
             //btn_bookmark.MouseClick += f_word_filter_bookMarkClick;
             //btn_tags.MouseClick += f_word_filter_tagsClick;
@@ -322,6 +323,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
                 btn_remove,
                 new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
+                btn_download_caption_cc,
+                new Label(){ Dock = DockStyle.Right, AutoSize = false, Width = 9 },
                 btn_prev,
                 m_word_PageCurrent,
                 new Label()
@@ -350,6 +353,11 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 #endregion
             });
 
+        }
+
+        private void f_word_caption_cc_download_analytic_Click(object sender, MouseEventArgs e)
+        {
+            app.postToAPI(new msg() { });
         }
 
         private void f_word_speak_prev_Click(object sender, MouseEventArgs e)
@@ -972,6 +980,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         #region
 
+        bool m_store_caption = false;
         msg m_store_current_msg = null;
         long m_store_item_current_id = 0;
         string m_store_item_current_text = string.Empty;
@@ -1036,6 +1045,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
             IconButton btn_user = new IconButton(22) { IconType = IconType.person, Dock = DockStyle.Left, ToolTipText = "User" };
             IconButton btn_channel = new IconButton(22) { IconType = IconType.android_desktop, Dock = DockStyle.Left, ToolTipText = "Channel" };
             IconButton btn_bookmark = new IconButton(22) { IconType = IconType.heart, Dock = DockStyle.Left, ToolTipText = "Bookmark" };
+            IconButton btn_caption = new IconButton(22) { IconType = IconType.closed_captioning, Dock = DockStyle.Left, ToolTipText = "Caption|CC" };
 
             IconButton btn_next = new IconButton(16) { IconType = IconType.ios_arrow_next, Dock = DockStyle.Right };
             IconButton btn_prev = new IconButton(16) { IconType = IconType.ios_arrow_back, Dock = DockStyle.Right };
@@ -1072,12 +1082,22 @@ writeline and then it's just   going to print out hello on the screen   can't do
             btn_next.Click += f_store_goPageNextClick;
             btn_prev.Click += f_store_goPagePrevClick;
 
+            btn_caption.MouseClick += f_store_caption_Click;
+            btn_bookmark.MouseClick += f_store_filter_bookMarkClick;
+            btn_tags.MouseClick += f_store_filter_tagsClick;
+            btn_channel.MouseClick += f_store_filter_channelClick;
+            btn_user.MouseClick += f_store_filter_userClick;
+
+            btn_add_playlist.MouseClick += f_store_playList_updateClick;
+            btn_remove.MouseClick += f_store_media_removeClick;
 
             m_store_Message.MouseMove += f_form_move_MouseDown;
             m_store_Footer.Controls.AddRange(new Control[] {
                 #region
 
                 //m_store_Message,
+                btn_caption,
+                new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 btn_bookmark,
                 new Label(){ Dock = DockStyle.Left, AutoSize = false, Width = 5 },
                 btn_channel,
@@ -1121,14 +1141,20 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
                 #endregion
             });
+        }
 
-            btn_bookmark.MouseClick += f_store_filter_bookMarkClick;
-            btn_tags.MouseClick += f_store_filter_tagsClick;
-            btn_channel.MouseClick += f_store_filter_channelClick;
-            btn_user.MouseClick += f_store_filter_userClick;
-
-            btn_add_playlist.MouseClick += f_store_playList_updateClick;
-            btn_remove.MouseClick += f_store_media_removeClick;
+        private void f_store_caption_Click(object sender, MouseEventArgs e)
+        {
+            IconButton cap = (IconButton)sender;
+            if (m_store_caption) {
+                m_store_caption = false;
+                cap.InActiveColor = Color.DimGray;
+            }
+            else
+            {
+                m_store_caption = true;
+                cap.InActiveColor = Color.Orange;
+            }
         }
 
         private void f_store_media_removeClick(object sender, MouseEventArgs e)
@@ -1332,10 +1358,11 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 if (key.Length > 1)
                 {
                     m_store_Message.Text = "Finding [" + key + "] ...";
-                    app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH_STORE, key);
+                    app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_STORE, Input = key, Log = m_store_caption ? "CC" : string.Empty });
                 }
                 else
-                    app.postToAPI(_API.MEDIA, _API.MEDIA_KEY_SEARCH_STORE, string.Empty);
+                    app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_STORE, Input = string.Empty, Log = m_store_caption ? "CC" : string.Empty });
+
                 //m_store_Message.Text = "Length of keywords must be greater than 1 characters.";
             }
         }
@@ -1676,7 +1703,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 if (key.Length > 1)
                 {
                     m_search_Message.Text = "Finding [" + key + "] ...";
-                    app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_ONLINE, Input = key, Log = (m_search_caption ? "CC" : "") });
+                    app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_ONLINE, Input = key, Log = (m_search_caption ? "CC" : string.Empty) });
                 }
                 else
                     m_search_Message.Text = "Length of keywords must be greater than 1 characters.";

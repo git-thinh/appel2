@@ -31,7 +31,10 @@ namespace appel
         static readonly string path_data = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
 
         public bool Open { set; get; } = false;
+
         public bool SearchMediaCaptionCC { set; get; } = false;
+
+        public bool StoreMediaCaptionCC_Filter { set; get; } = false;
 
         #endregion
 
@@ -157,12 +160,47 @@ namespace appel
                         }
                         break;
                     #endregion
+                    case _API.MEDIA_KEY_WORD_CAPTION_CC_DOWNLOAD_ANALYTIC:
+                        #region
+
+                        if (m.Input != null && m.Input is long)
+                        {
+                            long mediaId = (long)m.Input;
+                            oMedia mi = f_media_getInfo(mediaId);
+                            if (mi != null 
+                                && mi.Paths != null 
+                                && !string.IsNullOrEmpty(mi.Paths.YoutubeID))
+                            {
+                                string videoId = string.Empty;
+                                videoId = mi.Paths.YoutubeID;
+
+                                YoutubeClient _client = new YoutubeClient();
+                                var cap = _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+                                if (cap.Count > 0)
+                                {
+                                    var cen = cap.Where(x => x.Language.Code == "en").Take(1).SingleOrDefault();
+                                    if (cen != null)
+                                    {
+                                        mi.SubtileEnglish = _client.GetStringAsync(cen.Url);
+
+                                        m.KEY = _API.MEDIA_KEY_WORD_LIST;
+                                        m.Log = ((int)MEDIA_TAB.TAB_STORE).ToString();
+                                        Execute(m);
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+                    #endregion
                     case _API.MEDIA_KEY_SEARCH_STORE:
                         #region 
                         if (true)
                         {
                             string input = (string)m.Input;
                             if (input == null) input = string.Empty;
+                            StoreMediaCaptionCC_Filter = m.Log == "CC" ? true : false;
+
                             oMediaSearchLocalResult resultSearch = new oMediaSearchLocalResult();
 
                             List<long> lsSearch = new List<long>();
@@ -174,6 +212,19 @@ namespace appel
                                 if (kv.Value.Title.ToLower().Contains(input)
                                     || kv.Value.Description.ToLower().Contains(input))
                                 {
+                                    if (StoreMediaCaptionCC_Filter)
+                                    {
+                                        // only find media have caption CC
+                                        if (string.IsNullOrEmpty(kv.Value.SubtileEnglish) == true)
+                                            continue;
+                                    }
+                                    else
+                                    {
+                                        // only find media do not have caption CC
+                                        if (string.IsNullOrEmpty(kv.Value.SubtileEnglish) == false)
+                                            continue;
+                                    }
+
                                     if (count >= min && count < max)
                                         lsSearch.Add(kv.Key);
                                     count++;
@@ -1703,7 +1754,7 @@ namespace appel
                             mi.Keywords = videoKeywords;
                             mi.Author = videoAuthor;
                             mi.UploadDate = int.Parse(videoUploadDate.ToString("yyMMdd"));
-                            
+
                             if (!dicMediaImage.ContainsKey(mi.Id))
                             {
                                 using (Stream stream = client_img.OpenRead(string.Format("https://img.youtube.com/vi/{0}/default.jpg", videoId)))

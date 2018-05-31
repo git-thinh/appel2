@@ -23,6 +23,7 @@ namespace appel
         public const string MEDIA_KEY_UPDATE_BOOKMARK_STAR = "MEDIA_KEY_UPDATE_BOOKMARK_STAR";
         public const string MEDIA_KEY_TEXT_INFO = "MEDIA_KEY_TEXT_INFO";
         public const string MEDIA_KEY_WORD_LIST = "MEDIA_KEY_WORD_LIST";
+        public const string MEDIA_KEY_WORD_CAPTION_CC_DOWNLOAD_ANALYTIC = "MEDIA_KEY_WORD_CAPTION_CC_DOWNLOAD_ANALYTIC";
         public const string MEDIA_KEY_PLAY_VIDEO = "MEDIA_KEY_PLAY_VIDEO";
         public const string MEDIA_KEY_PLAY_AUDIO = "MEDIA_KEY_PLAY_AUDIO";
         public const string MEDIA_KEY_WORD_TRANSLATER = "MEDIA_KEY_WORD_TRANSLATER";

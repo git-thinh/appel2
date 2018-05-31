@@ -110,6 +110,8 @@ namespace appel
                 if (_subtileEnglish_Sentences != null)
                     return _subtileEnglish_Sentences;
 
+                if (string.IsNullOrEmpty(this.SubtileEnglish_Text)) return new string[] { };
+
                 string[] a = new string[] { };
 
                 string text = this.SubtileEnglish_Text.ToLower()
@@ -238,6 +240,8 @@ namespace appel
             {
                 if (!string.IsNullOrEmpty(_subtileEnglish_Text))
                     return _subtileEnglish_Text;
+
+                if (string.IsNullOrEmpty(this.SubtileEnglish)) return string.Empty;
 
                 string text = this.SubtileEnglish;
                 if (!string.IsNullOrEmpty(text))
