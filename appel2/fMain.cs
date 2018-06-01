@@ -1132,11 +1132,13 @@ writeline and then it's just   going to print out hello on the screen   can't do
             {
                 m_store_caption = false;
                 cap.InActiveColor = Color.DimGray;
+                app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_STORE, Input = m_store_Input.Text.Trim(), Log = m_store_caption ? "CC" : string.Empty });
             }
             else
             {
                 m_store_caption = true;
                 cap.InActiveColor = Color.Orange;
+                app.postToAPI(new msg() { API = _API.MEDIA, KEY = _API.MEDIA_KEY_SEARCH_STORE, Input = m_store_Input.Text.Trim(), Log = m_store_caption ? "CC" : string.Empty });
             }
         }
 

@@ -138,8 +138,7 @@ namespace appel
         #region [ API ]
 
         public bool Open { set; get; } = false;
-
-
+        
         public void Init()
         {
             dicWordLink = new ConcurrentDictionary<string, string>();
