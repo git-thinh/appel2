@@ -28,6 +28,7 @@ namespace appel
             "əʊ", // goat, show, no
             "aʊ", // mouth, now
 
+            "ər", // butter, collar, flavor, firm, and burst
             "ɪə", // near, here, weary
             "eə", // square.fair, various
             "ɑː", //  start, father
@@ -51,9 +52,8 @@ namespace appel
             "ʌ", //	strut, mud, love, blood
             "ʊ", //	foot, good, put
         };
-
-
-        static readonly string[] pronConsonants = 
+        
+        static readonly string[] pronConsonants =
         {
             "tʃ", //  church, match, nature
             "dʒ", //  judge, age, soldier
@@ -88,6 +88,52 @@ namespace appel
             "ʔ", //   (glottal stop) department, football
         };
 
+        static readonly Dictionary<string, string> proReadStyle = new Dictionary<string, string>() {
+            {"i:","Đọc là i nhưng dài, nặng và nhấn mạnh.   Feet /fi:t/; 		See /si:/" },
+            {"i","Đọc là i ngắn và dứt khoát.  Alien /eiliən/; 		Happy /’hæpi/" },
+            {"ʊ","Đọc là u ngắn và dứt khoát.  Foot /fʊt/; 		Put /pʊt/" },
+            {"u:","Đọc là u dài, nặng và nhấn mạnh. Food /fu:d/; 		Too /tu:/" },
+            {"iə","Đọc là iơ hoặc là ia. Here /hiə(r)/; 		Near /niə(r)/" },
+            {"ei","Đọc là êi hoặc ây.   Page /peidʒ/; 		Say /sei/" },
+            {"e","Đọc là e.    Bed /bed/; 		Ten /ten/" },
+            {"ə","Đọc là ơ ngắn và dứt khoát.  Ago /ə´gəʊ/; 		Never /´nevə(r)/" },
+            {"ɜ:","Đọc là ơ dài, nặng, nhấn mạnh. Bird /bɜ:d/; 		Nurse /nɜ:s/" },
+            {"ɔ:","Đọc là o dài, nặng và nhấn mạnh. Saw /sɔ:/; 		Short /ʃɔ:t/" },
+            {"ʊə","Đọc là uơ hoặc ua.   Pure /pjʊə(r)/; 		Tour /tʊə(r)/" },
+            {"ɔi","Đọc là oi trong Tiếng Việt. Boy /bɔi/; 		Join /dʒɔin/" },
+            {"əʊ","Đọc là âu.   Home /həʊm/; 		Low /ləʊ/" },
+            {"æ","Đọc là ea nối liền nhau và nhanh. Bad /bæd/; 		Hat /hæt/" },
+            {"ʌ","Đọc là â.    Cup /cʌp/; 		Drum /drʌm/" },
+            {"a:","Đọc là a nhưng dài, nặng, nhấn mạnh. Arm /ɑ:m/; 		Fast /fɑ:st/" },
+            {"ɒ","Đọc là o ngắn và dứt khoát.  Got /ɡɒt/; 		Shot /ʃɒt/" },
+            {"eə","Đọc là eơ liền nhau, nhanh, ơ hơi câm.   Care /keə(r)/; 		Hair /heə(r)/" },
+            {"ai","Đọc là ai.   Five /faiv/; 		Sky /skai/" },
+            {"aʊ","Đọc là ao.   Flower /´flaʊə(r)/; 		Now /naʊ/" },
+            {"p","Đọc là p ngắn và dứt khoát.  Pen /pen/; 		Soup /su:p/" },
+            {"b","Đọc là b ngắn và dứt khoát.  Bad /bæd/; 		Web /web/" },
+            {"t","Đọc là t ngắn và dứt khoát.  Dot /dɒt/; 		Tea /ti:/" },
+            {"d","Đọc là đ ngắn và dứt khoát.  Did /did/; 		Stand /stænd/" },
+            {"tʃ","Đọc là ch.   Chin /tʃin/; 		Match /mætʃ/" },
+            {"dʒ","Đọc là jơ(uốn lưỡi) ngắn và dứt khoát.  June /dʒu:n/ ; 		Page /peidʒ/" },
+            {"k","Đọc là c.    Cat /kæt/; 		Desk /desk/" },
+            {"g","Đọc là g.    Bag /bæg/; 		Got /ɡɒt/" },
+            {"f","Đọc là f.    Fall /fɔ:l/; 		Safe /seif/" },
+            {"v","Đọc là v.    Voice /vɔis/; 		Wave /weiv/" },
+            {"θ","Đọc là th.   Thing /θɪn/; ð Đọc là đ    Bathe /beið/; 		Then /ðen/" },
+            {"s","Đọc là s nhanh, nhẹ, phát âm gió. Rice /rais/; 		So /səʊ/" },
+            {"z","Đọc là z nhanh, nhẹ. Rose /rəʊz/; 		Zip /zip/" },
+            {"ʃ","Đọc là s nhẹ(uốn lưỡi), hơi gió.    She /ʃi:/; 		Wash /wɒʃ/" },
+            {"ʒ","Đọc là giơ nhẹ, phát âm ngắn. Measure /´meʒə/; 		Vision /´viʒn/" },
+            {"m","Đọc là m.    Man /mæn/; 		Some /sʌm/" },
+            {"n","Đọc là n.    No /nəʊ/; 		Mutton /´mʌtn/" },
+            {"ŋ","Đọc là ng nhẹ và dứt khoát.  Singer /´siŋə/; 		Tongue /tʌŋ/" },
+            {"h","Đọc là h.    How /haʊ/; 		Who /hu:/" },
+            {"l","Đọc là l(lờ).   Leg /leg/; 		Metal /´metl/" },
+            {"r","Đọc là r.    Red /red/; 		Train /trein/" },
+            {"w","Đọc là qu.   Wet /wet/; 		Why /wai/" },
+            {"j","Đọc như chữ z(nhấn mạnh).   Menu /´menju:/;             Hoặc kết hợp với chữ u → ju → đọc iu    Yes /jes/" },
+         };
+
 
         #region [ API ]
 
@@ -110,7 +156,7 @@ namespace appel
             for (int i = 0; i < ws.Length; i++)
                 dicWordLink.TryAdd(ws[i], string.Empty);
 
-            dicPron = new ConcurrentDictionary<string, List<string>>(); 
+            dicPron = new ConcurrentDictionary<string, List<string>>();
         }
 
         public msg Execute(msg m)
