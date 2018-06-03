@@ -3,13 +3,16 @@ using FarsiLibrary.Win;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Windows.Automation;
 using System.Windows.Forms;
 using YoutubeExplode;
 using YoutubeExplode.Models;
@@ -803,6 +806,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
         private FATabStripItem m_tab_Text;
         private FATabStripItem m_tab_Writer;
         private FATabStripItem m_tab_Book;
+        private FATabStripItem m_tab_Browser;
 
         //☆★☐☑⧉✉⦿⦾⚠⚿⛑✕✓⥀✖↭☊⦧▷◻◼⟲≔☰⚒❯►❚❚❮⟳⚑⚐✎✛
         //🕮🖎✍⦦☊🕭🔔🗣🗢🖳🎚🏷🖈🎗🏱🏲🗀🗁🕷🖒🖓👍👎♥♡♫♪♬♫🎙🎖🗝●◯⬤⚲☰⚒🕩🕪❯►❮⟳⚐🗑✎✛🗋🖫⛉ ⛊ ⛨⚏★☆
@@ -817,6 +821,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
         const string tab_caption_grammar = "Grammar";
         const string tab_caption_text = "Text";
         const string tab_caption_book = "Book";
+        const string tab_caption_browser = "Net";
 
         #endregion
 
@@ -863,7 +868,9 @@ writeline and then it's just   going to print out hello on the screen   can't do
             m_tab_Grammar = new FATabStripItem(tab_caption_grammar, false);
             m_tab_Word = new FATabStripItem(tab_caption_word, false);
             m_tab_Text = new FATabStripItem(tab_caption_text, false);
+            m_tab_Text.Visible = false;
             m_tab_Book = new FATabStripItem(tab_caption_book, false);
+            m_tab_Browser = new FATabStripItem(tab_caption_browser, false);
             m_tab.TabStripItemSelectionChanged += f_tab_selectChanged;
             m_tab.Items.AddRange(new FATabStripItem[] {
                 m_tab_Store,
@@ -876,6 +883,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 m_tab_Word,
                 m_tab_WordDetail,
                 m_tab_Text,
+                m_tab_Browser,
             });
             Label lbl_bgHeader = new Label() { Dock = DockStyle.Top, Height = lbl_title.Height };
             m_tab.MouseMove += f_form_move_MouseDown;
@@ -894,8 +902,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 Font = font_Title
             };
             m_tab_Text.Padding = new Padding(9, 0, 0, 0);
-            m_tab_Text.Controls.Add(m_media_text);
-
+            m_tab_Text.Controls.Add(m_media_text); 
         }
 
         private void f_tab_selectChanged(TabStripItemChangedEventArgs e)
@@ -953,7 +960,198 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 #endregion
                 case tab_caption_book: // "Book"
                     break;
+                case tab_caption_browser: // "Net"
+                    f_browser_fetchURL();
+                    break;
             }
+        }
+
+        #endregion
+
+        #region [ BROWSER ]
+
+        Panel brow_Words;
+        RichTextBoxEx brow_Content;
+        Panel brow_Footer;
+        Label brow_URL_Lable;
+        Label brow_Title_Lable;
+        Label brow_MessageLabel;
+
+        string brow_HTML = string.Empty;
+        string brow_URL = string.Empty;
+
+        void f_browser_initUI()
+        {
+            brow_Words = new Panel()
+            {
+                Dock = DockStyle.Left,
+                BackColor = Color.WhiteSmoke,
+                Width = 99,
+            };
+
+            brow_Content = new RichTextBoxEx()
+            {
+                Dock = DockStyle.Fill,
+                BorderStyle = BorderStyle.None,
+                Multiline = true,
+                ScrollBars = RichTextBoxScrollBars.Vertical,
+                BackColor = Color.Yellow,
+                Font = font_TextView,
+            };
+            brow_Footer = new Panel()
+            {
+                Height = 25,
+                Dock = DockStyle.Bottom,
+                BackColor = Color.White,
+                Padding = new Padding(109, 0, 9, 0),
+            };
+
+            brow_URL_Lable = new Label()
+            {
+                Height = 17,
+                AutoSize = false,
+                Dock = DockStyle.Top,
+                BackColor = Color.DeepSkyBlue,
+                TextAlign = ContentAlignment.BottomLeft,
+            };
+
+            brow_Title_Lable = new Label()
+            {
+                Height = 17,
+                AutoSize = false,
+                Dock = DockStyle.Top,
+                BackColor = Color.DeepSkyBlue,
+                TextAlign = ContentAlignment.BottomLeft,
+            };
+            brow_MessageLabel = new Label()
+            {
+                Height = 17,
+                AutoSize = false,
+                Dock = DockStyle.Top,
+                BackColor = Color.Red,
+                TextAlign = ContentAlignment.BottomRight,
+            };
+            m_tab_Browser.Controls.AddRange(new Control[] {
+                brow_Content,
+                brow_Words,
+                brow_Footer,
+                brow_Title_Lable,
+                brow_URL_Lable,
+                brow_MessageLabel,
+            });
+
+
+            TextBox brow_word_Input = new TextBox()
+            {
+                Anchor = AnchorStyles.Left | AnchorStyles.Top,
+                Width = m_text_search_width,
+                Location = new Point(7, 2),
+                Height = 19
+            };
+
+            brow_Footer.Controls.AddRange(new Control[] {
+                brow_word_Input,
+            });
+
+
+        }
+
+        void f_brow_reset_All()
+        {
+            brow_HTML = string.Empty;
+            brow_URL = string.Empty;
+
+            brow_MessageLabel.Text = string.Empty;
+
+            brow_Title_Lable.Text = string.Empty;
+            brow_URL_Lable.Text = string.Empty;
+
+            brow_Words.Controls.Clear();
+            brow_Content.Text = string.Empty;
+        }
+
+        void f_brow_reset_UI()
+        {
+            brow_MessageLabel.Text = string.Empty;
+
+            brow_Title_Lable.Text = string.Empty;
+            brow_URL_Lable.Text = string.Empty;
+
+            brow_Words.Controls.Clear();
+            brow_Content.Text = string.Empty;
+        }
+
+        void f_browser_fetchURL()
+        {
+            if (brow_Content == null) return;
+
+            bool isUrlNew = false;
+            brow_MessageLabel.Text = "Syncing with chrome tab current...";
+
+            // there are always multiple chrome processes, so we have to loop through all of them to find the
+            // process with a Window Handle and an automation element of name "Address and search bar"
+            Process[] procsChrome = Process.GetProcessesByName("chrome");
+            foreach (Process chrome in procsChrome)
+            {
+                // the chrome process must have a window
+                if (chrome.MainWindowHandle == IntPtr.Zero)
+                {
+                    continue;
+                }
+
+                // find the automation element
+                AutomationElement elm = AutomationElement.FromHandle(chrome.MainWindowHandle);
+                AutomationElement elmUrlBar = elm.FindFirst(TreeScope.Descendants, new PropertyCondition(AutomationElement.NameProperty, "Address and search bar"));
+
+                // if it can be found, get the value from the URL bar
+                if (elmUrlBar != null)
+                {
+                    AutomationPattern[] patterns = elmUrlBar.GetSupportedPatterns();
+                    if (patterns.Length > 0)
+                    {
+                        ValuePattern val = (ValuePattern)elmUrlBar.GetCurrentPattern(patterns[0]);
+                        //Console.WriteLine("Chrome URL found: " + val.Current.Value);
+                        if (val != null
+                            && !string.IsNullOrEmpty(val.Current.Value)
+                            && brow_URL != val.Current.Value)
+                        {
+                            brow_URL = val.Current.Value;
+                            isUrlNew = true;
+                        }
+                    }
+                }
+            }
+
+            if (isUrlNew)
+            {
+                if (brow_URL.StartsWith("http"))
+                {
+                    f_brow_reset_UI();
+
+                    brow_URL_Lable.Text = brow_URL;
+
+                    using (WebClient w = new WebClient())
+                    {
+                        w.Encoding = Encoding.UTF8;
+                        brow_HTML = w.DownloadString(brow_URL);
+                    }
+
+                    f_brow_analytic_HTML();
+                }
+                else
+                {
+                    f_brow_reset_All();
+                }
+            }
+            else
+            {
+                f_brow_reset_All();
+                brow_MessageLabel.Text = string.Empty;
+            }
+        }
+
+        void f_brow_analytic_HTML() {
+
         }
 
         #endregion
@@ -2119,8 +2317,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
             f_word_detail_Init();
             f_word_Init();
+            f_browser_initUI();
         }
 
     }
-
 }
