@@ -1,22 +1,12 @@
-﻿using ProtoBuf;
+﻿ 
 using ProtoBuf.Meta;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+using System.Collections.Concurrent; 
+using System.IO; 
 using System.Net;
 using System.Reflection;
-using System.Security.Permissions;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Windows.Automation;
-using System.Windows.Forms;
-using System.Xml.Linq;
-using YoutubeExplode;
-using YoutubeExplode.Models;
+using System.Security.Permissions; 
+using System.Windows.Forms; 
 
 namespace appel
 {
@@ -253,39 +243,13 @@ namespace appel
     }
 
     class Program
-    {
-        //public IEnumerable<string> GetTabs()
-        //{
-        //    // there are always multiple chrome processes, so we have to loop through all of them to find the
-        //    // process with a Window Handle and an automation element of name "Address and search bar"
-        //    var processes = Process.GetProcessesByName("chrome");
-        //    var automationElements = from chrome in processes
-        //                             where chrome.MainWindowHandle != IntPtr.Zero
-        //                             select AutomationElement.FromHandle(chrome.MainWindowHandle);
-
-        //    return from element in automationElements
-        //           select element.GetUrlBar()
-        //           into elmUrlBar
-        //           where elmUrlBar != null
-        //           where !((bool)elmUrlBar.GetCurrentPropertyValue(AutomationElement.HasKeyboardFocusProperty))
-        //           let patterns = elmUrlBar.GetSupportedPatterns()
-        //           where patterns.Length == 1
-        //           select elmUrlBar.TryGetValue(patterns)
-        //           into ret
-        //           where ret != ""
-        //           where Regex.IsMatch(ret, @"^(https:\/\/)?[a-zA-Z0-9\-\.]+(\.[a-zA-Z]{2,4}).*$")
-        //           select ret.StartsWith("http") ? ret : "http://" + ret;
-        //}
-
+    { 
         [STAThread]
         static void Main(string[] args)
         {
-            //var fa = api_media.WORDS_VERBS_IRREGULAR.Split('|').Select(x => x.Split(';')[0].Trim().ToLower()).Where(x => x.Length > 0).Distinct().ToArray();
-
-            //foreach (string word in fa)
-            //    File.Create("words/" + word + ".txt");
-
             app.RUN();
         }
+
+
     }
 }

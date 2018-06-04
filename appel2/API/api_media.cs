@@ -42,7 +42,7 @@ namespace appel
 
         public void Init()
         {
-            
+
 
 
             if (!Directory.Exists(path_data)) Directory.CreateDirectory(path_data);
@@ -170,8 +170,8 @@ namespace appel
                         {
                             long mediaId = (long)m.Input;
                             oMedia mi = f_media_getInfo(mediaId);
-                            if (mi != null 
-                                && mi.Paths != null 
+                            if (mi != null
+                                && mi.Paths != null
                                 && !string.IsNullOrEmpty(mi.Paths.YoutubeID))
                             {
                                 string videoId = string.Empty;
@@ -185,8 +185,8 @@ namespace appel
                                     if (cen != null)
                                     {
                                         mi.SubtileEnglish = _client.GetStringAsync(cen.Url);
-                                         
-                                        f_media_writeFile(); 
+
+                                        f_media_writeFile();
 
                                         m.KEY = _API.MEDIA_KEY_WORD_LIST;
                                         m.Log = ((int)MEDIA_TAB.TAB_STORE).ToString();
@@ -2215,6 +2215,278 @@ namespace appel
             m_listener.Stop();
             m_running = false;
             Thread.Sleep(10);
+        }
+
+        #endregion
+
+        #region [ ARTICLE ]
+
+        static readonly Dictionary<string, string> dicArticleAnalytic = new Dictionary<string, string>() {
+            { "dictionary.cambridge.org", "article h1|article div.content" }
+        };
+
+        public static string f_article_analytic_HTML(string url, string htm)
+        {
+            //string s = File.ReadAllText("demo.html");
+            Uri uri = new Uri(url);
+            if (dicArticleAnalytic.ContainsKey(uri.Host))
+            {
+                string[] sels = dicArticleAnalytic[uri.Host].Split('|');
+                if (sels.Length > 0)
+                {
+                    string rs = get_analytic_Content(htm, sels[0], sels[1]);
+                    return rs;
+                }
+            }
+            return string.Empty;
+        }
+
+        private static string get_analytic_Content(string s, string selector_H1, string selector_Content)
+        {
+            string si = string.Empty;
+            s = Regex.Replace(s, @"<script[^>]*>[\s\S]*?</script>", string.Empty);
+            s = Regex.Replace(s, @"<style[^>]*>[\s\S]*?</style>", string.Empty);
+            s = Regex.Replace(s, @"<noscript[^>]*>[\s\S]*?</noscript>", string.Empty);
+            s = Regex.Replace(s, @"(?s)(?<=<!--).+?(?=-->)", string.Empty).Replace("<!---->", string.Empty);
+
+            //s = Regex.Replace(s, @"<noscript[^>]*>[\s\S]*?</noscript>", string.Empty);
+            //s = Regex.Replace(s, @"<noscript[^>]*>[\s\S]*?</noscript>", string.Empty);
+            s = Regex.Replace(s, @"</?(?i:embed|object|frameset|frame|iframe|meta|link)(.|\n|\s)*?>", string.Empty, RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
+            HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+            doc.LoadHtml(s);
+            //string tagName = string.Empty, tagVal = string.Empty;
+            //foreach (var node in doc.DocumentNode.SelectNodes("//*"))
+            //{
+            //    if (node.InnerText == null || node.InnerText.Trim().Length == 0)
+            //    {
+            //        node.Remove();
+            //        continue;
+            //    }
+
+            //    tagName = node.Name.ToUpper();
+            //    if (tagName == "A")
+            //        tagVal = node.GetAttributeValue("href", string.Empty);
+            //    else if (tagName == "IMG")
+            //        tagVal = node.GetAttributeValue("src", string.Empty);
+
+            //    //node.Attributes.RemoveAll();
+            //    node.Attributes.RemoveAll_NoRemoveClassName();
+
+            //    if (tagVal != string.Empty)
+            //    {
+            //        if (tagName == "A") node.SetAttributeValue("href", tagVal);
+            //        else if (tagName == "IMG") node.SetAttributeValue("src", tagVal);
+            //    }
+            //}
+
+            var nodes = doc.DocumentNode;
+            var h1 = nodes.QuerySelector(selector_H1);
+            var con = nodes.QuerySelector(selector_Content);
+            if (h1 != null && con != null)
+            {
+                string tit = h1.InnerText, text = get_textEnglish(con);
+                return "[*] " + tit + Environment.NewLine + Environment.NewLine + text;
+            }
+
+            //si = doc.DocumentNode.OuterHtml;
+            ////string[] lines = si.Split(new char[] { '\r', '\n' }, StringSplitOptions.None).Where(x => x.Trim().Length > 0).ToArray();
+            //string[] lines = si.Split(new char[] { '\r', '\n' }, StringSplitOptions.None).Select(x => x.Trim()).Where(x => x.Length > 0).ToArray();
+            //si = string.Join(Environment.NewLine, lines);
+            //return si;
+
+            return string.Empty;
+        }
+
+        private static string get_textEnglish(HtmlNode root)
+        {
+            if (root.HasChildNodes == false) return root.InnerText;
+
+            string si = string.Empty, s = string.Empty, head_Heading = "\r\n[+] ", head_LI = "\r\n- ";
+
+            foreach (HtmlNode node in root.ChildNodes)
+            {
+                si = string.Empty;
+                if (!string.IsNullOrEmpty(node.InnerText) && node.InnerText.Trim().Length > 0)
+                {
+                    switch (node.Name)
+                    {
+                        case "div":
+                            if (node.HasChildNodes)
+                            {
+                                foreach (HtmlNode node2 in node.ChildNodes)
+                                {
+                                    if (!string.IsNullOrEmpty(node2.InnerText) && node2.InnerText.Trim().Length > 0)
+                                    {
+                                        switch (node2.Name)
+                                        {
+                                            case "div":
+                                                foreach (HtmlNode node3 in node2.ChildNodes)
+                                                {
+                                                    if (!string.IsNullOrEmpty(node3.InnerText) && node3.InnerText.Trim().Length > 0)
+                                                    {
+                                                        switch (node3.Name)
+                                                        {
+                                                            case "div":
+                                                                foreach (HtmlNode node4 in node3.ChildNodes)
+                                                                {
+                                                                    if (!string.IsNullOrEmpty(node4.InnerText) && node4.InnerText.Trim().Length > 0)
+                                                                    {
+                                                                        switch (node4.Name)
+                                                                        {
+                                                                            case "div":
+                                                                                foreach (HtmlNode node5 in node4.ChildNodes)
+                                                                                {
+                                                                                    if (!string.IsNullOrEmpty(node5.InnerText) && node5.InnerText.Trim().Length > 0)
+                                                                                    {
+                                                                                        switch (node5.Name)
+                                                                                        {
+                                                                                            case "div":
+                                                                                                si += Environment.NewLine + Environment.NewLine + node5.InnerText.Trim() + Environment.NewLine;
+                                                                                                break;
+                                                                                            case "h1":
+                                                                                            case "h2":
+                                                                                            case "h3":
+                                                                                            case "h4":
+                                                                                            case "h5":
+                                                                                            case "h6":
+                                                                                                si += Environment.NewLine + head_Heading + node5.InnerText.Trim() + Environment.NewLine;
+                                                                                                break;
+                                                                                            case "p":
+                                                                                                si += Environment.NewLine + node5.InnerText.Trim() + Environment.NewLine;
+                                                                                                break;
+                                                                                            case "ul":
+                                                                                                si += string.Join(string.Empty, node5.ChildNodes.Select(x => head_LI + x.InnerText.Trim()).ToArray());
+                                                                                                break;
+                                                                                            default:
+                                                                                                si += Environment.NewLine + Environment.NewLine + node5.InnerText.Trim();
+                                                                                                break;
+                                                                                        }
+                                                                                        if (si.Length > 0 && si[si.Length - 1] == ':')
+                                                                                            si += Environment.NewLine;
+                                                                                    }
+                                                                                }
+                                                                                // tag DIV must be create new line
+                                                                                si += Environment.NewLine;
+                                                                                break;
+                                                                            case "h1":
+                                                                            case "h2":
+                                                                            case "h3":
+                                                                            case "h4":
+                                                                            case "h5":
+                                                                            case "h6":
+                                                                                si += Environment.NewLine + head_Heading + node4.InnerText.Trim() + Environment.NewLine;
+                                                                                break;
+                                                                            case "p":
+                                                                                si += Environment.NewLine + node4.InnerText.Trim() + Environment.NewLine;
+                                                                                break;
+                                                                            case "ul":
+                                                                                si += string.Join(string.Empty, node4.ChildNodes.Select(x => head_LI + x.InnerText.Trim()).ToArray());
+                                                                                break;
+                                                                            default:
+                                                                                si += Environment.NewLine + Environment.NewLine + node4.InnerText.Trim();
+                                                                                break;
+                                                                        }
+                                                                        if (si.Length > 0 && si[si.Length - 1] == ':')
+                                                                            si += Environment.NewLine;
+                                                                    }
+                                                                }
+                                                                // tag DIV must be create new line
+                                                                si += Environment.NewLine;
+                                                                break;
+                                                            case "h1":
+                                                            case "h2":
+                                                            case "h3":
+                                                            case "h4":
+                                                            case "h5":
+                                                            case "h6":
+                                                                si += Environment.NewLine + head_Heading + node3.InnerText.Trim() + Environment.NewLine;
+                                                                break;
+                                                            case "p":
+                                                                si += Environment.NewLine + node3.InnerText.Trim() + Environment.NewLine;
+                                                                break;
+                                                            case "ul":
+                                                                si += string.Join(string.Empty, node3.ChildNodes.Select(x => head_LI + x.InnerText.Trim()).ToArray());
+                                                                break;
+                                                            default:
+                                                                si += Environment.NewLine + Environment.NewLine + node3.InnerText.Trim(); 
+                                                                break;
+                                                        }
+                                                        if (si.Length > 0 && si[si.Length - 1] == ':')
+                                                            si += Environment.NewLine;
+                                                    }
+                                                }
+                                                // tag DIV must be create new line
+                                                si += Environment.NewLine;
+                                                break;
+                                            case "h1":
+                                            case "h2":
+                                            case "h3":
+                                            case "h4":
+                                            case "h5":
+                                            case "h6":
+                                                si += Environment.NewLine + head_Heading + node2.InnerText.Trim() + Environment.NewLine;
+                                                break;
+                                            case "p":
+                                                si += Environment.NewLine + node2.InnerText.Trim() + Environment.NewLine;
+                                                break;
+                                            case "ul":
+                                                si += string.Join(string.Empty, node2.ChildNodes.Select(x => head_LI + x.InnerText.Trim()).ToArray());
+                                                break;
+                                            default:
+                                                si += Environment.NewLine + Environment.NewLine + node2.InnerText.Trim(); 
+                                                break;
+                                        }
+                                        if (si.Length > 0 && si[si.Length - 1] == ':')
+                                            si += Environment.NewLine;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                si += Environment.NewLine + Environment.NewLine + node.InnerText.Trim();
+                            }
+                            // tag DIV must be create new line
+                            si += Environment.NewLine;
+                            break;
+                        case "h1":
+                        case "h2":
+                        case "h3":
+                        case "h4":
+                        case "h5":
+                        case "h6":
+                            si += Environment.NewLine + head_Heading + node.InnerText.Trim() + Environment.NewLine;
+                            break;
+                        case "p":
+                            si += Environment.NewLine + node.InnerText.Trim() + Environment.NewLine;
+                            break;
+                        case "ul":
+                            si += string.Join(string.Empty, node.ChildNodes.Select(x => head_LI + x.InnerText.Trim()).ToArray());
+                            break;
+                        default:
+                            si += Environment.NewLine + Environment.NewLine + node.InnerText.Trim();
+                            break;
+                    }
+                    if (si.Length > 0 && si[si.Length - 1] == ':')
+                        si += Environment.NewLine;
+                    s += si;
+                }
+            }
+
+            s = string.Join("." + Environment.NewLine, s.Split('.').Select(x => x.Trim()));
+            s = string.Join("?" + Environment.NewLine, s.Split('?').Select(x => x.Trim()));
+
+            s = s
+                //.Replace(":", ":\r\n")
+                //.Replace(".", ".\r\n")
+                //.Replace("?", "?\r\n")
+                .Replace("Not:", "\r\n[-] Not:")
+                .Replace("Warning:", "\r\n[-] Warning:");
+
+            s = Regex.Replace(s, @"[\r\n]{2,}", "\r\n");
+            s = s.Replace(head_Heading, "\r\n" + head_Heading);
+
+            return s;
         }
 
         #endregion

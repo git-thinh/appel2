@@ -1,16 +1,18 @@
-// Description: Html Agility Pack - HTML Parsers, selectors, traversors, manupulators.
+﻿// Description: Html Agility Pack - HTML Parsers, selectors, traversors, manupulators.
 // Website & Documentation: http://html-agility-pack.net
 // Forum & Issues: https://github.com/zzzprojects/html-agility-pack
 // License: https://github.com/zzzprojects/html-agility-pack/blob/master/LICENSE
 // More projects: http://www.zzzprojects.com/
-// Copyright � ZZZ Projects Inc. 2014 - 2017. All rights reserved.
+// Copyright ｩ ZZZ Projects Inc. 2014 - 2017. All rights reserved.
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 // ReSharper disable InconsistentNaming
@@ -403,10 +405,6 @@ namespace HtmlAgilityPack
             }
         }
 
-
-        /// <summary>
-        /// Gets or Sets the text between the start and end tags of the object.
-        /// </summary>
         public virtual string InnerText_NewLine
         {
             get
@@ -435,21 +433,184 @@ namespace HtmlAgilityPack
                 if (!HasChildNodes)
                     return string.Empty;
 
-                string s = string.Empty;
+                string s = null;
                 foreach (HtmlNode node in ChildNodes)
-                {
-                    if (!string.IsNullOrEmpty(node.InnerText) && node.InnerText.Trim().Length > 0)
-                    {
-                        if (s.Length == 0)
-                            s = node.InnerText.Trim();
-                        else
-                            s += Environment.NewLine + Environment.NewLine + node.InnerText.Trim();
-                    }
-                }
+                    //s += node.InnerText;
+                    s += Environment.NewLine + node.InnerText.Trim();
 
                 return s;
             }
         }
+
+        /// <summary>
+        /// Gets or Sets the text between the start and end tags of the object.
+        /// </summary>
+        ////////public virtual string InnerText_NewLine
+        ////////{
+        ////////    get
+        ////////    {
+        ////////        if (!_ownerdocument.BackwardCompatibility)
+        ////////        {
+        ////////            if (HasChildNodes)
+        ////////            {
+        ////////                StringBuilder sb = new StringBuilder();
+        ////////                AppendInnerText(sb);
+        ////////                return sb.ToString();
+        ////////            }
+
+        ////////            return GetCurrentNodeText();
+        ////////        }
+
+        ////////        if (_nodetype == HtmlNodeType.Text)
+        ////////            return ((HtmlTextNode)this).Text;
+
+        ////////        // Don't display comment or comment child nodes
+        ////////        if (_nodetype == HtmlNodeType.Comment)
+        ////////            return "";
+
+        ////////        // note: right now, this method is *slow*, because we recompute everything.
+        ////////        // it could be optimized like innerhtml
+        ////////        if (!HasChildNodes)
+        ////////            return string.Empty;
+
+        ////////        string s = string.Empty, head_Heading = "\r\n[+] ", head_LI = "\r\n- ";
+
+        ////////        foreach (HtmlNode node in ChildNodes)
+        ////////        {
+        ////////            if (!string.IsNullOrEmpty(node.InnerText) && node.InnerText.Trim().Length > 0)
+        ////////            {
+        ////////                switch (node.Name)
+        ////////                {
+        ////////                    case "div":
+        ////////                        if (node.HasChildNodes)
+        ////////                        {
+        ////////                            foreach (HtmlNode node2 in node.ChildNodes)
+        ////////                            {
+        ////////                                if (!string.IsNullOrEmpty(node2.InnerText) && node2.InnerText.Trim().Length > 0)
+        ////////                                {
+        ////////                                    switch (node2.Name)
+        ////////                                    {
+        ////////                                        case "div":
+        ////////                                            foreach (HtmlNode node3 in node2.ChildNodes)
+        ////////                                            {
+        ////////                                                if (!string.IsNullOrEmpty(node3.InnerText) && node3.InnerText.Trim().Length > 0)
+        ////////                                                {
+        ////////                                                    switch (node3.Name)
+        ////////                                                    {
+        ////////                                                        case "div":
+        ////////                                                            foreach (HtmlNode node4 in node3.ChildNodes)
+        ////////                                                            {
+        ////////                                                                if (!string.IsNullOrEmpty(node4.InnerText) && node4.InnerText.Trim().Length > 0)
+        ////////                                                                {
+        ////////                                                                    switch (node4.Name)
+        ////////                                                                    {
+        ////////                                                                        case "div":
+        ////////                                                                            s += Environment.NewLine + Environment.NewLine + node4.InnerText.Trim() + Environment.NewLine;
+        ////////                                                                            break;
+        ////////                                                                        case "h1":
+        ////////                                                                        case "h2":
+        ////////                                                                        case "h3":
+        ////////                                                                        case "h4":
+        ////////                                                                        case "h5":
+        ////////                                                                        case "h6":
+        ////////                                                                            s += Environment.NewLine + head_Heading + node4.InnerText.Trim() + Environment.NewLine;
+        ////////                                                                            break;
+        ////////                                                                        case "p":
+        ////////                                                                            s += Environment.NewLine + node4.InnerText.Trim() + Environment.NewLine;
+        ////////                                                                            break;
+        ////////                                                                        case "ul":
+        ////////                                                                            s += string.Join(string.Empty, node4.ChildNodes.Select(x => head_LI + x.InnerText.Trim()).ToArray());
+        ////////                                                                            break;
+        ////////                                                                        default:
+        ////////                                                                            s += Environment.NewLine + Environment.NewLine + node4.InnerText.Trim();
+        ////////                                                                            break;
+        ////////                                                                    }
+        ////////                                                                }
+        ////////                                                            }
+        ////////                                                            // tag DIV must be create new line
+        ////////                                                            s += Environment.NewLine;
+        ////////                                                            break;
+        ////////                                                        case "h1":
+        ////////                                                        case "h2":
+        ////////                                                        case "h3":
+        ////////                                                        case "h4":
+        ////////                                                        case "h5":
+        ////////                                                        case "h6":
+        ////////                                                            s += Environment.NewLine + head_Heading + node3.InnerText.Trim() + Environment.NewLine;
+        ////////                                                            break;
+        ////////                                                        case "p":
+        ////////                                                            s += Environment.NewLine + node3.InnerText.Trim() + Environment.NewLine;
+        ////////                                                            break;
+        ////////                                                        case "ul":
+        ////////                                                            s += string.Join(string.Empty, node3.ChildNodes.Select(x =>head_LI +  x.InnerText.Trim()).ToArray());
+        ////////                                                            break;
+        ////////                                                        default:
+        ////////                                                            s += Environment.NewLine + Environment.NewLine + node3.InnerText.Trim();
+        ////////                                                            break;
+        ////////                                                    }
+        ////////                                                }
+        ////////                                            }
+        ////////                                            // tag DIV must be create new line
+        ////////                                            s += Environment.NewLine;
+        ////////                                            break;
+        ////////                                        case "h1":
+        ////////                                        case "h2":
+        ////////                                        case "h3":
+        ////////                                        case "h4":
+        ////////                                        case "h5":
+        ////////                                        case "h6":
+        ////////                                            s += Environment.NewLine + head_Heading + node2.InnerText.Trim() + Environment.NewLine;
+        ////////                                            break;
+        ////////                                        case "p":
+        ////////                                            s += Environment.NewLine + node2.InnerText.Trim() + Environment.NewLine;
+        ////////                                            break;
+        ////////                                        case "ul":
+        ////////                                            s += string.Join(string.Empty, node2.ChildNodes.Select(x => head_LI + x.InnerText.Trim()).ToArray());
+        ////////                                            break;
+        ////////                                        default:
+        ////////                                            s += Environment.NewLine + Environment.NewLine + node2.InnerText.Trim();
+        ////////                                            break;
+        ////////                                    }
+        ////////                                }
+        ////////                            }
+        ////////                        }
+        ////////                        else
+        ////////                        {
+        ////////                            s += Environment.NewLine + Environment.NewLine + node.InnerText.Trim();
+        ////////                        }
+        ////////                        // tag DIV must be create new line
+        ////////                        s += Environment.NewLine;
+        ////////                        break;
+        ////////                    case "h1":
+        ////////                    case "h2":
+        ////////                    case "h3":
+        ////////                    case "h4":
+        ////////                    case "h5":
+        ////////                    case "h6":
+        ////////                        s += Environment.NewLine + head_Heading + node.InnerText.Trim() + Environment.NewLine;
+        ////////                        break;
+        ////////                    case "p":
+        ////////                        s += Environment.NewLine + node.InnerText.Trim() + Environment.NewLine;
+        ////////                        break;
+        ////////                    case "ul":
+        ////////                        s += string.Join(string.Empty, node.ChildNodes.Select(x => head_LI + x.InnerText.Trim()).ToArray());
+        ////////                        break;
+        ////////                    default:
+        ////////                        s += Environment.NewLine + Environment.NewLine + node.InnerText.Trim();
+        ////////                        break;
+        ////////                }
+        ////////            }
+        ////////        }
+
+        ////////        s = s
+        ////////            .Replace(":", ":\r\n")
+        ////////            .Replace("Not:", "\r\n[-] Not:");
+        ////////        s = Regex.Replace(s, @"[\r\n]{2,}", "\r\n");
+        ////////        s = s.Replace(head_Heading, "\r\n" + head_Heading);
+
+        ////////        return s;
+        ////////    }
+        ////////}
 
         internal string GetCurrentNodeText()
         {

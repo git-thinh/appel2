@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Web;
 using System.Windows.Automation;
 using System.Windows.Forms;
 using YoutubeExplode;
@@ -117,7 +118,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         #region
 
-        int m_word_page_number = 1; 
+        int m_word_page_number = 1;
 
         oWordCount[] m_words = new oWordCount[] { };
         string m_word_current = string.Empty;
@@ -407,7 +408,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
             if (key.Length > 0)
             {
                 wr = api_word.f_find_Items(key, page_current);
-                m_word_Message.Text = string.Format("The finding [{0}] have {1} words", key, wr.Counter); 
+                m_word_Message.Text = string.Format("The finding [{0}] have {1} words", key, wr.Counter);
             }
             else
             {
@@ -676,7 +677,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         void f_word_detail_Active()
         {
-            if (!string.IsNullOrEmpty(m_word_current) 
+            if (!string.IsNullOrEmpty(m_word_current)
                 && wd_word_name.Text != m_word_current)
             {
                 //wd_word_name.Text = string.Empty;
@@ -684,6 +685,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 wd_word_name.Text = m_word_current;
                 wd_word_pronunciation.Text = string.Empty;
                 wd_word_meaning.Text = string.Empty;
+
+                
 
                 //wd_word_meaning.Text = api_media.f_word_meaning_Vi(m_word_current);
 
@@ -800,7 +803,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
         private FATabStripItem m_tab_Search;
         private FATabStripItem m_tab_WordDetail;
         private FATabStripItem m_tab_Listen;
-        private FATabStripItem m_tab_Speaking;
+        private FATabStripItem m_tab_Pronunce;
         private FATabStripItem m_tab_Word;
         private FATabStripItem m_tab_Grammar;
         private FATabStripItem m_tab_Text;
@@ -816,7 +819,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
         const string tab_caption_word_detail = "WD";
         //const string tab_caption_word_detail = "⛉";
         const string tab_caption_listen = "►";
-        const string tab_caption_speak = "☊";
+        const string tab_caption_pronunce = "P"; //☊
         const string tab_caption_writer = "✍";
         const string tab_caption_grammar = "Grammar";
         const string tab_caption_text = "Text";
@@ -862,8 +865,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
             m_tab_Store = new FATabStripItem(tab_caption_store, false);
             m_tab_Search = new FATabStripItem(tab_caption_search, false);
             m_tab_WordDetail = new FATabStripItem(tab_caption_word_detail, false);
-            m_tab_Speaking = new FATabStripItem(tab_caption_listen, false);
-            m_tab_Listen = new FATabStripItem(tab_caption_speak, false);
+            m_tab_Pronunce = new FATabStripItem(tab_caption_pronunce, false);
+            m_tab_Listen = new FATabStripItem(tab_caption_listen, false);
             m_tab_Writer = new FATabStripItem(tab_caption_writer, false);
             m_tab_Grammar = new FATabStripItem(tab_caption_grammar, false);
             m_tab_Word = new FATabStripItem(tab_caption_word, false);
@@ -876,7 +879,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 m_tab_Store,
                 m_tab_Search,
                 m_tab_Listen,
-                m_tab_Speaking,
+                m_tab_Pronunce,
                 m_tab_Writer,
                 m_tab_Book,
                 m_tab_Grammar,
@@ -902,7 +905,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 Font = font_Title
             };
             m_tab_Text.Padding = new Padding(9, 0, 0, 0);
-            m_tab_Text.Controls.Add(m_media_text); 
+            m_tab_Text.Controls.Add(m_media_text);
         }
 
         private void f_tab_selectChanged(TabStripItemChangedEventArgs e)
@@ -916,7 +919,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                     break;
                 case tab_caption_listen: // "►"
                     break;
-                case tab_caption_speak: // "☊"
+                case tab_caption_pronunce: // "☊"
                     break;
                 case tab_caption_writer: // "✍"
                     break;
@@ -961,7 +964,6 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 case tab_caption_book: // "Book"
                     break;
                 case tab_caption_browser: // "Net"
-                    f_browser_fetchURL();
                     break;
             }
         }
@@ -973,19 +975,21 @@ writeline and then it's just   going to print out hello on the screen   can't do
         Panel brow_Words;
         RichTextBoxEx brow_Content;
         Panel brow_Footer;
-        Label brow_URL_Lable;
+        TextBox brow_URL_Lable;
         Label brow_Title_Lable;
-        Label brow_MessageLabel;
+        Label brow_Message_Label;
 
         string brow_HTML = string.Empty;
         string brow_URL = string.Empty;
 
         void f_browser_initUI()
         {
+            m_tab_Browser.Padding = new Padding(9, 0, 0, 0);
+
             brow_Words = new Panel()
             {
                 Dock = DockStyle.Left,
-                BackColor = Color.WhiteSmoke,
+                //BackColor = Color.WhiteSmoke,
                 Width = 99,
             };
 
@@ -995,24 +999,24 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 BorderStyle = BorderStyle.None,
                 Multiline = true,
                 ScrollBars = RichTextBoxScrollBars.Vertical,
-                BackColor = Color.Yellow,
+                //BackColor = Color.Yellow,
                 Font = font_TextView,
             };
             brow_Footer = new Panel()
             {
                 Height = 25,
                 Dock = DockStyle.Bottom,
-                BackColor = Color.White,
+                //BackColor = Color.White,
                 Padding = new Padding(109, 0, 9, 0),
             };
 
-            brow_URL_Lable = new Label()
+            brow_URL_Lable = new TextBox()
             {
                 Height = 17,
                 AutoSize = false,
                 Dock = DockStyle.Top,
-                BackColor = Color.DeepSkyBlue,
-                TextAlign = ContentAlignment.BottomLeft,
+                //BackColor = Color.DeepSkyBlue,                
+                BorderStyle = BorderStyle.None,
             };
 
             brow_Title_Lable = new Label()
@@ -1020,24 +1024,24 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 Height = 17,
                 AutoSize = false,
                 Dock = DockStyle.Top,
-                BackColor = Color.DeepSkyBlue,
+                //BackColor = Color.DeepSkyBlue,
                 TextAlign = ContentAlignment.BottomLeft,
             };
-            brow_MessageLabel = new Label()
+            brow_Message_Label = new Label()
             {
                 Height = 17,
                 AutoSize = false,
                 Dock = DockStyle.Top,
-                BackColor = Color.Red,
+                //BackColor = Color.Red,
                 TextAlign = ContentAlignment.BottomRight,
             };
             m_tab_Browser.Controls.AddRange(new Control[] {
                 brow_Content,
                 brow_Words,
                 brow_Footer,
-                brow_Title_Lable,
+                brow_Message_Label,
                 brow_URL_Lable,
-                brow_MessageLabel,
+                brow_Title_Lable,
             });
 
 
@@ -1049,11 +1053,17 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 Height = 19
             };
 
+            IconButton ico_refresh = new IconButton()
+            {
+                IconType = IconType.refresh,
+                Dock = DockStyle.Right,
+            };
+            ico_refresh.MouseClick += (se, ev) => { f_browser_fetchURL(); };
+
             brow_Footer.Controls.AddRange(new Control[] {
                 brow_word_Input,
+                ico_refresh,
             });
-
-
         }
 
         void f_brow_reset_All()
@@ -1061,7 +1071,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
             brow_HTML = string.Empty;
             brow_URL = string.Empty;
 
-            brow_MessageLabel.Text = string.Empty;
+            brow_Message_Label.Text = string.Empty;
 
             brow_Title_Lable.Text = string.Empty;
             brow_URL_Lable.Text = string.Empty;
@@ -1072,7 +1082,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         void f_brow_reset_UI()
         {
-            brow_MessageLabel.Text = string.Empty;
+            brow_Message_Label.Text = string.Empty;
 
             brow_Title_Lable.Text = string.Empty;
             brow_URL_Lable.Text = string.Empty;
@@ -1085,8 +1095,9 @@ writeline and then it's just   going to print out hello on the screen   can't do
         {
             if (brow_Content == null) return;
 
-            bool isUrlNew = false;
-            brow_MessageLabel.Text = "Syncing with chrome tab current...";
+            List<string> urls = new List<string>();
+
+            brow_Message_Label.Text = "Syncing with chrome tab current...";
 
             // there are always multiple chrome processes, so we have to loop through all of them to find the
             // process with a Window Handle and an automation element of name "Address and search bar"
@@ -1115,17 +1126,26 @@ writeline and then it's just   going to print out hello on the screen   can't do
                             && !string.IsNullOrEmpty(val.Current.Value)
                             && brow_URL != val.Current.Value)
                         {
-                            brow_URL = val.Current.Value;
-                            isUrlNew = true;
+                            string url = val.Current.Value;
+                            if (url.StartsWith("http"))
+                                urls.Add(url);
                         }
                     }
                 }
             }
 
-            if (isUrlNew)
+            if (urls.Count > 0)
             {
-                if (brow_URL.StartsWith("http"))
+                string url = urls[0];
+                if (brow_URL == url)
                 {
+                    //f_brow_reset_All();
+                    f_brow_analytic_HTML();
+                }
+                else
+                {
+                    brow_URL = url;
+
                     f_brow_reset_UI();
 
                     brow_URL_Lable.Text = brow_URL;
@@ -1138,20 +1158,21 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
                     f_brow_analytic_HTML();
                 }
-                else
-                {
-                    f_brow_reset_All();
-                }
             }
             else
             {
                 f_brow_reset_All();
-                brow_MessageLabel.Text = string.Empty;
+                brow_Message_Label.Text = string.Empty;
             }
         }
 
-        void f_brow_analytic_HTML() {
-
+        void f_brow_analytic_HTML()
+        {
+            string s = api_media.f_article_analytic_HTML(brow_URL, brow_HTML);
+            brow_Content.Text = s;
+            brow_Content.SelectAll();
+            brow_Content.SelectionParaSpacing = new RTBParaSpacing(0, 150);
+            brow_Content.Select(0, 0);
         }
 
         #endregion
@@ -2117,6 +2138,211 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         #endregion
 
+        #region [ PRONUNCE ]
+
+        string m_pronunce_vowel_current = string.Empty;
+        string m_pronunce_consonant_current = string.Empty;
+
+        Panel pronunce_Words;
+        Panel pronunce_Content;
+        Panel pronunce_Footer;
+        Label pronunce_Message_Label;
+
+        Panel pronunce_Vowel_Consonant;
+
+        void f_pronunce_initUI()
+        {
+            var pronunce_Vowel = new FlowLayoutPanel()
+            {
+                Dock = DockStyle.Left,
+                AutoScroll = true,
+                FlowDirection = FlowDirection.TopDown | FlowDirection.LeftToRight,
+                Width = app.m_app_width/2,
+                //BackColor = Color.Red,
+                Height = 86,
+            };
+            var pronunce_Consonant = new FlowLayoutPanel()
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                FlowDirection = FlowDirection.TopDown | FlowDirection.LeftToRight,
+                //BackColor = Color.Blue,
+                Height = 99,
+            };
+            pronunce_Vowel_Consonant = new Panel() {
+                Dock = DockStyle.Top,
+            };
+            pronunce_Vowel_Consonant.Controls.AddRange(new Control[] { pronunce_Consonant, pronunce_Vowel });
+
+            pronunce_Words = new Panel()
+            {
+                Dock = DockStyle.Left,
+                BackColor = Color.WhiteSmoke,
+                Width = 99,
+            };
+
+            pronunce_Content = new Panel()
+            {
+                Dock = DockStyle.Fill,
+                BorderStyle = BorderStyle.None,
+                BackColor = Color.DodgerBlue,
+                Font = font_TextView,
+            };
+
+            pronunce_Footer = new Panel()
+            {
+                Height = 25,
+                Dock = DockStyle.Bottom,
+                BackColor = Color.White,
+                Padding = new Padding(109, 0, 9, 0),
+            };
+
+            pronunce_Message_Label = new Label()
+            {
+                Height = 17,
+                AutoSize = false,
+                Dock = DockStyle.Bottom,
+                BackColor = Color.Red,
+                TextAlign = ContentAlignment.BottomRight,
+            };
+            m_tab_Pronunce.Controls.AddRange(new Control[] {
+                pronunce_Content,
+                pronunce_Words,
+                pronunce_Footer,
+                pronunce_Message_Label,
+                pronunce_Vowel_Consonant,
+            });
+
+            TextBox pronunce_word_Input = new TextBox()
+            {
+                Anchor = AnchorStyles.Left | AnchorStyles.Top,
+                Width = m_text_search_width,
+                Location = new Point(7, 2),
+                Height = 19
+            };
+
+            IconButton ico_refresh = new IconButton()
+            {
+                IconType = IconType.refresh,
+                Dock = DockStyle.Right,
+            };
+            ico_refresh.MouseClick += (se, ev) => { f_browser_fetchURL(); };
+
+            pronunce_Footer.Controls.AddRange(new Control[] {
+                pronunce_word_Input,
+                ico_refresh,
+            });
+
+
+            string[] av = api_pronunce.f_get_Vowels();
+            string[] ac = api_pronunce.f_get_Consonants();
+
+            Control[] cv = new Control[av.Length+1];
+            Control[] cc = new Control[ac.Length+1];
+
+            cv[0] = new Label() { AutoSize = true, Text = "Vowels:", Margin = new Padding(3, 5, 0, 0), };
+            cc[0] = new Label() { AutoSize = true, Text = "Consonant:", Margin = new Padding(3, 5, 0, 0), };
+
+            for (int i = 0; i < av.Length; i++)
+            {
+                cv[i+1] = new Label()
+                {
+                    AutoSize = true,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    Text = av[i],
+                    Name = "lbl_pronunce_" + av[i],
+                    Font = font_Title,
+                    Height = 17,
+                    Padding = new Padding(0),
+                    Margin = new Padding(15, 3, 0, 0),
+                    //BackColor = Color.Orange,
+                };
+                cv[i + 1].MouseClick += f_pronunce_vowel_label_Click;
+            }
+            pronunce_Vowel.Controls.AddRange(cv);
+
+
+            for (int i = 0; i < ac.Length; i++)
+            {
+                cc[i+1] = new Label()
+                {
+                    AutoSize = true,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    Text = ac[i],
+                    Name = "lbl_pronunce_" + ac[i],
+                    Font = font_Title,
+                    Height = 17,
+                    Padding = new Padding(0),
+                    Margin = new Padding(15, 3, 0, 0),
+                    //BackColor = Color.Orange,
+                };
+                cc[i + 1].MouseClick += f_pronunce_consonant_label_Click;
+            }
+            pronunce_Consonant.Controls.AddRange(cc);
+        }
+
+        private void f_pronunce_consonant_label_Click(object sender, MouseEventArgs e)
+        {
+            Label lbl = (Label)sender;
+
+            if (!string.IsNullOrEmpty(m_pronunce_consonant_current)) {
+                Control prev = pronunce_Vowel_Consonant.Controls[0].Controls.Cast<Control>().Where(x => x.Name == "lbl_pronunce_" + m_pronunce_consonant_current).SingleOrDefault();
+                if (prev != null) prev.BackColor = Color.White;
+            }
+
+            if (lbl.BackColor == Color.Orange)
+            {
+                lbl.BackColor = Color.White;
+                m_pronunce_consonant_current = string.Empty;
+            }
+            else {
+                lbl.BackColor = Color.Orange;
+                m_pronunce_consonant_current = lbl.Text;
+                f_pronunce_Filter();
+            }
+        }
+
+        private void f_pronunce_vowel_label_Click(object sender, MouseEventArgs e)
+        {
+            Label lbl = (Label)sender;
+
+            if (!string.IsNullOrEmpty(m_pronunce_vowel_current) && lbl.Text != m_pronunce_vowel_current)
+            {
+                Control prev = pronunce_Vowel_Consonant.Controls[1].Controls.Cast<Control>().Where(x => x.Name == "lbl_pronunce_" + m_pronunce_vowel_current).SingleOrDefault();
+                if (prev != null) prev.BackColor = Color.White;
+            }
+
+            if (lbl.BackColor == Color.Orange)
+            {
+                lbl.BackColor = Color.White;
+                m_pronunce_vowel_current = string.Empty;
+            }
+            else
+            {
+                lbl.BackColor = Color.Orange;
+                m_pronunce_vowel_current = lbl.Text;
+                f_pronunce_Filter();
+            }
+        }
+
+        void f_pronunce_Filter()
+        {
+            if (!string.IsNullOrEmpty(m_pronunce_vowel_current) && lbl_hide_border_left.Text != m_pronunce_consonant_current)
+            {
+                string url_mp3_vowel = api_pronunce.f_get_PronunceMP3(m_pronunce_vowel_current);
+                wd_media.URL = url_mp3_vowel;
+            }
+
+            if (!string.IsNullOrEmpty(m_pronunce_consonant_current))
+            {
+                string url_mp3_Consonant = api_pronunce.f_get_PronunceMP3(m_pronunce_consonant_current);
+                wd_media.URL = url_mp3_Consonant;
+            }
+
+        }
+
+        #endregion
+
         #region [ FORM MOVE ]
 
         public const int WM_NCLBUTTONDOWN = 0xA1;
@@ -2318,6 +2544,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
             f_word_detail_Init();
             f_word_Init();
             f_browser_initUI();
+
+            f_pronunce_initUI(); 
         }
 
     }

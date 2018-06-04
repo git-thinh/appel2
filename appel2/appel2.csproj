@@ -105,6 +105,7 @@
   <ItemGroup>
     <Compile Include="API\api_base.cs" />
     <Compile Include="API\api_media.cs" />
+    <Compile Include="API\api_pronunce.cs" />
     <Compile Include="API\api_word.cs" />
     <Compile Include="API\htmlToText.cs" />
     <Compile Include="API\IAPI.cs" />
@@ -438,6 +439,7 @@
       <Link>demo.html</Link>
     </Content>
     <Content Include="favicon.ico" />
+    <Content Include="result.html" />
     <EmbeddedResource Include="LIB\DLL\SuperSocket.ClientEngine.dll" />
     <EmbeddedResource Include="LIB\DLL\WebSocket4Net.dll" />
     <EmbeddedResource Include="LIB\DLL\UIAutomationClient.dll" />

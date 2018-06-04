@@ -8,6 +8,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HtmlAgilityPack
 {
@@ -344,6 +345,15 @@ namespace HtmlAgilityPack
         {
             Hashitems.Clear();
             items.Clear();
+            _ownernode.SetChanged();
+        }
+
+        public void RemoveAll_NoRemoveClassName()
+        {
+            string[] ar = Hashitems.Keys.Where(x => x != "class").ToArray();
+            foreach (var key in ar)
+                Hashitems.Remove(key);
+            items = items.Where(x => x.Name == "class").ToList();
 
             _ownernode.SetChanged();
         }
