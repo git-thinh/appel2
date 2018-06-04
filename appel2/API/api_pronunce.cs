@@ -9,6 +9,54 @@ namespace appel
 {
     public class api_pronunce : api_base, IAPI
     {
+        #region [ CONST ]
+
+        const string lip3 = "The front of the tongue (including the tip) and the tooth ridge: The tooth ridge is the bony bump directly behind the top front teeth (behind the tooth ridge is the hard palate). Accuracy of tongue position in relation to the tooth ridge is necessary.";
+        static readonly Dictionary<string, string> proTutorial = new Dictionary<string, string>() {
+            { "p", "The lips: The sound is created by pressing the lips together" },
+            { "b", "The lips: The sound is created by pressing the lips together" },
+            { "m", "The lips: The sound is created by pressing the lips together" },
+            { "f", "The lips: The sound requires interaction between the bottom lip and the top teeth." },
+            { "v", "The lips: The sound requires interaction between the bottom lip and the top teeth." },
+            { "ð", "The 'th sound' /ð/, The tip of the tongue and the front teeth: The unvoiced th and voiced th sounds are created by controlling how the close the tip of the tongue is to the front teeth." },
+            { "θ", "The 'th sound' /θ/, The tip of the tongue and the front teeth: The unvoiced th and voiced th sounds are created by controlling how the close the tip of the tongue is to the front teeth." },
+            { "t", lip3 },
+            { "d", lip3 },
+            { "j", lip3 },
+            { "s", lip3 },
+            { "z", lip3 },
+            { "l", lip3 },
+            { "n", lip3 },
+            { "ʧ", "The 'ch sound' /ʧ/, " + lip3 + " \r\n The 'ch sound' /ʧ/ is unvoiced (the vocal cords do not vibrate during its production), and is the counterpart to the voiced 'j sound' /ʤ/. \r\n To create the /ʧ/, air is briefly prevented from leaving the vocal tract when the tip of the tongue presses against the back tooth ridge while the sides of the tongue press against the upper side teeth. The sound is aspirated when the air is released with friction (similar to the friction of an sh sound). \r\n Many English language learning pronunciation students often find it helpful to think of the /ʧ/ as stopping the air similar to a 't sound' (but with the tongue a bit further back on the tooth ridge), and then releasing it with the friction of an 'sh sound' /ʃ/."},
+            { "ʃ", "The 'sh sound' /ʃ/, " + lip3 + " \r\n The 'sh sound' /ʃ/ is unvoiced (the vocal cords do not vibrate during its production), and is the counterpart to the voiced 'zh sound' /ʒ/. \r\n To create the /ʃ/, air is forced between a wide groove in the center of the front of the tongue and the back of the tooth ridge. The sides of the blade of the tongue may touch the side teeth. The lips are kept slightly tense, and may protrude somewhat during the production of the sound. \r\n This sound is a continuous consonant, meaning that it should be capable of being produced for a few seconds with even and smooth pronunciation for the entire duration."},
+            { "ʤ", "The 'j sound' /ʤ/, " + lip3 },
+            // The words have lastest characters are 'ge': beige, garage, massage 
+            { "ʒ", "The 'zh sound' /ʒ/, " + lip3 + " \r\n The 'zh sound' /ʒ/ is voiced (the vocal cords vibrate during its production), and is the counterpart to the unvoiced 'sh sound' /ʃ/. \r\n To create the /ʒ/, air is forced between a wide groove in the center of the front of the tongue and the back of the tooth ridge. The sides of the blade of the tongue may touch the side teeth. The lips are kept slightly tense, and may protrude somewhat during the production of the sound. \r\n The /ʒ/ is a continuous consonant, meaning that it should be capable of being held for a few seconds with even and smooth pronunciation for the entire duration."},
+         };
+
+        static readonly Dictionary<string, string> proExamples = new Dictionary<string, string>() {
+            { "p", "" },
+            { "b", "" },
+            { "m", "" },
+            { "f", "" },
+            { "v", "" },
+            { "ð", "" },
+            { "θ", "" },
+            { "t", "" },
+            { "d", "" },
+            { "j", "" },
+            { "s", "" },
+            { "z", "" },
+            { "l", "" },
+            { "n", "" },
+            { "ʧ", "" },
+            { "ʃ", "" },
+            { "ʤ", "" },
+            // The words have lastest characters are 'ge': beige, garage, massage 
+            { "ʒ", "" },
+         };
+
+
         static readonly string[] pronVowels =
         {
             "iː", // fleece, sea, machine
@@ -126,6 +174,8 @@ namespace appel
             {"j","Đọc như chữ z(nhấn mạnh).   Menu /´menju:/;             Hoặc kết hợp với chữ u → ju → đọc iu    Yes /jes/" },
          };
 
+        #endregion
+
         #region [ METHOD ]
 
         public static string[] f_get_Vowels() { return pronVowels; }
@@ -154,7 +204,8 @@ namespace appel
                 fi_name = pronunce.Replace(':', 'L');
 
             string file = "pronunce/" + fi_name + ".mp3";
-            if (File.Exists(file)) {
+            if (File.Exists(file))
+            {
                 return file;
             }
             else
