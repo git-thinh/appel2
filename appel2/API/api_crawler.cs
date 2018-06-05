@@ -21,21 +21,31 @@ namespace appel
         static readonly object lockUri = new object();
         static List<oLink> listUri = new List<oLink>();
 
+        static Dictionary<string, string> dicSettingCurrent = new Dictionary<string, string>();
+
+
+
+
+
         static int crawlCounter = 0;
 
         static readonly object lockContent = new object();
         static Dictionary<string, string> dicContent = new Dictionary<string, string>();
         static int contentCounter = 0;
 
+        public bool Open { get; set; } = false;
+
         public api_crawler()
         {
+            System.Net.ServicePointManager.DefaultConnectionLimit = 1000;
+            // active SSL 1.1, 1.2, 1.3 for WebClient request HTTPS
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3
-                | (SecurityProtocolType)3072
-                | (SecurityProtocolType)0x00000C00
-                | SecurityProtocolType.Tls;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | (SecurityProtocolType)3072 | (SecurityProtocolType)0x00000C00 | SecurityProtocolType.Tls;
         }
 
+        public void Init()
+        {
+        }
         public msg Execute(msg m)
         {
             if (m == null || m.Input == null) return m;
@@ -46,183 +56,224 @@ namespace appel
             {
                 case _API.CRAWLER_KEY_REGISTER_PATH:
                     #region
-                    url_input = (string)m.Input;
-                    url_input = url_input.ToLower();
-                    m.Log = "CRAWLER_KEY_REGISTER_PATH: " + url_input;
-
-                    //ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-                    //ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 
-                    //    | (SecurityProtocolType)3072 
-                    //    | (SecurityProtocolType)0x00000C00 
-                    //    | SecurityProtocolType.Tls;
-
-                    w = (HttpWebRequest)WebRequest.Create(new Uri(url_input));
-                    w.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36";
-                    w.BeginGetResponse(asyncResult =>
+                    if (m.Input != null)
                     {
-                        HttpWebResponse rs = (HttpWebResponse)w.EndGetResponse(asyncResult); //add a break point here 
-                        StreamReader sr = new StreamReader(rs.GetResponseStream(), Encoding.UTF8);
-                        string htm = sr.ReadToEnd();
-                        sr.Close();
-                        rs.Close();
+                        oLinkSetting olink = (oLinkSetting)m.Input;
+                        url_input = olink.Url;
+                        dicSettingCurrent = olink.Settings;
 
-                        if (!string.IsNullOrEmpty(htm))
+                        //ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+                        //ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 
+                        //    | (SecurityProtocolType)3072 
+                        //    | (SecurityProtocolType)0x00000C00 
+                        //    | SecurityProtocolType.Tls;
+
+                        w = (HttpWebRequest)WebRequest.Create(new Uri(url_input));
+                        w.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36";
+                        w.BeginGetResponse(asyncResult =>
                         {
-                            htm = HttpUtility.HtmlDecode(htm);
+                            HttpWebResponse rs = (HttpWebResponse)w.EndGetResponse(asyncResult); //add a break point here 
+                            StreamReader sr = new StreamReader(rs.GetResponseStream(), Encoding.UTF8);
+                            string htm = sr.ReadToEnd();
+                            sr.Close();
+                            rs.Close();
 
-                            string url = rs.ResponseUri.ToString();
-                            string[] url_crawled;
-                            lock (lockHtml)
+                            if (!string.IsNullOrEmpty(htm))
                             {
-                                if (dicHtml.ContainsKey(url) == false)
+                                htm = HttpUtility.HtmlDecode(htm);
+                                htm = format_HTML(htm);
+
+                                string url = rs.ResponseUri.ToString();
+                                string[] url_crawled;
+                                lock (lockHtml)
                                 {
-                                    string htm_format = format_HTML(htm);
-                                    dicHtml.Add(url, htm_format);
+                                    if (dicHtml.ContainsKey(url) == false)
+                                        dicHtml.Add(url, htm);
+                                    url_crawled = dicHtml.Keys.ToArray();
                                 }
-                                url_crawled = dicHtml.Keys.ToArray();
-                            }
 
-                            doc.LoadHtml(htm);
+                                doc.LoadHtml(htm);
 
-                            lock (lockUri)
-                            {
-                                var url_new = doc.DocumentNode
-                                    .SelectNodes("//a")
-                                    .Select(p => new oLink()
+                                lock (lockUri)
+                                {
+                                    string[] auri = url.Split('/');
+                                    string uri_root = string.Join("/", auri.Where((x, k) => k < 3).ToArray());
+
+                                    var url_new = doc.DocumentNode
+                                        .SelectNodes("//a")
+                                        .Select(p => new oLink()
+                                        {
+                                            crawled = false,
+                                            uri = uri_root,
+                                            url = p.GetAttributeValue("href", string.Empty).ToLower(),
+                                            text = p.InnerText
+                                        })
+                                        .Where(x => x.url.Length > 1 && x.url[0] != '#')
+                                        .ToArray();
+                                    ;
+                                    foreach (var li in url_new)
+                                        if (li.url[0] == '/')
+                                            li.url = uri_root + li.url;
+                                        else if (li.url[0] != 'h')
+                                            li.url = uri_root + "/" + li.url;
+
+                                    var urls = url_new
+                                         .Where(x =>
+                                                 x.url.IndexOf(x.uri) == 0
+                                                 && !listUri.Any(z => z.url == x.url)
+                                                 && x.url != url
+                                                 && x.text != string.Empty)
+                                         .GroupBy(x => x.url)
+                                         .Select(x => x.First())
+                                         .ToArray();
+
+                                    //string START_URL = string.Empty;
+                                    //if (dicSettingCurrent.TryGetValue("START_URL", out START_URL) && !string.IsNullOrEmpty(START_URL))
+                                    //url_new = url_new.Where(x => x.url.StartsWith(START_URL)).ToArray();
+
+                                    listUri.Add(new oLink() { crawled = true, url = url, uri = url, text = string.Empty });
+                                    if (urls.Length > 0)
                                     {
-                                        crawled = false,
-                                        uri = url,
-                                        url = p.GetAttributeValue("href", string.Empty).ToLower(),
-                                        text = p.InnerText
-                                    })
-                                    .Where(x =>
-                                            x.url.IndexOf(x.uri) == 0
-                                            && !listUri.Any(z => z.url == x.url)
-                                            && x.url != url
-                                            && x.text != string.Empty)
-                                    .GroupBy(x => x.url)
-                                    .Select(x => x.First())
-                                    .ToArray();
-
-                                listUri.Add(new oLink() { crawled = true, url = url, uri = url, text = string.Empty });
-                                if (url_new.Length > 0)
-                                {
-                                    listUri.AddRange(url_new);
-                                    Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Input = url_new[0] });
+                                        listUri.AddRange(urls);
+                                        Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Input = urls[0] });
+                                    }
                                 }
                             }
-                        }
-                    }, w);
+                        }, w);
+                    }
                     #endregion
                     break;
                 case _API.CRAWLER_KEY_REQUEST_LINK:
                     #region
-                    Interlocked.Increment(ref crawlCounter);
-
-                    oLink link = (oLink)m.Input;
-                    m.Log = "CRAWLER_KEY_REQUEST_LINK: " + link.url;
-
-                    //ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-                    //ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 
-                    //    | (SecurityProtocolType)3072 
-                    //    | (SecurityProtocolType)0x00000C00 
-                    //    | SecurityProtocolType.Tls;
-
-                    w = (HttpWebRequest)WebRequest.Create(new Uri(link.url));
-                    w.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36";
-                    w.BeginGetResponse(asyncResult =>
+                    if (m.Input != null)
                     {
-                        HttpWebResponse rs = (HttpWebResponse)w.EndGetResponse(asyncResult); //add a break point here 
-                        StreamReader sr = new StreamReader(rs.GetResponseStream(), Encoding.UTF8);
-                        string htm = sr.ReadToEnd();
-                        sr.Close();
-                        rs.Close();
+                        Interlocked.Increment(ref crawlCounter);
 
-                        if (!string.IsNullOrEmpty(htm))
+                        oLink link = (oLink)m.Input;
+                        //m.Log = "CRAWLER_KEY_REQUEST_LINK: " + link.url;
+
+                        //ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+                        //ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 
+                        //    | (SecurityProtocolType)3072 
+                        //    | (SecurityProtocolType)0x00000C00 
+                        //    | SecurityProtocolType.Tls;
+
+                        w = (HttpWebRequest)WebRequest.Create(new Uri(link.url));
+                        w.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36";
+                        w.BeginGetResponse(asyncResult =>
                         {
-                            htm = HttpUtility.HtmlDecode(htm);
+                            HttpWebResponse rs = (HttpWebResponse)w.EndGetResponse(asyncResult); //add a break point here 
+                            StreamReader sr = new StreamReader(rs.GetResponseStream(), Encoding.UTF8);
+                            string htm = sr.ReadToEnd();
+                            sr.Close();
+                            rs.Close();
 
-                            string url = rs.ResponseUri.ToString();
-                            string[] url_crawled;
-
-                            lock (lockHtml)
+                            if (!string.IsNullOrEmpty(htm))
                             {
-                                if (dicHtml.ContainsKey(url) == false)
-                                {
-                                    string htm_format = format_HTML(htm);
-                                    dicHtml.Add(url, htm_format);
-                                    Interlocked.Increment(ref contentCounter);
+                                htm = HttpUtility.HtmlDecode(htm);
+                                htm = format_HTML(htm);
 
-                                    f_responseToMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_COMPLETE, Log = m.KEY + ": " + contentCounter.ToString() + " = " + url });
+                                string url = rs.ResponseUri.ToString();
+                                string[] url_crawled;
+
+                                lock (lockHtml)
+                                {
+                                    if (dicHtml.ContainsKey(url) == false)
+                                    {
+                                        dicHtml.Add(url, htm);
+                                        Interlocked.Increment(ref contentCounter);
+
+                                        response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = m.KEY + ": " + contentCounter.ToString() + "|" + listUri.Count + " = " + url });
+                                    }
+                                    url_crawled = dicHtml.Keys.ToArray();
                                 }
-                                url_crawled = dicHtml.Keys.ToArray();
-                            }
 
-                            /////////////////////////////////////////
-                            //f_responseToMain(m);
+                                /////////////////////////////////////////
+                                //f_responseToMain(m);
 
-                            doc.LoadHtml(htm);
+                                doc.LoadHtml(htm);
 
-                            lock (lockUri)
-                            {
-                                var url_new = doc.DocumentNode
-                                    .SelectNodes("//a")
-                                    .Select(p => new oLink()
-                                    {
-                                        uri = link.uri,
-                                        crawled = false,
-                                        url = p.GetAttributeValue("href", string.Empty).ToLower(),
-                                        text = p.InnerText
-                                    })
-                                    .Where(x =>
-                                            x.url.IndexOf(x.uri) == 0
-                                            && !listUri.Any(z => z.url == x.url)
-                                            && x.url != url
-                                            && x.text != string.Empty)
-                                    .GroupBy(x => x.url)
-                                    .Select(x => x.First())
-                                    .ToArray();
-
-
-                                //var div_con = doc.DocumentNode 
-                                //    .SelectNodes("//article")
-                                //    .ToArray();
-                                //if (div_con.Length > 0)
-                                //{
-                                //    string con = div_con[0].InnerHtml;
-                                //    lock (lockContent)
-                                //    {
-                                //        if (dicContent.ContainsKey(url) == false)
-                                //            dicContent.Add(url, con);
-                                //    }
-                                //    Interlocked.Increment(ref contentCounter);
-
-                                //    f_responseToMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = con });
-                                //}
-
-                                int index = listUri.IndexOf(link);
-                                if (index != -1) listUri[index].crawled = true;
-
-                                if (url_new.Length > 0)
-                                    listUri.AddRange(url_new);
-
-                                var li = listUri.Where(x => x.crawled == false).Take(1).SingleOrDefault();
-                                if (li == null || contentCounter == 50)
+                                lock (lockUri)
                                 {
-                                    f_responseToMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_COMPLETE, Log = "FINISH CWRALER ..." });
-                                    lock (lockHtml)
+                                    var url_new = doc.DocumentNode
+                                        .SelectNodes("//a")
+                                        .Select(p => new oLink()
+                                        {
+                                            uri = link.uri,
+                                            crawled = false,
+                                            url = p.GetAttributeValue("href", string.Empty).ToLower(),
+                                            text = p.InnerText
+                                        })
+                                        .Where(x => x.url.Length > 1 && x.url[0] != '#')
+                                        .ToArray(); 
+                                    ;
+
+                                    foreach (var lx in url_new)
+                                        if (lx.url[0] == '/')
+                                            lx.url = link.uri + lx.url;
+                                        else if (lx.url[0] != 'h')
+                                            lx.url = link.uri + "/" + lx.url;
+
+                                    var urls = url_new
+                                        .Where(x =>
+                                                x.url.IndexOf(x.uri) == 0
+                                                && !listUri.Any(z => z.url == x.url)
+                                                && x.url != url
+                                                && x.text != string.Empty)
+                                        .GroupBy(x => x.url)
+                                        .Select(x => x.First())
+                                        .ToArray();
+
+                                    //var div_con = doc.DocumentNode 
+                                    //    .SelectNodes("//article")
+                                    //    .ToArray();
+                                    //if (div_con.Length > 0)
+                                    //{
+                                    //    string con = div_con[0].InnerHtml;
+                                    //    lock (lockContent)
+                                    //    {
+                                    //        if (dicContent.ContainsKey(url) == false)
+                                    //            dicContent.Add(url, con);
+                                    //    }
+                                    //    Interlocked.Increment(ref contentCounter);
+
+                                    //    f_responseToMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = con });
+                                    //}
+
+                                    int index = listUri.IndexOf(link);
+                                    if (index != -1) listUri[index].crawled = true;
+
+                                    if (urls.Length > 0)
+                                        listUri.AddRange(urls);
+
+                                    string START_URL = string.Empty;
+                                    if (dicSettingCurrent.TryGetValue("START_URL", out START_URL) && !string.IsNullOrEmpty(START_URL))
+                                        listUri = listUri.Where(x => x.url.StartsWith(START_URL)).ToList();
+
+                                    var li = listUri.Where(x => x.crawled == false).Take(1).SingleOrDefault();
+                                    if (li == null)
                                     {
-                                        using (var file = File.Create("crawler.raw.bin"))
-                                            Serializer.Serialize<Dictionary<string, string>>(file, dicHtml);
+                                        Uri uri_ = new Uri(link.uri);
+                                        string fi_name = uri_.Host + ".bin";
+                                        if (File.Exists(fi_name)) File.Delete(fi_name);
+
+                                        lock (lockHtml)
+                                        {
+                                            using (var file = File.Create(fi_name))
+                                                Serializer.Serialize<Dictionary<string, string>>(file, dicHtml);
+                                        }
+
+                                        response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK_COMPLETE, Input = listUri.Select(x => x.url).ToArray() });
+                                    }
+                                    else
+                                    {
+                                        Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Input = li });
                                     }
                                 }
-                                else
-                                {
-                                    Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Input = li });
-                                }
                             }
-                        }
-                    }, w);
+                        }, w);
+                    }
+
                     #endregion
                     break;
                 case _API.CRAWLER_KEY_CONVERT_PACKAGE_TO_HTML:
@@ -375,37 +426,45 @@ namespace appel
             //s = Regex.Replace(s, @"<noscript[^>]*>[\s\S]*?</noscript>", string.Empty);
             s = Regex.Replace(s, @"</?(?i:embed|object|frameset|frame|iframe|meta|link)(.|\n|\s)*?>", string.Empty, RegexOptions.Singleline | RegexOptions.IgnoreCase);
 
-            HtmlDocument doc = new HtmlDocument();
-            doc.LoadHtml(s);
-            string tagName = string.Empty, tagVal = string.Empty;
-            foreach (var node in doc.DocumentNode.SelectNodes("//*"))
-            {
-                if (node.InnerText == null || node.InnerText.Trim().Length == 0)
-                {
-                    node.Remove();
-                    continue;
-                }
 
-                tagName = node.Name.ToUpper();
-                if (tagName == "A")
-                    tagVal = node.GetAttributeValue("href", string.Empty);
-                else if (tagName == "IMG")
-                    tagVal = node.GetAttributeValue("src", string.Empty);
+            string[] lines = s.Split(new char[] { '\r', '\n' }, StringSplitOptions.None).Select(x => x.Trim()).Where(x => x.Length > 0).ToArray();
+            s = string.Join(Environment.NewLine, lines);
+            return s;
 
-                node.Attributes.RemoveAll();
+            //HtmlDocument doc = new HtmlDocument();
+            //doc.LoadHtml(s);
+            //string tagName = string.Empty, tagVal = string.Empty;
+            //foreach (var node in doc.DocumentNode.SelectNodes("//*"))
+            //{
+            //    if (node.InnerText == null || node.InnerText.Trim().Length == 0)
+            //    {
+            //        node.Remove();
+            //        continue;
+            //    }
 
-                if (tagVal != string.Empty)
-                {
-                    if (tagName == "A") node.SetAttributeValue("href", tagVal);
-                    else if (tagName == "IMG") node.SetAttributeValue("src", tagVal);
-                }
-            }
+            //    tagName = node.Name.ToUpper();
+            //    if (tagName == "A")
+            //        tagVal = node.GetAttributeValue("href", string.Empty);
+            //    else if (tagName == "IMG")
+            //        tagVal = node.GetAttributeValue("src", string.Empty);
 
-            si = doc.DocumentNode.OuterHtml;
-            //string[] lines = si.Split(new char[] { '\r', '\n' }, StringSplitOptions.None).Where(x => x.Trim().Length > 0).ToArray();
-            string[] lines = si.Split(new char[] { '\r', '\n' }, StringSplitOptions.None).Select(x => x.Trim()).Where(x => x.Length > 0).ToArray();
-            si = string.Join(Environment.NewLine, lines);
-            return si;
+            //    //node.Attributes.RemoveAll();
+            //    node.Attributes.RemoveAll_NoRemoveClassName();
+
+            //    if (tagVal != string.Empty)
+            //    {
+            //        if (tagName == "A") node.SetAttributeValue("href", tagVal);
+            //        else if (tagName == "IMG") node.SetAttributeValue("src", tagVal);
+            //    }
+            //}
+
+            //si = doc.DocumentNode.OuterHtml;
+            ////string[] lines = si.Split(new char[] { '\r', '\n' }, StringSplitOptions.None).Where(x => x.Trim().Length > 0).ToArray();
+            //string[] lines = si.Split(new char[] { '\r', '\n' }, StringSplitOptions.None).Select(x => x.Trim()).Where(x => x.Length > 0).ToArray();
+            //si = string.Join(Environment.NewLine, lines);
+            //return si;
         }
+
     }
+
 }

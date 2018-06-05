@@ -82,6 +82,7 @@ namespace appel
             dicResponses = new ConcurrentDictionary<string, msg>();
             dicService = new ConcurrentDictionary<string, IthreadMsg>();
 
+            dicService.TryAdd(_API.CRAWLER, new threadMsg(new api_crawler()));
             dicService.TryAdd(_API.WORD, new threadMsg(new api_word()));
             dicService.TryAdd(_API.MEDIA, new threadMsg(new api_media()));
         }
@@ -220,9 +221,7 @@ namespace appel
 
         public static void RUN()
         {
-
-
-
+            System.Net.ServicePointManager.DefaultConnectionLimit = 1000; 
             // active SSL 1.1, 1.2, 1.3 for WebClient request HTTPS
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | (SecurityProtocolType)3072 | (SecurityProtocolType)0x00000C00 | SecurityProtocolType.Tls;
@@ -249,7 +248,5 @@ namespace appel
         {
             app.RUN();
         }
-
-
     }
 }

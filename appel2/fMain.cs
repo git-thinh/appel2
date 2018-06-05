@@ -27,6 +27,7 @@ namespace appel
 
         readonly Font font_Title = new Font("Arial", 11f, FontStyle.Regular);
         readonly Font font_TextView = new Font("Courier New", 11f, FontStyle.Regular);
+        readonly Font font_LogView = new Font("Courier New", 9f, FontStyle.Regular);
 
         IconButton btn_exit;
         IconButton btn_mini;
@@ -686,7 +687,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 wd_word_pronunciation.Text = string.Empty;
                 wd_word_meaning.Text = string.Empty;
 
-                
+
 
                 //wd_word_meaning.Text = api_media.f_word_meaning_Vi(m_word_current);
 
@@ -966,213 +967,6 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 case tab_caption_browser: // "Net"
                     break;
             }
-        }
-
-        #endregion
-
-        #region [ BROWSER ]
-
-        Panel brow_Words;
-        RichTextBoxEx brow_Content;
-        Panel brow_Footer;
-        TextBox brow_URL_Lable;
-        Label brow_Title_Lable;
-        Label brow_Message_Label;
-
-        string brow_HTML = string.Empty;
-        string brow_URL = string.Empty;
-
-        void f_browser_initUI()
-        {
-            m_tab_Browser.Padding = new Padding(9, 0, 0, 0);
-
-            brow_Words = new Panel()
-            {
-                Dock = DockStyle.Left,
-                //BackColor = Color.WhiteSmoke,
-                Width = 99,
-            };
-
-            brow_Content = new RichTextBoxEx()
-            {
-                Dock = DockStyle.Fill,
-                BorderStyle = BorderStyle.None,
-                Multiline = true,
-                ScrollBars = RichTextBoxScrollBars.Vertical,
-                //BackColor = Color.Yellow,
-                Font = font_TextView,
-            };
-            brow_Footer = new Panel()
-            {
-                Height = 25,
-                Dock = DockStyle.Bottom,
-                //BackColor = Color.White,
-                Padding = new Padding(109, 0, 9, 0),
-            };
-
-            brow_URL_Lable = new TextBox()
-            {
-                Height = 17,
-                AutoSize = false,
-                Dock = DockStyle.Top,
-                //BackColor = Color.DeepSkyBlue,                
-                BorderStyle = BorderStyle.None,
-            };
-
-            brow_Title_Lable = new Label()
-            {
-                Height = 17,
-                AutoSize = false,
-                Dock = DockStyle.Top,
-                //BackColor = Color.DeepSkyBlue,
-                TextAlign = ContentAlignment.BottomLeft,
-            };
-            brow_Message_Label = new Label()
-            {
-                Height = 17,
-                AutoSize = false,
-                Dock = DockStyle.Top,
-                //BackColor = Color.Red,
-                TextAlign = ContentAlignment.BottomRight,
-            };
-            m_tab_Browser.Controls.AddRange(new Control[] {
-                brow_Content,
-                brow_Words,
-                brow_Footer,
-                brow_Message_Label,
-                brow_URL_Lable,
-                brow_Title_Lable,
-            });
-
-
-            TextBox brow_word_Input = new TextBox()
-            {
-                Anchor = AnchorStyles.Left | AnchorStyles.Top,
-                Width = m_text_search_width,
-                Location = new Point(7, 2),
-                Height = 19
-            };
-
-            IconButton ico_refresh = new IconButton()
-            {
-                IconType = IconType.refresh,
-                Dock = DockStyle.Right,
-            };
-            ico_refresh.MouseClick += (se, ev) => { f_browser_fetchURL(); };
-
-            brow_Footer.Controls.AddRange(new Control[] {
-                brow_word_Input,
-                ico_refresh,
-            });
-        }
-
-        void f_brow_reset_All()
-        {
-            brow_HTML = string.Empty;
-            brow_URL = string.Empty;
-
-            brow_Message_Label.Text = string.Empty;
-
-            brow_Title_Lable.Text = string.Empty;
-            brow_URL_Lable.Text = string.Empty;
-
-            brow_Words.Controls.Clear();
-            brow_Content.Text = string.Empty;
-        }
-
-        void f_brow_reset_UI()
-        {
-            brow_Message_Label.Text = string.Empty;
-
-            brow_Title_Lable.Text = string.Empty;
-            brow_URL_Lable.Text = string.Empty;
-
-            brow_Words.Controls.Clear();
-            brow_Content.Text = string.Empty;
-        }
-
-        void f_browser_fetchURL()
-        {
-            if (brow_Content == null) return;
-
-            List<string> urls = new List<string>();
-
-            brow_Message_Label.Text = "Syncing with chrome tab current...";
-
-            // there are always multiple chrome processes, so we have to loop through all of them to find the
-            // process with a Window Handle and an automation element of name "Address and search bar"
-            Process[] procsChrome = Process.GetProcessesByName("chrome");
-            foreach (Process chrome in procsChrome)
-            {
-                // the chrome process must have a window
-                if (chrome.MainWindowHandle == IntPtr.Zero)
-                {
-                    continue;
-                }
-
-                // find the automation element
-                AutomationElement elm = AutomationElement.FromHandle(chrome.MainWindowHandle);
-                AutomationElement elmUrlBar = elm.FindFirst(TreeScope.Descendants, new PropertyCondition(AutomationElement.NameProperty, "Address and search bar"));
-
-                // if it can be found, get the value from the URL bar
-                if (elmUrlBar != null)
-                {
-                    AutomationPattern[] patterns = elmUrlBar.GetSupportedPatterns();
-                    if (patterns.Length > 0)
-                    {
-                        ValuePattern val = (ValuePattern)elmUrlBar.GetCurrentPattern(patterns[0]);
-                        //Console.WriteLine("Chrome URL found: " + val.Current.Value);
-                        if (val != null
-                            && !string.IsNullOrEmpty(val.Current.Value)
-                            && brow_URL != val.Current.Value)
-                        {
-                            string url = val.Current.Value;
-                            if (url.StartsWith("http"))
-                                urls.Add(url);
-                        }
-                    }
-                }
-            }
-
-            if (urls.Count > 0)
-            {
-                string url = urls[0];
-                if (brow_URL == url)
-                {
-                    //f_brow_reset_All();
-                    f_brow_analytic_HTML();
-                }
-                else
-                {
-                    brow_URL = url;
-
-                    f_brow_reset_UI();
-
-                    brow_URL_Lable.Text = brow_URL;
-
-                    using (WebClient w = new WebClient())
-                    {
-                        w.Encoding = Encoding.UTF8;
-                        brow_HTML = w.DownloadString(brow_URL);
-                    }
-
-                    f_brow_analytic_HTML();
-                }
-            }
-            else
-            {
-                f_brow_reset_All();
-                brow_Message_Label.Text = string.Empty;
-            }
-        }
-
-        void f_brow_analytic_HTML()
-        {
-            string s = api_media.f_article_analytic_HTML(brow_URL, brow_HTML);
-            brow_Content.Text = s;
-            brow_Content.SelectAll();
-            brow_Content.SelectionParaSpacing = new RTBParaSpacing(0, 150);
-            brow_Content.Select(0, 0);
         }
 
         #endregion
@@ -2157,7 +1951,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 Dock = DockStyle.Left,
                 AutoScroll = true,
                 FlowDirection = FlowDirection.TopDown | FlowDirection.LeftToRight,
-                Width = app.m_app_width/2,
+                Width = app.m_app_width / 2,
                 //BackColor = Color.Red,
                 Height = 86,
             };
@@ -2169,7 +1963,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 //BackColor = Color.Blue,
                 Height = 99,
             };
-            pronunce_Vowel_Consonant = new Panel() {
+            pronunce_Vowel_Consonant = new Panel()
+            {
                 Dock = DockStyle.Top,
             };
             pronunce_Vowel_Consonant.Controls.AddRange(new Control[] { pronunce_Consonant, pronunce_Vowel });
@@ -2237,15 +2032,15 @@ writeline and then it's just   going to print out hello on the screen   can't do
             string[] av = api_pronunce.f_get_Vowels();
             string[] ac = api_pronunce.f_get_Consonants();
 
-            Control[] cv = new Control[av.Length+1];
-            Control[] cc = new Control[ac.Length+1];
+            Control[] cv = new Control[av.Length + 1];
+            Control[] cc = new Control[ac.Length + 1];
 
             cv[0] = new Label() { AutoSize = true, Text = "Vowels:", Margin = new Padding(3, 5, 0, 0), };
             cc[0] = new Label() { AutoSize = true, Text = "Consonant:", Margin = new Padding(3, 5, 0, 0), };
 
             for (int i = 0; i < av.Length; i++)
             {
-                cv[i+1] = new Label()
+                cv[i + 1] = new Label()
                 {
                     AutoSize = true,
                     TextAlign = ContentAlignment.MiddleCenter,
@@ -2264,7 +2059,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
             for (int i = 0; i < ac.Length; i++)
             {
-                cc[i+1] = new Label()
+                cc[i + 1] = new Label()
                 {
                     AutoSize = true,
                     TextAlign = ContentAlignment.MiddleCenter,
@@ -2285,7 +2080,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
         {
             Label lbl = (Label)sender;
 
-            if (!string.IsNullOrEmpty(m_pronunce_consonant_current)) {
+            if (!string.IsNullOrEmpty(m_pronunce_consonant_current))
+            {
                 Control prev = pronunce_Vowel_Consonant.Controls[0].Controls.Cast<Control>().Where(x => x.Name == "lbl_pronunce_" + m_pronunce_consonant_current).SingleOrDefault();
                 if (prev != null) prev.BackColor = Color.White;
             }
@@ -2295,7 +2091,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 lbl.BackColor = Color.White;
                 m_pronunce_consonant_current = string.Empty;
             }
-            else {
+            else
+            {
                 lbl.BackColor = Color.Orange;
                 m_pronunce_consonant_current = lbl.Text;
                 f_pronunce_Filter();
@@ -2339,6 +2136,359 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 wd_media.URL = url_mp3_Consonant;
             }
 
+        }
+
+        #endregion
+
+        #region [ BROWSER ]
+
+        RichTextBoxEx brow_Content;
+        Panel brow_Footer;
+        TextBox brow_URL_Text;
+        Label brow_Message_Label;
+
+        Panel brow_setting;
+
+        string brow_HTML = string.Empty;
+        string brow_URL = string.Empty;
+
+        void f_browser_initUI()
+        {
+            m_tab_Browser.Padding = new Padding(9, 0, 0, 0);
+
+            brow_setting = new Panel()
+            {
+                Padding = new Padding(20, 7, 20, 7),
+                Width = 299,
+                Height = 199,
+                BackColor = Color.LightGray,
+                Location = new Point(app.m_app_width / 2, 99),
+                Visible = false,
+            };
+
+            var btn_setting_save = new Button() { Text = "SAVE", Dock = DockStyle.Bottom, BackColor = Color.Orange };
+            btn_setting_save.MouseClick += (se, ev) => { brow_setting.SendToBack(); };
+            brow_setting.Controls.AddRange(new Control[] {
+                btn_setting_save,
+
+                new CheckBox(){ Dock = DockStyle.Top, Tag = "SAVE_RESULT", Text = "Write result to file", Checked = true },
+                //new Label(){ Dock = DockStyle.Top, Text = "URL start:", Height = 15,  },
+                new Label(){ Dock = DockStyle.Top, Height = 2 },
+
+                new TextBox(){ Dock = DockStyle.Top, Tag = "START_URL" },
+                new Label(){ Dock = DockStyle.Top, Text = "URL start:", Height = 15,  },
+                new Label(){ Dock = DockStyle.Top, Height = 3 },
+
+                new TextBox(){ Dock = DockStyle.Top, Tag = "PARA2" },
+                new Label(){ Dock = DockStyle.Top, Text = "Para 2:", Height = 15,  },
+                new Label(){ Dock = DockStyle.Top, Height = 3 },
+
+                new TextBox(){ Dock = DockStyle.Top, Tag = "PARA1" },
+                new Label(){ Dock = DockStyle.Top, Text = "Para 1:", Height = 15 },
+
+                new Label(){ Dock = DockStyle.Top, Height = 3 },
+                new Label(){ Dock = DockStyle.Top, Text = "Setting:", Height = 15 },
+            });
+
+
+            brow_Content = new RichTextBoxEx()
+            {
+                Dock = DockStyle.Fill,
+                BorderStyle = BorderStyle.None,
+                Multiline = true,
+                ScrollBars = RichTextBoxScrollBars.Vertical,
+                //BackColor = Color.Yellow,
+                Font = font_LogView,
+            };
+            brow_Footer = new Panel()
+            {
+                Height = 25,
+                Dock = DockStyle.Bottom,
+                //BackColor = Color.White,
+                Padding = new Padding(109, 0, 9, 0),
+            };
+
+            brow_URL_Text = new TextBox()
+            {
+                Height = 17,
+                AutoSize = false,
+                Dock = DockStyle.Top,
+                //BackColor = Color.Yellow,
+                BorderStyle = BorderStyle.None,
+            };
+            brow_URL_Text.KeyDown += f_browser_URL_KeyDown;
+
+            brow_Message_Label = new Label()
+            {
+                Height = 17,
+                AutoSize = false,
+                Dock = DockStyle.Top,
+                //BackColor = Color.Red,
+                TextAlign = ContentAlignment.BottomRight,
+            };
+            m_tab_Browser.Controls.AddRange(new Control[] {
+                brow_Content,
+                brow_Footer,
+                brow_Message_Label,
+                brow_URL_Text,
+                brow_setting,
+            });
+            brow_setting.SendToBack();
+
+            TextBox brow_word_Input = new TextBox()
+            {
+                Anchor = AnchorStyles.Left | AnchorStyles.Top,
+                Width = m_text_search_width,
+                Location = new Point(7, 2),
+                Height = 19
+            };
+
+            IconButton ico_refresh = new IconButton()
+            {
+                IconType = IconType.refresh,
+                Dock = DockStyle.Right,
+            };
+            ico_refresh.MouseClick += (se, ev) => { f_browser_fetchURL(); };
+
+            IconButton ico_dowload_mp3 = new IconButton()
+            {
+                IconType = IconType.android_playstore,
+                Dock = DockStyle.Right,
+                ToolTipText = "Download MP3"
+            };
+            ico_dowload_mp3.MouseClick += f_browser_download_MP3;
+
+            IconButton ico_download_stop = new IconButton(16)
+            {
+                IconType = IconType.stop,
+                Dock = DockStyle.Right,
+                ToolTipText = "Stop download"
+            };
+            ico_download_stop.MouseClick += f_browser_download_Stop;
+
+            IconButton ico_download_config = new IconButton()
+            {
+                IconType = IconType.settings,
+                Dock = DockStyle.Right,
+                ToolTipText = "Setting download"
+            };
+            ico_download_config.MouseClick += f_browser_download_Setting;
+
+            IconButton ico_dowload_article = new IconButton()
+            {
+                IconType = IconType.archive,
+                Dock = DockStyle.Right,
+                ToolTipText = "Download Article"
+            };
+            ico_dowload_article.MouseClick += f_browser_download_Article;
+
+            IconButton ico_dowload_link = new IconButton()
+            {
+                IconType = IconType.link,
+                Dock = DockStyle.Right,
+                ToolTipText = "Fetch All URL"
+            };
+            ico_dowload_link.MouseClick += f_browser_download_URL;
+
+            brow_Footer.Controls.AddRange(new Control[] {
+                //brow_word_Input,
+                ico_dowload_link,
+                new Label(){ Dock = DockStyle.Right, Width = 5 },
+                ico_download_config,
+                new Label(){ Dock = DockStyle.Right, Width = 5 },
+                ico_dowload_article,
+                new Label(){ Dock = DockStyle.Right, Width = 5 },
+                ico_dowload_mp3,
+                new Label(){ Dock = DockStyle.Right, Width = 5 },
+                ico_download_stop,
+            });
+        }
+
+        Dictionary<string, string> f_browser_get_Setting()
+        {
+            Dictionary<string, string> rs = new Dictionary<string, string>() {
+                { "URL", brow_URL_Text.Text.Trim() }
+            };
+            foreach (Control ti in brow_setting.Controls)
+                if (ti is TextBox && ti.Tag != null && !string.IsNullOrEmpty(ti.Text))
+                    rs.Add(ti.Tag.ToString(), ti.Text);
+                else if (ti is CheckBox && ti.Tag != null)
+                    rs.Add(ti.Tag.ToString(), (((CheckBox)ti).Checked ? "1" : "0"));
+
+            return rs;
+        }
+
+        bool f_browser_validBeforAction()
+        {
+            brow_Message_Label.Text = string.Empty;
+
+            Uri uri;
+            if (brow_URL_Text.Text.Trim().Length > 0 && Uri.TryCreate(brow_URL_Text.Text.Trim(), UriKind.RelativeOrAbsolute, out uri))
+            {
+                brow_URL = brow_URL_Text.Text.Trim();
+                var cf = f_browser_get_Setting();
+                if (!cf.ContainsKey("URL")) // || !cf.ContainsKey("START_URL") )//|| !cf.ContainsKey("PARA1") || !cf.ContainsKey("PARA2"))
+                {
+                    brow_Message_Label.Text = "Please setting !";
+                    f_browser_download_Setting(null, null);
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                brow_Message_Label.Text = "URL invalid!";
+            }
+            return false;
+        }
+
+        private void f_browser_URL_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+            }
+        }
+
+        private void f_browser_download_Stop(object sender, MouseEventArgs e)
+        {
+        }
+
+        private void f_browser_download_Setting(object sender, MouseEventArgs e)
+        {
+            brow_setting.Visible = true;
+            brow_setting.BringToFront();
+        }
+
+        private void f_browser_download_Article(object sender, MouseEventArgs e)
+        {
+            if (f_browser_validBeforAction())
+            {
+
+            }
+        }
+
+        private void f_browser_download_URL(object sender, MouseEventArgs e)
+        {
+            if (f_browser_validBeforAction())
+            {
+                app.postToAPI(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REGISTER_PATH, Input = new oLinkSetting() {
+                    Url = brow_URL,
+                    Settings = f_browser_get_Setting()
+                } });
+            }
+        }
+
+        private void f_browser_download_MP3(object sender, MouseEventArgs e)
+        {
+            if (f_browser_validBeforAction())
+            {
+
+            }
+        }
+
+        void f_brow_reset_All()
+        {
+            brow_HTML = string.Empty;
+            brow_URL = string.Empty;
+
+            brow_Message_Label.Text = string.Empty;
+
+            brow_URL_Text.Text = string.Empty;
+
+            brow_Content.Text = string.Empty;
+        }
+
+        void f_brow_reset_UI()
+        {
+            brow_Message_Label.Text = string.Empty;
+            brow_URL_Text.Text = string.Empty;
+            brow_Content.Text = string.Empty;
+        }
+
+        void f_browser_fetchURL()
+        {
+            if (brow_Content == null) return;
+
+            List<string> urls = new List<string>();
+
+            brow_Message_Label.Text = "Syncing with chrome tab current...";
+
+            // there are always multiple chrome processes, so we have to loop through all of them to find the
+            // process with a Window Handle and an automation element of name "Address and search bar"
+            Process[] procsChrome = Process.GetProcessesByName("chrome");
+            foreach (Process chrome in procsChrome)
+            {
+                // the chrome process must have a window
+                if (chrome.MainWindowHandle == IntPtr.Zero)
+                {
+                    continue;
+                }
+
+                // find the automation element
+                AutomationElement elm = AutomationElement.FromHandle(chrome.MainWindowHandle);
+                AutomationElement elmUrlBar = elm.FindFirst(TreeScope.Descendants, new PropertyCondition(AutomationElement.NameProperty, "Address and search bar"));
+
+                // if it can be found, get the value from the URL bar
+                if (elmUrlBar != null)
+                {
+                    AutomationPattern[] patterns = elmUrlBar.GetSupportedPatterns();
+                    if (patterns.Length > 0)
+                    {
+                        ValuePattern val = (ValuePattern)elmUrlBar.GetCurrentPattern(patterns[0]);
+                        //Console.WriteLine("Chrome URL found: " + val.Current.Value);
+                        if (val != null
+                            && !string.IsNullOrEmpty(val.Current.Value)
+                            && brow_URL != val.Current.Value)
+                        {
+                            string url = val.Current.Value;
+                            if (url.StartsWith("http"))
+                                urls.Add(url);
+                        }
+                    }
+                }
+            }
+
+            if (urls.Count > 0)
+            {
+                string url = urls[0];
+                if (brow_URL == url)
+                {
+                    //f_brow_reset_All();
+                    f_brow_analytic_HTML();
+                }
+                else
+                {
+                    brow_URL = url;
+
+                    f_brow_reset_UI();
+
+                    brow_URL_Text.Text = brow_URL;
+
+                    using (WebClient w = new WebClient())
+                    {
+                        w.Encoding = Encoding.UTF8;
+                        brow_HTML = w.DownloadString(brow_URL);
+                    }
+
+                    f_brow_analytic_HTML();
+                }
+            }
+            else
+            {
+                f_brow_reset_All();
+                brow_Message_Label.Text = string.Empty;
+            }
+        }
+
+        void f_brow_analytic_HTML()
+        {
+            string s = api_media.f_article_analytic_HTML(brow_URL, brow_HTML);
+            brow_Content.Text = s;
+            brow_Content.SelectAll();
+            brow_Content.SelectionParaSpacing = new RTBParaSpacing(0, 150);
+            brow_Content.Select(0, 0);
         }
 
         #endregion
@@ -2516,7 +2666,21 @@ writeline and then it's just   going to print out hello on the screen   can't do
                                 break;
                         }
                         break;
-                        #endregion
+                    #endregion
+                    case _API.CRAWLER:
+                        switch (m.KEY) {
+                            case _API.CRAWLER_KEY_REQUEST_LINK:
+                                brow_Message_Label.crossThreadPerformSafely(() => {
+                                    brow_Message_Label.Text = m.Log;
+                                });
+                                break;
+                            case _API.CRAWLER_KEY_REQUEST_LINK_COMPLETE:
+                                brow_Content.crossThreadPerformSafely(() => {
+                                    brow_Content.Text = string.Join(Environment.NewLine, m.Input as string[]);
+                                });
+                                break;
+                        }
+                        break;
                 }
             }
         }
@@ -2545,7 +2709,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
             f_word_Init();
             f_browser_initUI();
 
-            f_pronunce_initUI(); 
+            f_pronunce_initUI();
         }
 
     }

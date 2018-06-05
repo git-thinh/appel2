@@ -104,6 +104,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\api_base.cs" />
+    <Compile Include="API\api_crawler.cs" />
     <Compile Include="API\api_media.cs" />
     <Compile Include="API\api_pronunce.cs" />
     <Compile Include="API\api_word.cs" />

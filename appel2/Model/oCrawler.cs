@@ -24,7 +24,19 @@ namespace appel
 
         public override string ToString()
         {
-            return string.Format("{0}:{1}", text, url);
+            return string.Format("{0} = {1}",url , text);
+        }
+    }
+
+    public class oLinkSetting
+    {
+        public string Url { set; get; }
+        public Dictionary<string, string> Settings { set; get; }
+
+        public oLinkSetting()
+        {
+            Url = string.Empty;
+            Settings = new Dictionary<string, string>();
         }
     }
 }
