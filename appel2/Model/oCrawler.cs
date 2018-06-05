@@ -39,4 +39,20 @@ namespace appel
             Settings = new Dictionary<string, string>();
         }
     }
+
+    public class oLinkExtract
+    {
+        public string[] Url_Html { set; get; }
+        public string[] Url_Image { set; get; }
+        public string[] Url_Audio { set; get; }
+        public string[] Url_Youtube { set; get; }
+
+        public oLinkExtract()
+        {
+            Url_Html = new string[] { };
+            Url_Image = new string[] { };
+            Url_Audio = new string[] { };
+            Url_Youtube = new string[] { };
+        }
+    }
 }

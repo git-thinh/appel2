@@ -2029,8 +2029,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
             });
 
 
-            string[] av = api_pronunce.f_get_Vowels();
-            string[] ac = api_pronunce.f_get_Consonants();
+            string[] av = new string[] { };// api_pronunce.f_get_Vowels();
+            string[] ac = new string[] { };// api_pronunce.f_get_Consonants();
 
             Control[] cv = new Control[av.Length + 1];
             Control[] cc = new Control[ac.Length + 1];
@@ -2373,6 +2373,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
         {
             if (f_browser_validBeforAction())
             {
+                string[] auri = brow_URL.Split('/');
+                string uri_root = string.Join("/", auri.Where((x, k) => k < 3).ToArray());
                 app.postToAPI(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REGISTER_PATH, Input = new oLinkSetting() {
                     Url = brow_URL,
                     Settings = f_browser_get_Setting()

@@ -83,6 +83,7 @@ namespace appel
             dicService = new ConcurrentDictionary<string, IthreadMsg>();
 
             dicService.TryAdd(_API.CRAWLER, new threadMsg(new api_crawler()));
+            //dicService.TryAdd(_API.pro, new threadMsg(new api_pronunce()));
             dicService.TryAdd(_API.WORD, new threadMsg(new api_word()));
             dicService.TryAdd(_API.MEDIA, new threadMsg(new api_media()));
         }
