@@ -25,3 +25,7 @@ Buildx86/appel.vshost.exe.manifest
 appel2/obj/x86/Debug/TempPE/Resources.Designer.cs.dll
 appel2/obj/x86/Debug/DesignTimeResolveAssemblyReferences.cache
 Buildx86/cambridge-hello.txt
+appel2/obj/x86/Release/appel.exe
+appel2/obj/x86/Release/appel.exe
+appel2/obj/x86/Release/DesignTimeResolveAssemblyReferencesInput.cache
+appel2/obj/x86/Release/appel2.csprojResolveAssemblyReference.cache
