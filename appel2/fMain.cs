@@ -2376,10 +2376,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
             {
                 string[] auri = brow_URL.Split('/');
                 string uri_root = string.Join("/", auri.Where((x, k) => k < 3).ToArray());
-                app.postToAPI(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REGISTER_PATH, Input = new oLinkSetting() {
-                    Url = brow_URL,
-                    Settings = f_browser_get_Setting()
-                } });
+                app.postToAPI(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REGISTER_PATH, Input = brow_URL });
             }
         }
 
