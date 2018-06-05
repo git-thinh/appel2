@@ -58,6 +58,11 @@ namespace appel
                             try
                             {
                                 HttpWebResponse rs = (HttpWebResponse)w.EndGetResponse(asyncResult); //add a break point here 
+                                if (rs.StatusCode == HttpStatusCode.NotFound)
+                                {
+                                    running = false;
+                                    return;
+                                }
                                 string url = rs.ResponseUri.ToString();
 
                                 if (rs.StatusCode == HttpStatusCode.OK)
@@ -102,6 +107,10 @@ namespace appel
                     {
                         string para_url = (string)ev.Result;
                         response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = crawlResult + "|" + crawlTotal + ": " + para_url });
+                        if (crawlTotal == 0) {
+                            Thread.Sleep(1000);
+                            Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK });
+                        }
                     }
                 };
             }
@@ -181,15 +190,17 @@ namespace appel
 
                         if (crawlCounter == 0)
                         {
-                            response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = "Crawle complete result: " + dicHtml.Count + " links. Writing file ..." });
+                            response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = "Crawle complete result: " + crawlResult + " links. Writing file ..." });
+                            try
+                            {
+                                string fi_name = "crawler.html.bin";
+                                if (File.Exists(fi_name))
+                                    File.Delete(fi_name);
 
-                            string fi_name = "crawler.html.bin";
-                            if (File.Exists(fi_name))
-                                File.Delete(fi_name);
-
-                            using (var file = File.Create(fi_name))
-                                Serializer.Serialize<ConcurrentDictionary<string, string>>(file, dicHtml);
-
+                                using (var file = File.Create(fi_name))
+                                    Serializer.Serialize<ConcurrentDictionary<string, string>>(file, dicHtml);
+                            }
+                            catch { } 
                             response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK_COMPLETE, Input = dicHtml.Keys.ToArray() });
                             return m;
                         }

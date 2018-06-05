@@ -94,7 +94,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="UIAutomationClient">
-      <Private>True</Private>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UIAutomationTypes" />
     <Reference Include="WebSocket4Net">
