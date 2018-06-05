@@ -3,6 +3,7 @@ using ProtoBuf;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -20,7 +21,7 @@ namespace appel
         static ConcurrentDictionary<string, bool> dicUrl = new ConcurrentDictionary<string, bool>();
         static ConcurrentDictionary<string, string> dicSettingCurrent = new ConcurrentDictionary<string, string>();
         static int crawlCounter = 0; 
-        static int crawlTotal = 0;
+        static int crawlTotal = 0; 
 
         public bool Open { get; set; } = false;
 
@@ -39,8 +40,7 @@ namespace appel
         public msg Execute(msg m)
         {
             if (m == null || m.Input == null) return m;
-            string url_input = string.Empty, path_package;
-            HttpWebRequest w;
+            string url_input = string.Empty, path_package; 
             switch (m.KEY)
             {
                 case _API.CRAWLER_KEY_REGISTER_PATH:
@@ -52,10 +52,12 @@ namespace appel
 
                         if (olink.Settings != null && olink.Settings.Count > 0)
                         {
+                            response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = "FETCHING: " + url_input });
+
                             foreach (var kv in olink.Settings)
                                 dicSettingCurrent.TryAdd(kv.Key, kv.Value);
 
-                            crawlCounter = 0;
+                            crawlCounter = 1;
                             crawlTotal = 1;
 
                             dicUrl.Clear();
@@ -63,14 +65,16 @@ namespace appel
                             dicUrl.TryAdd(url_input, true);
                         }
 
-                        w = (HttpWebRequest)WebRequest.Create(new Uri(url_input));
+
+                        HttpWebRequest w = (HttpWebRequest)WebRequest.Create(new Uri(url_input));
                         w.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36";
                         w.BeginGetResponse(asyncResult =>
                         {
                             HttpWebResponse rs = (HttpWebResponse)w.EndGetResponse(asyncResult); //add a break point here 
                             string url = rs.ResponseUri.ToString();
-
+                             
                             response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = crawlCounter + "|" + dicUrl.Count + " = " + url });
+                            //response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = url });
 
                             bool isOk = true;
 
@@ -85,7 +89,6 @@ namespace appel
                                 if (string.IsNullOrEmpty(htm)) isOk = false;
                                 if (isOk)
                                 {
-
                                     htm = HttpUtility.HtmlDecode(htm);
                                     htm = format_HTML(htm);
 
@@ -104,8 +107,8 @@ namespace appel
                                                 if (!hasNew) hasNew = true;
                                             }
                                         }
-                                        //if(hasNew)
-                                        //    Interlocked.se
+                                        if (hasNew)
+                                            Interlocked.CompareExchange(ref crawlTotal, dicUrl.Count, crawlTotal);
                                     }
 
                                     string[] urls = dicUrl.Where(x => x.Value == false).Select(x => x.Key).Take(10).ToArray();
@@ -113,19 +116,7 @@ namespace appel
                                     {
                                         foreach (string uri in urls) dicUrl[uri] = true;
                                         Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Input = urls });
-                                    }
-
-
-                                    //string START_URL = string.Empty;
-                                    //if (dicSettingCurrent.TryGetValue("START_URL", out START_URL) && !string.IsNullOrEmpty(START_URL))
-                                    //url_new = url_new.Where(x => x.url.StartsWith(START_URL)).ToArray();
-
-                                    //listUri.Add(new oLink() { crawled = true, url = url, uri = url, text = string.Empty });
-                                    //if (urls.Length > 0)
-                                    //{
-                                    //    listUri.AddRange(urls);
-                                    //    Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Input = urls[0] });
-                                    //}
+                                    } 
                                 }
                             }
                             if (isOk == false)
@@ -133,23 +124,21 @@ namespace appel
                                 Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = "Crawl URL: " + url + " => FAIL" });
                             }
 
-                            Interlocked.Increment(ref crawlCounter);
+                            // CompareExchange: if crawlTotal, change to = 0.
+                            int result = Interlocked.CompareExchange(ref crawlCounter, 0, dicUrl.Count);
+                            if (result == 0)
+                                {
+                                    Uri uri_ = new Uri(url);
+                                    string fi_name = uri_.Host + ".bin";
+                                    if (File.Exists(fi_name))
+                                        File.Delete(fi_name);
 
-                            if (olink.Settings == null
-                                && crawlCounter == dicUrl.Count)
-                            {
-                                Uri uri_ = new Uri(url);
-                                string fi_name = uri_.Host + ".bin";
-                                if (File.Exists(fi_name))
-                                    File.Delete(fi_name);
+                                    using (var file = File.Create(fi_name))
+                                        Serializer.Serialize<ConcurrentDictionary<string, string>>(file, dicHtml);
 
-                                using (var file = File.Create(fi_name))
-                                    Serializer.Serialize<ConcurrentDictionary<string, string>>(file, dicHtml);
-
-                                response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK_COMPLETE, Input = dicUrl.Keys.ToArray() });
-                            }
+                                    response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK_COMPLETE, Input = dicUrl.Keys.ToArray() });
+                                } 
                         }, w);
-
                     }
                     #endregion
                     break;
@@ -159,15 +148,113 @@ namespace appel
                     {
                         string[] urls = m.Input as string[];
                         if (urls.Length > 0)
-                        {
-                            string url = string.Empty;
+                        { 
                             for (int i = 0; i < urls.Length; i++)
                             {
-                                url = urls[i];
-                                new Thread(new ParameterizedThreadStart((object obj) =>
+                                //new Thread(new ParameterizedThreadStart((object obj) =>
+                                //{
+                                //    Interlocked.Increment(ref crawlCounter); 
+                                //    string url = (string)obj; 
+                                //    Thread.Sleep(10);
+                                //    Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REGISTER_PATH, Input = new oLinkSetting() { Settings = null, Url = url } });
+                                //})).Start(urls[i]);
+
+                                BackgroundWorker thread = new BackgroundWorker();
+                                thread.DoWork += delegate
                                 {
-                                    Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REGISTER_PATH, Input = new oLinkSetting() { Settings = null, Url = (string)obj } });
-                                })).Start(url);
+                                    #region
+                                    bool running = true;
+
+                                    HttpWebRequest w = (HttpWebRequest)WebRequest.Create(new Uri(url_input));
+                                    w.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36";
+                                    w.BeginGetResponse(asyncResult =>
+                                    {
+                                        HttpWebResponse rs = (HttpWebResponse)w.EndGetResponse(asyncResult); //add a break point here 
+                                        string url = rs.ResponseUri.ToString();
+                                        //response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = crawlCounter + "|" + crawlTotal + " = " + url });
+                                        response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = url });
+
+                                        bool isOk = true;
+
+                                        if (rs.StatusCode != HttpStatusCode.OK) isOk = false;
+                                        if (isOk)
+                                        {
+                                            string htm = string.Empty;
+                                            StreamReader sr = new StreamReader(rs.GetResponseStream(), Encoding.UTF8);
+                                            htm = sr.ReadToEnd();
+                                            sr.Close();
+                                            rs.Close();
+                                            if (string.IsNullOrEmpty(htm)) isOk = false;
+                                            if (isOk)
+                                            {
+                                                htm = HttpUtility.HtmlDecode(htm);
+                                                htm = format_HTML(htm);
+
+                                                if (!dicHtml.ContainsKey(url))
+                                                    dicHtml.TryAdd(url, htm);
+
+                                                var us = get_Urls(url, htm);
+                                                if (us.Url_Html.Length > 0)
+                                                {
+                                                    bool hasNew = false;
+                                                    foreach (string uri in us.Url_Html)
+                                                    {
+                                                        if (!dicUrl.ContainsKey(uri))
+                                                        {
+                                                            dicUrl.TryAdd(uri, false);
+                                                            if (!hasNew) hasNew = true;
+                                                        }
+                                                    }
+                                                    if (hasNew)
+                                                        Interlocked.CompareExchange(ref crawlTotal, dicUrl.Count, crawlTotal);
+                                                }
+
+                                                //string[] urls = dicUrl.Where(x => x.Value == false).Select(x => x.Key).Take(10).ToArray();
+                                                //if (urls.Length > 0)
+                                                //{
+                                                //    foreach (string uri in urls) dicUrl[uri] = true;
+                                                //    Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Input = urls });
+                                                //}
+                                            }
+                                        }
+
+                                        ////if (isOk == false)
+                                        ////{
+                                        ////    Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = "Crawl URL: " + url + " => FAIL" });
+                                        ////}
+
+                                        //////// CompareExchange: if crawlTotal, change to = 0.
+                                        //////int result = Interlocked.CompareExchange(ref crawlCounter, 0, dicUrl.Count);
+                                        //////if (result == 0)
+                                        //////{
+                                        //////    Uri uri_ = new Uri(url);
+                                        //////    string fi_name = uri_.Host + ".bin";
+                                        //////    if (File.Exists(fi_name))
+                                        //////        File.Delete(fi_name);
+
+                                        //////    using (var file = File.Create(fi_name))
+                                        //////        Serializer.Serialize<ConcurrentDictionary<string, string>>(file, dicHtml);
+
+                                        //////    response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK_COMPLETE, Input = dicUrl.Keys.ToArray() });
+                                        //////}
+
+                                        running = false;
+                                    }, w);
+
+                                    while (running) {; }
+                                    ;
+                                    #endregion
+                                };
+                                thread.RunWorkerCompleted += delegate
+                                { 
+                                    string url_new = dicUrl.Where(x => x.Value == false).Select(x => x.Key).Take(1).SingleOrDefault();
+                                    if (!string.IsNullOrEmpty(url_new))
+                                    {
+                                        dicUrl[url_new] = true;
+                                        Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Input = new oLinkSetting() { Settings = null, Url = url_new } });
+                                    }
+                                };
+                                thread.RunWorkerAsync(); 
                             }
                         }
 
@@ -532,6 +619,7 @@ namespace appel
             //si = string.Join(Environment.NewLine, lines);
             //return si;
         }
+         
 
     }
 

@@ -2215,6 +2215,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 Dock = DockStyle.Top,
                 //BackColor = Color.Yellow,
                 BorderStyle = BorderStyle.None,
+                Text = "https://pronuncian.com/pronounce-th-sounds/",
             };
             brow_URL_Text.KeyDown += f_browser_URL_KeyDown;
 
