@@ -119,6 +119,7 @@
     <Compile Include="API\api_crawler.cs" />
     <Compile Include="API\api_media.cs" />
     <Compile Include="API\api_pronunce.cs" />
+    <Compile Include="API\api_request_url.cs" />
     <Compile Include="API\api_word.cs" />
     <Compile Include="API\htmlToText.cs" />
     <Compile Include="API\IAPI.cs" />

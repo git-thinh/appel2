@@ -1,6 +1,7 @@
 ﻿using HtmlAgilityPack;
 using ProtoBuf;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,6 +12,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -24,7 +26,7 @@ namespace appel
     {
         static ConcurrentDictionary<string, string> dicHtml = new ConcurrentDictionary<string, string>();
         static int crawlCounter = 0;
-        static int crawlTotal = 0;
+        static int crawlPending = 0;
         static int crawlResult = 0;
         const int crawlMaxThread = 5;
 
@@ -115,17 +117,14 @@ namespace appel
                 tasks[i].RunWorkerCompleted += (se, ev) =>
                 {
                     Interlocked.Decrement(ref crawlCounter);
-                    if (crawlCounter == 0)
+                    if (Interlocked.CompareExchange(ref crawlCounter, 0, 0) == 0) 
+                    {
                         Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK });
+                    }
                     else
                     {
                         string para_url = (string)ev.Result;
-                        response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = crawlResult + "|" + crawlTotal + ": " + para_url });
-                        //if (crawlTotal == 0 && crawlCounter == 0)
-                        //{
-                        //    Thread.Sleep(1000);
-                        //    Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK });
-                        //}
+                        response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = crawlResult + "|" + crawlPending + ": " + para_url });
                     }
                 };
             }
@@ -140,161 +139,49 @@ namespace appel
                 case _API.CRAWLER_KEY_REGISTER_PATH:
                     #region
                     if (m.Input != null)
-                    {
-                        string htm = string.Empty;
-                        crawlWritingFile = false;
-                        crawlResult = 0;
-                        string para_url = (string)m.Input;
+                    { 
+                        crawlWritingFile = false; 
+                        Interlocked.Exchange(ref crawlResult, 0);
+                        string para_url = (string)m.Input; 
 
-                        var uri = new Uri(para_url);
-                        string req =
-@"GET " + uri.PathAndQuery + @" HTTP/1.1
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36
-Host: " + uri.Host + (uri.Scheme == "https" ? ":443" : string.Empty) + @"
-Accept: */*
-Accept-Encoding: gzip, deflate
-Connection: Keep-Alive 
-";
-                        string baseAddress = string.Format("{0}://{1}/", uri.Scheme, uri.Host);//https://foobar.com/
-
-                        WebRequestHandler handler = new WebRequestHandler();
-                        X509Certificate2 certificate = GetMyX509Certificate();
-                        handler.ClientCertificates.Add(certificate);
-                        HttpClient httpClient = new HttpClient(handler);
-                        //HttpClient httpClient = new HttpClient();
-
-                        //specify to use TLS 1.2 as default connection             
-                        ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-                        ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | (SecurityProtocolType)3072 | (SecurityProtocolType)0x00000C00 | SecurityProtocolType.Tls;
-
-                        httpClient.BaseAddress = new Uri(baseAddress);
-                        //httpClient.DefaultRequestHeaders.Accept.Clear();
-                        //httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xml"));
-                        //var task = httpClient.PostAsXmlAsync<DeviceRequest>("api/SaveData", request);
-                        htm = httpClient.GetStringAsync(para_url).Result;
-
-
-                        return m;
-
-
-
-                        ////string host = uri.Host; // "encrypted.google.com";
-                        ////string proxy = "127.0.0.1";//host;
-                        ////int proxyPort =  18888;//443;
-
-                        ////byte[] buffer = new byte[2048 * 500];
-                        ////int bytes; 
-                        ////// Connect socket
-                        ////TcpClient client = new TcpClient(proxy, proxyPort);
-                        ////NetworkStream stream = client.GetStream();
-
-                        ////// Establish Tcp tunnel
-                        ////byte[] tunnelRequest = Encoding.UTF8.GetBytes(String.Format("CONNECT {0}:443  HTTP/1.1\r\nHost: {0}\r\n\r\n", host));
-                        ////stream.Write(tunnelRequest, 0, tunnelRequest.Length);
-                        ////stream.Flush();
-
-                        ////// Read response to CONNECT request
-                        ////// There should be loop that reads multiple packets
-                        ////bytes = stream.Read(buffer, 0, buffer.Length);
-                        ////htm = Encoding.UTF8.GetString(buffer, 0, bytes);
-
-                        ////// Wrap in SSL stream
-                        ////SslStream sslStream = new SslStream(stream);
-                        ////sslStream.AuthenticateAsClient(host);
-
-                        ////// Send request
-                        ////byte[] request = Encoding.UTF8.GetBytes(String.Format("GET https://{0}/  HTTP/1.1\r\nHost: {0}\r\n\r\n", host));
-                        ////sslStream.Write(request, 0, request.Length);
-                        ////sslStream.Flush();
-
-                        ////// Read response
-                        ////do
-                        ////{
-                        ////    bytes = sslStream.Read(buffer, 0, buffer.Length);
-                        ////    htm = Encoding.UTF8.GetString(buffer, 0, bytes);
-                        ////} while (bytes != 0);
-
-                        ////client.Close();
-
-
-
-
-                        return m;
-
-
-                        //byte[] requestBytes = Encoding.UTF8.GetBytes(req);
-                        //byte[] responseBytes;
-                        //var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                        //socket.Connect(uri.Host, uri.Scheme == "https" ? 443 : 80);
-                        //if (socket.Connected)
-                        //{
-                        //    socket.Send(requestBytes);
-                        //    responseBytes = new byte[socket.ReceiveBufferSize];
-                        //    socket.Receive(responseBytes);
-                        //    htm = Encoding.UTF8.GetString(responseBytes);
-                        //}
-                        if (!string.IsNullOrEmpty(htm))
+                        HttpWebRequest w = (HttpWebRequest)WebRequest.Create(new Uri(para_url));
+                        w.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36";
+                        w.BeginGetResponse(asyncResult =>
                         {
-                            htm = HttpUtility.HtmlDecode(htm);
-                            htm = format_HTML(htm);
+                            HttpWebResponse rs = (HttpWebResponse)w.EndGetResponse(asyncResult); //add a break point here 
+                            string url = rs.ResponseUri.ToString();
+                            response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = url });
 
-                            if (!dicHtml.ContainsKey(para_url))
+                            if (rs.StatusCode == HttpStatusCode.OK)
                             {
-                                dicHtml.TryAdd(para_url, htm);
-                                Interlocked.Increment(ref crawlResult);
+                                string htm = string.Empty;
+                                StreamReader sr = new StreamReader(rs.GetResponseStream(), Encoding.UTF8);
+                                htm = sr.ReadToEnd();
+                                sr.Close();
+                                rs.Close();
+                                if (!string.IsNullOrEmpty(htm))
+                                {
+                                    htm = HttpUtility.HtmlDecode(htm);
+                                    htm = format_HTML(htm);
+
+                                    if (!dicHtml.ContainsKey(url))
+                                    {
+                                        dicHtml.TryAdd(url, htm);
+                                        Interlocked.Increment(ref crawlResult);
+                                    }
+
+                                    var us = get_Urls(url, htm);
+                                    if (us.Url_Html.Length > 0)
+                                    { 
+                                        lock (_lockUrl)
+                                            listUrl.AddRange(us.Url_Html);
+                                        Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK });
+                                    }
+                                    else
+                                        Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK_COMPLETE, Input = new string[] { } });
+                                }
                             }
-
-                            var us = get_Urls(para_url, htm);
-                            if (us.Url_Html.Length > 0)
-                            {
-                                crawlCounter = us.Url_Html.Length;
-                                lock (_lockUrl)
-                                    listUrl.AddRange(us.Url_Html);
-                                Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK });
-                            }
-                            else
-                                Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK_COMPLETE, Input = new string[] { } });
-                        }
-
-                        //////HttpWebRequest w = (HttpWebRequest)WebRequest.Create(new Uri(para_url));
-                        //////w.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36";
-                        //////w.BeginGetResponse(asyncResult =>
-                        //////{
-                        //////    HttpWebResponse rs = (HttpWebResponse)w.EndGetResponse(asyncResult); //add a break point here 
-                        //////    string url = rs.ResponseUri.ToString();
-                        //////    response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = url });
-
-                        //////    if (rs.StatusCode == HttpStatusCode.OK)
-                        //////    {
-                        //////        string htm = string.Empty;
-                        //////        StreamReader sr = new StreamReader(rs.GetResponseStream(), Encoding.UTF8);
-                        //////        htm = sr.ReadToEnd();
-                        //////        sr.Close();
-                        //////        rs.Close();
-                        //////        if (!string.IsNullOrEmpty(htm))
-                        //////        {
-                        //////            htm = HttpUtility.HtmlDecode(htm);
-                        //////            htm = format_HTML(htm);
-
-                        //////            if (!dicHtml.ContainsKey(url))
-                        //////            {
-                        //////                dicHtml.TryAdd(url, htm);
-                        //////                Interlocked.Increment(ref crawlResult);
-                        //////            }
-
-                        //////            var us = get_Urls(url, htm);
-                        //////            if (us.Url_Html.Length > 0)
-                        //////            {
-                        //////                crawlCounter = us.Url_Html.Length;
-                        //////                lock (_lockUrl)
-                        //////                    listUrl.AddRange(us.Url_Html);
-                        //////                Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK });
-                        //////            }
-                        //////            else
-                        //////                Execute(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK_COMPLETE, Input = new string[] { } });
-                        //////        }
-                        //////    }
-                        //////}, w);
+                        }, w);
                     }
                     #endregion
                     break;
@@ -309,15 +196,14 @@ Connection: Keep-Alive
                         {
                             listUrl = listUrl.Where(x => !uri_ok.Any(o => o == x)).Distinct().ToList();
                             urls = listUrl.Take(crawlMaxThread).ToArray();
-                            crawlCounter = urls.Length;
-                            listUrl = listUrl.Where(x => !urls.Any(o => o == x)).ToList();
-                            //crawlTotal = dicHtml.Count + listUrl.Count + crawlCounter;
-                            crawlTotal = listUrl.Count;
+                            listUrl = listUrl.Where(x => !urls.Any(o => o == x)).ToList(); 
+                            Interlocked.Exchange(ref crawlPending, listUrl.Count);
+                            Interlocked.Exchange(ref crawlCounter, urls.Length);
                         }
 
-                        if (crawlCounter == 0)
+                        if(Interlocked.CompareExchange(ref crawlPending, 0, 0) == 0)
                         {
-                            //response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = "Crawle complete result: " + crawlResult + " links. Writing file ..." });
+                            response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK, Log = "Crawle complete result: " + crawlResult + " links. Writing file ..." });
                             write_file_contentHTML();
                             response_toMain(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REQUEST_LINK_COMPLETE, Input = dicHtml.Keys.ToArray() });
                             return m;
@@ -468,64 +354,6 @@ Connection: Keep-Alive
             };
         }
 
-        public static string getHtml(string url)
-        {
-            string s = string.Empty;
-            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | (SecurityProtocolType)3072 | SecurityProtocolType.Tls;
-
-            //using (WebClient w = new WebClient())
-            //{ 
-            //    w.Encoding = Encoding.UTF7;
-            //    s = w.DownloadString(url);
-            //}
-
-            //HttpWebRequest w = (HttpWebRequest)WebRequest.Create(url);
-            //w.Method = "GET";
-            //w.KeepAlive = false;
-            //WebResponse rs = w.GetResponse();
-            //StreamReader sr = new StreamReader(rs.GetResponseStream(), System.Text.Encoding.UTF8);
-            //s = sr.ReadToEnd();
-            //sr.Close();
-            //rs.Close();
-
-            //            var uri = new Uri(url);
-            //            string req =
-            //@"GET " + uri.PathAndQuery + @" HTTP/1.1
-            //User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36
-            //Host: " + uri.Host + @"
-            //Accept: */*
-            //Accept-Encoding: gzip, deflate
-            //Connection: Keep-Alive 
-            //";
-            //            var requestBytes = Encoding.UTF8.GetBytes(req);
-            //            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            //            socket.Connect(uri.Host, 80);
-            //            if (socket.Connected)
-            //            {
-            //                socket.Send(requestBytes);
-            //                var responseBytes = new byte[socket.ReceiveBufferSize];
-            //                socket.Receive(responseBytes);
-            //                s = Encoding.UTF8.GetString(responseBytes);
-            //            }
-            //            s = HttpUtility.HtmlDecode(s);
-            //result = CleanHTMLFromScript(result);
-
-            //HttpWebRequest w = (HttpWebRequest)WebRequest.Create(new Uri(url));
-            //w.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36";
-            //w.BeginGetResponse(asyncResult =>
-            //{
-            //    HttpWebResponse rs = (HttpWebResponse)w.EndGetResponse(asyncResult); //add a break point here 
-            //    StreamReader sr = new StreamReader(rs.GetResponseStream(), System.Text.Encoding.UTF8);
-            //    s = sr.ReadToEnd();
-            //    sr.Close();
-            //    rs.Close();
-            //    s = HttpUtility.HtmlDecode(s);
-            //}, w);
-
-            return s;
-        }
-
         private static string format_HTML(string s)
         {
             string si = string.Empty;
@@ -576,7 +404,6 @@ Connection: Keep-Alive
             //si = string.Join(Environment.NewLine, lines);
             //return si;
         }
-
 
     }
 
