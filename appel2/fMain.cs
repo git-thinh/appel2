@@ -820,18 +820,18 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         //☆★☐☑⧉✉⦿⦾⚠⚿⛑✕✓⥀✖↭☊⦧▷◻◼⟲≔☰⚒❯►❚❚❮⟳⚑⚐✎✛
         //🕮🖎✍⦦☊🕭🔔🗣🗢🖳🎚🏷🖈🎗🏱🏲🗀🗁🕷🖒🖓👍👎♥♡♫♪♬♫🎙🎖🗝●◯⬤⚲☰⚒🕩🕪❯►❮⟳⚐🗑✎✛🗋🖫⛉ ⛊ ⛨⚏★☆
-        const string tab_caption_store = "☰";
+        const string tab_caption_store = "►";
         const string tab_caption_search = "⚲";
         const string tab_caption_word = "W";
         const string tab_caption_word_detail = "WD";
         //const string tab_caption_word_detail = "⛉";
-        const string tab_caption_listen = "►";
+        const string tab_caption_listen = "?";
         const string tab_caption_pronunce = "P"; //☊
         const string tab_caption_writer = "✍";
         const string tab_caption_grammar = "Grammar";
         const string tab_caption_text = "Text";
         const string tab_caption_book = "Book";
-        const string tab_caption_browser = "Net";
+        const string tab_caption_browser = "☰";
 
         #endregion
 
@@ -2172,7 +2172,10 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         string brow_HTML = string.Empty;
         string brow_URL = string.Empty;
-        
+
+        WebBrowser brow_offline_Web;
+        FATabStripItem brow_offline_tab_View;
+
         #endregion
 
         void f_browser_initUI()
@@ -2333,13 +2336,15 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 brow_ico_download_config.Visible = true;
             };
 
-            brow_offline_items = new ListBox() {
+            brow_offline_items = new ListBox()
+            {
                 Dock = DockStyle.Left,
                 Width = 199,
                 BorderStyle = BorderStyle.None,
                 BackColor = Color.White,
             };
-            brow_offline_splitter = new Splitter() {
+            brow_offline_splitter = new Splitter()
+            {
                 Dock = DockStyle.Left,
                 Width = 3,
                 BackColor = Color.LightGray,
@@ -2366,7 +2371,27 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 Padding = new Padding(109, 0, 9, 0),
                 Visible = false,
             };
-            
+
+            brow_offline_Web = new WebBrowser()
+            {
+                Dock = DockStyle.Fill,
+            };
+
+            FATabStrip tab_offline_view = new FATabStrip()
+            {
+                Dock = DockStyle.Fill,
+                AlwaysShowClose = false,
+                AlwaysShowMenuGlyph = false,
+            };
+            FATabStripItem tab_offline_view_htm = new FATabStripItem("HTML", false) { CanClose = false };
+            brow_offline_tab_View = new FATabStripItem("View", brow_offline_Web) { CanClose = false };
+            FATabStripItem tab_offline_view_text = new FATabStripItem("Edit", brow_Content) { CanClose = false };
+            tab_offline_view.Items.AddRange(new FATabStripItem[] {
+                brow_offline_tab_View,
+                tab_offline_view_text,
+                tab_offline_view_htm,
+            });
+
             brow_offline_tools.Controls.AddRange(new Control[] {
                 brow_offline_textSearch,
                 ico_offline_open_on_browser,
@@ -2380,7 +2405,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 //new Label(){ Dock = DockStyle.Right, Width = 5 },
             });
             m_tab_Browser.Controls.AddRange(new Control[] {
-                brow_Content,
+                tab_offline_view,
                 brow_offline_splitter,
                 brow_offline_items,
                 brow_Message_Label,
@@ -2399,7 +2424,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
             brow_setting.BringToFront();
         }
 
-        public static string f_brow_offline_getHTMLByUrl(string url) {
+        public static string f_brow_offline_getHTMLByUrl(string url)
+        {
             if (dicHtml.ContainsKey(url))
                 return dicHtml[url];
             return string.Empty;
@@ -2407,7 +2433,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         private void f_browser_offline_openArticleOnBrowser(object sender, MouseEventArgs e)
         {
-            if (brow_offline_mode && !string.IsNullOrEmpty(brow_offline_url_current)) {
+            if (brow_offline_mode && !string.IsNullOrEmpty(brow_offline_url_current))
+            {
                 string url = api_media.f_proxy_getHost() + "?crawler_key=" + HttpUtility.UrlEncode(brow_offline_url_current);
                 System.Diagnostics.Process.Start(url);
             }
@@ -2415,12 +2442,14 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         private void f_browser_offline_articles_selectChanged(object sender, EventArgs e)
         {
-            if (brow_offline_mode) {
-                var it = brow_offline_items.SelectedItem as Tuple<string,string>;
+            if (brow_offline_mode)
+            {
+                var it = brow_offline_items.SelectedItem as Tuple<string, string>;
                 if (it != null
-                    && dicHtml.ContainsKey(it.Item1)) {
+                    && dicHtml.ContainsKey(it.Item1))
+                {
                     brow_offline_url_current = it.Item1;
-                    f_browser_displayText(dicHtml[brow_offline_url_current]);
+                    f_browser_offline_displayArticle(it.Item2, dicHtml[brow_offline_url_current]);
                 }
             }
         }
@@ -2428,27 +2457,32 @@ writeline and then it's just   going to print out hello on the screen   can't do
         private void f_browser_setting_Save_MouseClick(object sender, MouseEventArgs e)
         {
             brow_setting.SendToBack();
-            if (brow_offline_mode) {
+            if (brow_offline_mode)
+            {
                 f_browser_offline_analyticHTMLBySetting();
             }
         }
 
-        void f_browser_offline_analyticHTMLBySetting() {
-            if (dicHtml.Count > 0) {
+        void f_browser_offline_analyticHTMLBySetting()
+        {
+            if (dicHtml.Count > 0)
+            {
 
             }
         }
 
-        void f_browser_offline_bindArticles() {            
+        void f_browser_offline_bindArticles()
+        {
             string name = brow_URL_Text.Text.Trim();
             brow_Message_Label.Text = name + ": have " + dicHtml.Count + " articles";
-            f_browser_displayText(string.Empty);
+            f_browser_offline_displayArticle("View", string.Empty);
 
             brow_offline_items.Items.Clear();
 
             string[] a = dicHtml.Keys.ToArray();
             string url_min = a.Select(x => new oLinkLen { Url = x, Len = x.Length }).MinBy(x => x.Len).Url;
-            if (url_min[url_min.Length - 1] != '/') {
+            if (url_min[url_min.Length - 1] != '/')
+            {
                 string[] aa = url_min.Split('/');
                 url_min = string.Join("/", aa.Where((x, k) => k < aa.Length - 1)) + "/";
             }
@@ -2456,16 +2490,19 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
             foreach (string it in a)
             {
-                string tit = it.Replace(url_min, string.Empty).Replace('-',' ');
-                if(tit.Length > 0)
+                string tit = it.Replace(url_min, string.Empty).Replace('-', ' ');
+                if (tit.Length > 0)
                     tit = tit[0].ToString().ToUpper() + tit.Substring(1);
                 brow_offline_items.Items.Add(new Tuple<string, string>(it, tit));
             }
         }
 
-        void f_browser_displayText(string s)
+        void f_browser_offline_displayArticle(string title, string html)
         {
-            brow_Content.Text = s;
+            brow_offline_tab_View.Title = title;
+            brow_offline_Web.DocumentText = html;
+
+            brow_Content.Text = html;
             brow_Content.SelectAll();
             brow_Content.SelectionParaSpacing = new RTBParaSpacing(0, 150);
             brow_Content.Select(0, 0);
@@ -2570,7 +2607,8 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 brow_setting.Visible = true;
                 brow_setting.BringToFront();
             }
-            else {
+            else
+            {
                 brow_setting.Visible = false;
             }
         }
@@ -2709,7 +2747,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
         void f_brow_analytic_HTML()
         {
             string s = api_media.f_article_analytic_HTML(brow_URL, brow_HTML);
-            f_browser_displayText(s);
+            f_browser_offline_displayArticle("View", s);
         }
 
 
