@@ -62,6 +62,7 @@ namespace appel
         public const string CRAWLER = "CRAWLER";
         public const string CRAWLER_KEY_REGISTER_PATH = "CRAWLER_KEY_REGISTER_PATH";
         public const string CRAWLER_KEY_REQUEST_LINK = "CRAWLER_KEY_REQUEST_LINK";
+        public const string CRAWLER_KEY_STOP = "CRAWLER_KEY_STOP";
         public const string CRAWLER_KEY_REQUEST_LINK_COMPLETE = "CRAWLER_KEY_REQUEST_LINK_COMPLETE";
 
         public const string CRAWLER_KEY_CONVERT_HTML_TO_TEXT = "CRAWLER_KEY_CONVERT_HTML_TO_TEXT";

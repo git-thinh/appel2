@@ -7,6 +7,12 @@ using System.Text;
 
 namespace appel
 { 
+    public class oLinkLen
+    {
+        public string Url { set; get; }
+        public int Len { set; get; }
+    }
+
     [ProtoContract]
     public class oLink
     {

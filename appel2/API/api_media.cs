@@ -2163,7 +2163,8 @@ namespace appel
                     try
                     {
                         var ctx = listener.GetContext();
-                        if (ctx.Request.RawUrl == "/crossdomain.xml")
+                        string rawUrl = ctx.Request.RawUrl;
+                        if (rawUrl == "/crossdomain.xml")
                         {
                             ctx.Response.ContentType = "text/xml";
                             string xml =
@@ -2186,17 +2187,34 @@ namespace appel
                         }
                         else
                         {
-                            string key = ctx.Request.QueryString["key"];
-                            if (string.IsNullOrEmpty(key))
-                            {
-                                byte[] bytes = Encoding.UTF8.GetBytes(string.Format("Cannot find key: /?key=???"));
-                                ctx.Response.OutputStream.Write(bytes, 0, bytes.Length);
-                                ctx.Response.OutputStream.Flush();
-                                ctx.Response.OutputStream.Close();
-                                ctx.Response.Close();
+                            if (rawUrl.Contains("?crawler_key=")) {
+                                string crawler_key = ctx.Request.QueryString["crawler_key"];
+                                if (!string.IsNullOrEmpty(crawler_key)) {
+                                    crawler_key = HttpUtility.UrlDecode(crawler_key);
+                                    string htm = fMain.f_brow_offline_getHTMLByUrl(crawler_key);
+                                    byte[] bytes = Encoding.UTF8.GetBytes(htm);
+                                    ctx.Response.ContentType = "text/html; charset=utf-8";
+                                    //ctx.Response.ContentEncoding = Encoding.UTF8;
+                                    ctx.Response.OutputStream.Write(bytes, 0, bytes.Length);
+                                    ctx.Response.OutputStream.Flush();
+                                    ctx.Response.OutputStream.Close();
+                                    ctx.Response.Close();
+                                }
                             }
                             else
-                                new Thread(new Relay(ctx).ProcessRequest).Start();
+                            {
+                                string key = ctx.Request.QueryString["key"];
+                                if (string.IsNullOrEmpty(key))
+                                {
+                                    byte[] bytes = Encoding.UTF8.GetBytes(string.Format("Cannot find key: /?key=???"));
+                                    ctx.Response.OutputStream.Write(bytes, 0, bytes.Length);
+                                    ctx.Response.OutputStream.Flush();
+                                    ctx.Response.OutputStream.Close();
+                                    ctx.Response.Close();
+                                }
+                                else
+                                    new Thread(new Relay(ctx).ProcessRequest).Start();
+                            }
                         }
                     }
                     catch { }
@@ -2215,6 +2233,10 @@ namespace appel
             m_listener.Stop();
             m_running = false;
             Thread.Sleep(10);
+        }
+
+        public static string f_proxy_getHost() {
+            return string.Format("http://localhost:{0}/", m_port);
         }
 
         #endregion

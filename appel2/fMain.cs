@@ -2,6 +2,7 @@
 using FarsiLibrary.Win;
 using ProtoBuf;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -23,6 +24,11 @@ namespace appel
 {
     public class fMain : Form, IFORM
     {
+        string test_url = string.Empty;
+        string test_URL_CONTIANS = string.Empty;
+        //string test_url = "http://vietjack.com/ngu-phap-tieng-anh/index.jsp";
+        //string test_URL_CONTIANS = "http://vietjack.com/ngu-phap-tieng-anh/|.jsp";
+
         #region [ VARIABLE ] 
 
         readonly Font font_Title = new Font("Arial", 11f, FontStyle.Regular);
@@ -2142,19 +2148,43 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         #region [ BROWSER ]
 
+        #region
+
+        bool brow_offline_mode = false;
+        string brow_offline_url_path = string.Empty;
+        string brow_offline_url_current = string.Empty;
+
         RichTextBoxEx brow_Content;
         Panel brow_Footer;
         TextBox brow_URL_Text;
         Label brow_Message_Label;
 
         Panel brow_setting;
+        IconButton brow_ico_dowload_link;
+        IconButton brow_ico_download_stop;
+        IconButton brow_ico_download_config;
+
+        static ConcurrentDictionary<string, string> dicHtml = new ConcurrentDictionary<string, string>();
+
+        Panel brow_offline_tools;
+        ListBox brow_offline_items;
+        Splitter brow_offline_splitter;
 
         string brow_HTML = string.Empty;
         string brow_URL = string.Empty;
+        
+        #endregion
 
         void f_browser_initUI()
         {
             m_tab_Browser.Padding = new Padding(9, 0, 0, 0);
+
+            Panel panel_header = new Panel()
+            {
+                Height = 25,
+                Dock = DockStyle.Top,
+                Padding = new Padding(0, 3, 0, 0),
+            };
 
             brow_setting = new Panel()
             {
@@ -2167,7 +2197,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
             };
 
             var btn_setting_save = new Button() { Text = "SAVE", Dock = DockStyle.Bottom, BackColor = Color.Orange };
-            btn_setting_save.MouseClick += (se, ev) => { brow_setting.SendToBack(); };
+            btn_setting_save.MouseClick += f_browser_setting_Save_MouseClick;
             brow_setting.Controls.AddRange(new Control[] {
                 btn_setting_save,
 
@@ -2175,7 +2205,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 //new Label(){ Dock = DockStyle.Top, Text = "URL start:", Height = 15,  },
                 new Label(){ Dock = DockStyle.Top, Height = 2 },
 
-                new TextBox(){ Dock = DockStyle.Top, Tag = "START_URL" },
+                new TextBox(){ Dock = DockStyle.Top, Tag = "URL_CONTIANS", Text = test_URL_CONTIANS },
                 new Label(){ Dock = DockStyle.Top, Text = "URL start:", Height = 15,  },
                 new Label(){ Dock = DockStyle.Top, Height = 3 },
 
@@ -2205,42 +2235,36 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 Height = 25,
                 Dock = DockStyle.Bottom,
                 //BackColor = Color.White,
-                Padding = new Padding(109, 0, 9, 0),
             };
 
             brow_URL_Text = new TextBox()
             {
-                Height = 17,
+                //Height = 17,
                 AutoSize = false,
-                Dock = DockStyle.Top,
-                //BackColor = Color.Yellow,
+                Dock = DockStyle.Fill,
+                //BackColor = Color.WhiteSmoke,
                 BorderStyle = BorderStyle.None,
-                Text = "https://pronuncian.com/pronounce-th-sounds/",
+                Text = test_url,
+                Margin = new Padding(0, 9, 0, 0),
+                ForeColor = Color.DimGray,
             };
             brow_URL_Text.KeyDown += f_browser_URL_KeyDown;
+            brow_URL_Text.MouseDoubleClick += f_browser_offline_OpenFile;
 
             brow_Message_Label = new Label()
             {
                 Height = 17,
                 AutoSize = false,
-                Dock = DockStyle.Top,
+                Dock = DockStyle.Bottom,
                 //BackColor = Color.Red,
                 TextAlign = ContentAlignment.BottomRight,
             };
-            m_tab_Browser.Controls.AddRange(new Control[] {
-                brow_Content,
-                brow_Footer,
-                brow_Message_Label,
-                brow_URL_Text,
-                brow_setting,
-            });
-            brow_setting.SendToBack();
 
-            TextBox brow_word_Input = new TextBox()
+            TextBox brow_offline_textSearch = new TextBox()
             {
                 Anchor = AnchorStyles.Left | AnchorStyles.Top,
                 Width = m_text_search_width,
-                Location = new Point(7, 2),
+                Location = new Point(0, 2),
                 Height = 19
             };
 
@@ -2259,21 +2283,20 @@ writeline and then it's just   going to print out hello on the screen   can't do
             };
             ico_dowload_mp3.MouseClick += f_browser_download_MP3;
 
-            IconButton ico_download_stop = new IconButton(16)
+            brow_ico_download_stop = new IconButton(16)
             {
                 IconType = IconType.stop,
-                Dock = DockStyle.Right,
-                ToolTipText = "Stop download"
+                Dock = DockStyle.Left,
+                ToolTipText = "Stop download",
+                Visible = false,
             };
-            ico_download_stop.MouseClick += f_browser_download_Stop;
-
-            IconButton ico_download_config = new IconButton()
+            brow_ico_download_config = new IconButton()
             {
                 IconType = IconType.settings,
                 Dock = DockStyle.Right,
                 ToolTipText = "Setting download"
             };
-            ico_download_config.MouseClick += f_browser_download_Setting;
+            brow_ico_download_config.MouseClick += f_browser_download_Setting;
 
             IconButton ico_dowload_article = new IconButton()
             {
@@ -2283,32 +2306,205 @@ writeline and then it's just   going to print out hello on the screen   can't do
             };
             ico_dowload_article.MouseClick += f_browser_download_Article;
 
-            IconButton ico_dowload_link = new IconButton()
+            brow_ico_dowload_link = new IconButton()
             {
                 IconType = IconType.link,
-                Dock = DockStyle.Right,
+                Dock = DockStyle.Left,
                 ToolTipText = "Fetch All URL"
             };
-            ico_dowload_link.MouseClick += f_browser_download_URL;
 
+            brow_ico_dowload_link.MouseClick += (se, ev) =>
+            {
+                var ok = f_browser_download_URL(se, ev);
+                if (ok)
+                {
+                    brow_ico_dowload_link.Visible = false;
+                    brow_ico_download_stop.Visible = true;
+                    brow_ico_download_config.Visible = false;
+                }
+            };
+
+            brow_ico_download_stop.MouseClick += (se, ev) =>
+            {
+                f_browser_download_Stop(se, ev);
+
+                brow_ico_dowload_link.Visible = true;
+                brow_ico_download_stop.Visible = false;
+                brow_ico_download_config.Visible = true;
+            };
+
+            brow_offline_items = new ListBox() {
+                Dock = DockStyle.Left,
+                Width = 199,
+                BorderStyle = BorderStyle.None,
+                BackColor = Color.White,
+            };
+            brow_offline_splitter = new Splitter() {
+                Dock = DockStyle.Left,
+                Width = 3,
+                BackColor = Color.LightGray,
+                MinExtra = 0,
+                MinSize = 0,
+            };
+            brow_offline_items.SelectedIndexChanged += f_browser_offline_articles_selectChanged;
+            brow_offline_items.ValueMember = "Item1";
+            brow_offline_items.DisplayMember = "Item2";
+
+            IconButton ico_offline_open_on_browser = new IconButton()
+            {
+                IconType = IconType.android_globe,
+                Dock = DockStyle.Left,
+                ToolTipText = "Open Article on Browser"
+            };
+            ico_offline_open_on_browser.MouseClick += f_browser_offline_openArticleOnBrowser;
+
+            brow_offline_tools = new Panel()
+            {
+                Dock = DockStyle.Left,
+                Width = 199,
+                //BackColor = Color.Orange,
+                Padding = new Padding(109, 0, 9, 0),
+                Visible = false,
+            };
+            
+            brow_offline_tools.Controls.AddRange(new Control[] {
+                brow_offline_textSearch,
+                ico_offline_open_on_browser,
+            });
+            panel_header.Controls.AddRange(new Control[] {
+                brow_URL_Text,
+                new Label(){ Dock = DockStyle.Left, Width = 5 },
+                brow_ico_download_stop,
+                brow_ico_dowload_link,
+                brow_ico_download_config,
+                //new Label(){ Dock = DockStyle.Right, Width = 5 },
+            });
+            m_tab_Browser.Controls.AddRange(new Control[] {
+                brow_Content,
+                brow_offline_splitter,
+                brow_offline_items,
+                brow_Message_Label,
+                brow_Footer,
+                panel_header,
+                brow_setting,
+            });
             brow_Footer.Controls.AddRange(new Control[] {
+                brow_offline_tools,
                 //brow_word_Input,
-                ico_dowload_link,
-                new Label(){ Dock = DockStyle.Right, Width = 5 },
-                ico_download_config,
                 new Label(){ Dock = DockStyle.Right, Width = 5 },
                 ico_dowload_article,
                 new Label(){ Dock = DockStyle.Right, Width = 5 },
                 ico_dowload_mp3,
-                new Label(){ Dock = DockStyle.Right, Width = 5 },
-                ico_download_stop,
             });
+            brow_setting.BringToFront();
+        }
+
+        public static string f_brow_offline_getHTMLByUrl(string url) {
+            if (dicHtml.ContainsKey(url))
+                return dicHtml[url];
+            return string.Empty;
+        }
+
+        private void f_browser_offline_openArticleOnBrowser(object sender, MouseEventArgs e)
+        {
+            if (brow_offline_mode && !string.IsNullOrEmpty(brow_offline_url_current)) {
+                string url = api_media.f_proxy_getHost() + "?crawler_key=" + HttpUtility.UrlEncode(brow_offline_url_current);
+                System.Diagnostics.Process.Start(url);
+            }
+        }
+
+        private void f_browser_offline_articles_selectChanged(object sender, EventArgs e)
+        {
+            if (brow_offline_mode) {
+                var it = brow_offline_items.SelectedItem as Tuple<string,string>;
+                if (it != null
+                    && dicHtml.ContainsKey(it.Item1)) {
+                    brow_offline_url_current = it.Item1;
+                    f_browser_displayText(dicHtml[brow_offline_url_current]);
+                }
+            }
+        }
+
+        private void f_browser_setting_Save_MouseClick(object sender, MouseEventArgs e)
+        {
+            brow_setting.SendToBack();
+            if (brow_offline_mode) {
+                f_browser_offline_analyticHTMLBySetting();
+            }
+        }
+
+        void f_browser_offline_analyticHTMLBySetting() {
+            if (dicHtml.Count > 0) {
+
+            }
+        }
+
+        void f_browser_offline_bindArticles() {            
+            string name = brow_URL_Text.Text.Trim();
+            brow_Message_Label.Text = name + ": have " + dicHtml.Count + " articles";
+            f_browser_displayText(string.Empty);
+
+            brow_offline_items.Items.Clear();
+
+            string[] a = dicHtml.Keys.ToArray();
+            string url_min = a.Select(x => new oLinkLen { Url = x, Len = x.Length }).MinBy(x => x.Len).Url;
+            if (url_min[url_min.Length - 1] != '/') {
+                string[] aa = url_min.Split('/');
+                url_min = string.Join("/", aa.Where((x, k) => k < aa.Length - 1)) + "/";
+            }
+            brow_offline_url_path = url_min;
+
+            foreach (string it in a)
+            {
+                string tit = it.Replace(url_min, string.Empty).Replace('-',' ');
+                if(tit.Length > 0)
+                    tit = tit[0].ToString().ToUpper() + tit.Substring(1);
+                brow_offline_items.Items.Add(new Tuple<string, string>(it, tit));
+            }
+        }
+
+        void f_browser_displayText(string s)
+        {
+            brow_Content.Text = s;
+            brow_Content.SelectAll();
+            brow_Content.SelectionParaSpacing = new RTBParaSpacing(0, 150);
+            brow_Content.Select(0, 0);
+        }
+
+        void f_browser_offline_OpenFile(object sender, MouseEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            openFileDialog.InitialDirectory = Path.Combine(Application.StartupPath, "package");
+            openFileDialog.Filter = "htm files (*.htm)|*.htm|All files (*.*)|*.*";
+            openFileDialog.FilterIndex = 2;
+            openFileDialog.RestoreDirectory = true;
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                brow_offline_mode = true;
+                brow_offline_tools.Visible = true;
+
+                string fi_name = openFileDialog.FileName;
+                string name = Path.GetFileName(fi_name);
+                brow_URL_Text.Text = name;
+                brow_URL_Text.Tag = fi_name;
+
+                using (var file = File.OpenRead(fi_name))
+                {
+                    dicHtml = Serializer.Deserialize<ConcurrentDictionary<string, string>>(file);
+                    file.Close();
+                }
+
+                f_browser_offline_bindArticles();
+            }
         }
 
         Dictionary<string, string> f_browser_get_Setting()
         {
+            string url = brow_URL_Text.Text.Trim();
             Dictionary<string, string> rs = new Dictionary<string, string>() {
-                { "URL", brow_URL_Text.Text.Trim() }
+                { "URL", url }
             };
             foreach (Control ti in brow_setting.Controls)
                 if (ti is TextBox && ti.Tag != null && !string.IsNullOrEmpty(ti.Text))
@@ -2322,19 +2518,29 @@ writeline and then it's just   going to print out hello on the screen   can't do
         bool f_browser_validBeforAction()
         {
             brow_Message_Label.Text = string.Empty;
+            string url = brow_URL_Text.Text.Trim();
+
+            if (!url.ToLower().StartsWith("http://") && !url.ToLower().StartsWith("https://"))
+            {
+                brow_Message_Label.Text = "URL invalid!";
+                return false;
+            }
 
             Uri uri;
-            if (brow_URL_Text.Text.Trim().Length > 0 && Uri.TryCreate(brow_URL_Text.Text.Trim(), UriKind.RelativeOrAbsolute, out uri))
+            if (url.Length > 0 && Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out uri))
             {
-                brow_URL = brow_URL_Text.Text.Trim();
+                brow_URL = url;
                 var cf = f_browser_get_Setting();
-                if (!cf.ContainsKey("URL")) // || !cf.ContainsKey("START_URL") )//|| !cf.ContainsKey("PARA1") || !cf.ContainsKey("PARA2"))
+                if (!cf.ContainsKey("URL")) // || !cf.ContainsKey("URL_CONTIANS") )//|| !cf.ContainsKey("PARA1") || !cf.ContainsKey("PARA2"))
                 {
                     brow_Message_Label.Text = "Please setting !";
                     f_browser_download_Setting(null, null);
                 }
                 else
                 {
+                    brow_offline_tools.Visible = false;
+                    brow_Content.Text = string.Empty;
+                    brow_offline_mode = true;
                     return true;
                 }
             }
@@ -2354,12 +2560,19 @@ writeline and then it's just   going to print out hello on the screen   can't do
 
         private void f_browser_download_Stop(object sender, MouseEventArgs e)
         {
+            app.postToAPI(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_STOP });
         }
 
         private void f_browser_download_Setting(object sender, MouseEventArgs e)
         {
-            brow_setting.Visible = true;
-            brow_setting.BringToFront();
+            if (brow_setting.Visible == false)
+            {
+                brow_setting.Visible = true;
+                brow_setting.BringToFront();
+            }
+            else {
+                brow_setting.Visible = false;
+            }
         }
 
         private void f_browser_download_Article(object sender, MouseEventArgs e)
@@ -2370,14 +2583,25 @@ writeline and then it's just   going to print out hello on the screen   can't do
             }
         }
 
-        private void f_browser_download_URL(object sender, MouseEventArgs e)
+        private bool f_browser_download_URL(object sender, MouseEventArgs e)
         {
             if (f_browser_validBeforAction())
             {
                 string[] auri = brow_URL.Split('/');
                 string uri_root = string.Join("/", auri.Where((x, k) => k < 3).ToArray());
-                app.postToAPI(new msg() { API = _API.CRAWLER, KEY = _API.CRAWLER_KEY_REGISTER_PATH, Input = brow_URL });
+                app.postToAPI(new msg()
+                {
+                    API = _API.CRAWLER,
+                    KEY = _API.CRAWLER_KEY_REGISTER_PATH,
+                    Input = new oLinkSetting()
+                    {
+                        Url = brow_URL,
+                        Settings = f_browser_get_Setting(),
+                    }
+                });
+                return true;
             }
+            return false;
         }
 
         private void f_browser_download_MP3(object sender, MouseEventArgs e)
@@ -2485,12 +2709,33 @@ writeline and then it's just   going to print out hello on the screen   can't do
         void f_brow_analytic_HTML()
         {
             string s = api_media.f_article_analytic_HTML(brow_URL, brow_HTML);
-            brow_Content.Text = s;
-            brow_Content.SelectAll();
-            brow_Content.SelectionParaSpacing = new RTBParaSpacing(0, 150);
-            brow_Content.Select(0, 0);
+            f_browser_displayText(s);
         }
 
+
+        void f_brow_update_UI_fromResponseAPI(msg m)
+        {
+
+            switch (m.KEY)
+            {
+                case _API.CRAWLER_KEY_REQUEST_LINK:
+                    brow_Message_Label.crossThreadPerformSafely(() =>
+                    {
+                        brow_Message_Label.Text = m.Log;
+                    });
+                    break;
+                case _API.CRAWLER_KEY_REQUEST_LINK_COMPLETE:
+                    this.Invoke((Action)(() =>
+                    {
+                        brow_ico_dowload_link.Visible = true;
+                        brow_ico_download_stop.Visible = false;
+                        brow_ico_download_config.Visible = true;
+                        brow_Content.Text = string.Join(Environment.NewLine, m.Input as string[]);
+                    }));
+                    break;
+            }
+
+        }
         #endregion
 
         #region [ FORM MOVE ]
@@ -2668,18 +2913,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                         break;
                     #endregion
                     case _API.CRAWLER:
-                        switch (m.KEY) {
-                            case _API.CRAWLER_KEY_REQUEST_LINK:
-                                brow_Message_Label.crossThreadPerformSafely(() => {
-                                    brow_Message_Label.Text = m.Log;
-                                });
-                                break;
-                            case _API.CRAWLER_KEY_REQUEST_LINK_COMPLETE:
-                                brow_Content.crossThreadPerformSafely(() => {
-                                    brow_Content.Text = string.Join(Environment.NewLine, m.Input as string[]);
-                                });
-                                break;
-                        }
+                        f_brow_update_UI_fromResponseAPI(m);
                         break;
                 }
             }

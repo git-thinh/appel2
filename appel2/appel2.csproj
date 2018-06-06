@@ -88,14 +88,17 @@
     <Reference Include="System.Net.Http.Extensions, Version=2.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>LIB\DLL\System.Net.Http.Extensions.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System.Net.Http.Primitives, Version=2.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>LIB\DLL\System.Net.Http.Primitives.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System.Net.Http.WebRequest, Version=2.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>LIB\DLL\System.Net.Http.WebRequest.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
@@ -257,6 +260,7 @@
     <Compile Include="LIB\LineNumbersForRichText.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="LIB\LinqExt.cs" />
     <Compile Include="LIB\ProtoBuf\BclHelpers.cs" />
     <Compile Include="LIB\ProtoBuf\BufferExtension.cs" />
     <Compile Include="LIB\ProtoBuf\BufferPool.cs" />
