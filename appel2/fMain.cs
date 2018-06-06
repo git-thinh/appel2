@@ -9,6 +9,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -24,6 +25,8 @@ namespace appel
 {
     public class fMain : Form, IFORM
     {
+        const TAB_DEFAULT tab_default = TAB_DEFAULT.DOCUMENT;
+
         string test_url = string.Empty;
         string test_URL_CONTIANS = string.Empty;
         //string test_url = "http://vietjack.com/ngu-phap-tieng-anh/index.jsp";
@@ -87,6 +90,33 @@ namespace appel
             wd_media.enableContextMenu = false;
 
             m_search_Input.Focus();
+
+            switch (tab_default) {
+                case TAB_DEFAULT.DOCUMENT:
+                    m_tab.SelectedItem = m_tab_Browser;
+                    break;
+                case TAB_DEFAULT.GRAMMAR:
+                    m_tab.SelectedItem = m_tab_Grammar;
+                    break;
+                case TAB_DEFAULT.MEDIA:
+                    m_tab.SelectedItem = m_tab_Store;
+                    break;
+                case TAB_DEFAULT.PRONUNCE:
+                    m_tab.SelectedItem = m_tab_Pronunce;
+                    break;
+                case TAB_DEFAULT.SEARCH:
+                    m_tab.SelectedItem = m_tab_Search;
+                    break;
+                case TAB_DEFAULT.WORD:
+                    m_tab.SelectedItem = m_tab_Word;
+                    break;
+                case TAB_DEFAULT.WORD_DETAIL:
+                    m_tab.SelectedItem = m_tab_WordDetail;
+                    break;
+                case TAB_DEFAULT.WRITER:
+                    m_tab.SelectedItem = m_tab_Writer;
+                    break;
+            }
         }
 
         public void for_test()
@@ -2372,10 +2402,7 @@ writeline and then it's just   going to print out hello on the screen   can't do
                 Visible = false,
             };
 
-            brow_offline_Web = new WebBrowser()
-            {
-                Dock = DockStyle.Fill,
-            };
+            f_browser_initIE();
 
             FATabStrip tab_offline_view = new FATabStrip()
             {
@@ -2423,6 +2450,28 @@ writeline and then it's just   going to print out hello on the screen   can't do
             });
             brow_setting.BringToFront();
         }
+
+        void f_browser_initIE() { 
+            brow_offline_Web = new WebBrowser()
+            {
+                Dock = DockStyle.Fill,
+            };
+            brow_offline_Web.Navigated += f_browser_offline_Web_Navigated;
+        }
+
+        private void f_browser_offline_Web_Navigated(object sender, WebBrowserNavigatedEventArgs e)
+        {
+            f_browser_offline_Web_HideScriptErrors(brow_offline_Web, true);
+        }
+
+        public void f_browser_offline_Web_HideScriptErrors(WebBrowser wb, bool Hide)
+        { 
+            FieldInfo fiComWebBrowser = typeof(WebBrowser).GetField("_axIWebBrowser2", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (fiComWebBrowser == null) return;
+            object objComWebBrowser = fiComWebBrowser.GetValue(wb);
+            if (objComWebBrowser == null) return;
+            objComWebBrowser.GetType().InvokeMember( "Silent", BindingFlags.SetProperty, null, objComWebBrowser, new object[] { Hide });
+        } 
 
         public static string f_brow_offline_getHTMLByUrl(string url)
         {
@@ -2984,5 +3033,16 @@ writeline and then it's just   going to print out hello on the screen   can't do
             f_pronunce_initUI();
         }
 
+    }
+
+    enum TAB_DEFAULT {
+        MEDIA,
+        SEARCH,
+        PRONUNCE,
+        WRITER,
+        GRAMMAR,
+        WORD,
+        WORD_DETAIL,
+        DOCUMENT,
     }
 }

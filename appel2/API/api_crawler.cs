@@ -394,11 +394,22 @@ namespace appel
                     if (File.Exists(fi_name))
                         File.Delete(fi_name);
 
-                    using (var file = File.Create(fi_name))
+                    // Using Protobuf-net, I suddenly got an exception about an unknown wire-type
+                    // https://stackoverflow.com/questions/2152978/using-protobuf-net-i-suddenly-got-an-exception-about-an-unknown-wire-type
+                    using (var file = new FileStream(fi_name, FileMode.Truncate))
                     {
+                        // write
                         Serializer.Serialize<ConcurrentDictionary<string, string>>(file, dicHtml);
-                        file.Close();
+
+                        // SetLength after writing your data:
+                        // file.SetLength(file.Position);
                     }
+
+                    //using (var file = File.Create(fi_name))
+                    //{
+                    //    Serializer.Serialize<ConcurrentDictionary<string, string>>(file, dicHtml);
+                    //    file.Close();
+                    //}
                     dicHtml.Clear();
                 }
             }

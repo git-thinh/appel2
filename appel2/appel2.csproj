@@ -66,6 +66,11 @@
       <HintPath>LIB\DLL\Interop.WMPLib.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
+    <Reference Include="Microsoft.mshtml, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>LIB\DLL\Microsoft.mshtml.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>LIB\DLL\Newtonsoft.Json.dll</HintPath>
@@ -457,6 +462,8 @@
       <Link>demo.html</Link>
     </Content>
     <Content Include="favicon.ico" />
+    <EmbeddedResource Include="LIB\DLL\Microsoft.mshtml.dll" />
+    <Content Include="Node.txt" />
     <Content Include="result.html" />
     <EmbeddedResource Include="LIB\DLL\SuperSocket.ClientEngine.dll" />
     <EmbeddedResource Include="LIB\DLL\WebSocket4Net.dll" />
