@@ -2225,7 +2225,8 @@ namespace appel
         string f_proxy_getUriProxy(long mediaId, MEDIA_TYPE type)
         {
             string key = string.Format("{0}{1}", type, mediaId);
-            return string.Format("http://localhost:{0}/?key={1}", m_port, key);
+            string url = string.Format("http://localhost:{0}/?key={1}", m_port, key);
+            return url;
         }
 
         void proxy_Close()
